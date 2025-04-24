@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="120px" height="40px" viewBox="0 0 120 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Quizo Logo</title>
+    <defs>
+        <linearGradient x1="0%" y1="0%" x2="100%" y2="0%" id="quizoGradient">
+            <stop stop-color="#4DD4F4" offset="0%"></stop>
+            <stop stop-color="#4067F4" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <path d="M20,8 C25.5228475,8 30,12.4771525 30,18 C30,23.5228475 25.5228475,28 20,28 C14.4771525,28 10,23.5228475 10,18 C10,12.4771525 14.4771525,8 20,8 Z M20,12 C16.6862915,12 14,14.6862915 14,18 C14,21.3137085 16.6862915,24 20,24 C23.3137085,24 26,21.3137085 26,18 C26,14.6862915 23.3137085,12 20,12 Z" fill="url(#quizoGradient)"></path>
+        <path d="M40,12 L45,12 L45,24 L40,24 L40,12 Z M48,12 L53,12 L53,24 L48,24 L48,12 Z M56,12 L68,12 L68,16 L61,16 L61,24 L56,24 L56,12 Z M70,12 L82,12 L82,16 L75,16 L75,16.5 L82,16.5 L82,24 L70,24 L70,20 L77,20 L77,19.5 L70,19.5 L70,12 Z M84,12 L96,12 L96,16 L89,16 L89,16.5 L96,16.5 L96,24 L84,24 L84,20 L91,20 L91,19.5 L84,19.5 L84,12 Z" fill="url(#quizoGradient)"></path>
+    </g>
+</svg>

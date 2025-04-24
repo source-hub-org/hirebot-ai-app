@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+@utility quiz-card {
+  background-color: white;
+  border-radius: 1rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  padding: 2rem;
+  max-width: 56rem;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  z-index: 10;
+}
+
+@utility quiz-option {
+  background-color: white;
+  border-radius: 0.75rem;
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s;
+  border: 1px solid #e5e7eb;
+}
+
+@utility quiz-option-radio {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid #93c5fd;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@utility quiz-option-radio-checked {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 9999px;
+  background: linear-gradient(to right, var(--color-primary-light), var(--color-primary));
+}
+
+@utility timer-badge {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border-radius: 9999px;
+  padding: 0.5rem 1rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  color: transparent;
+  background-clip: text;
+  background-image: linear-gradient(to right, var(--color-primary-light), var(--color-primary));
+}
+
+@utility next-button {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background-image: linear-gradient(to right, var(--color-primary-light), var(--color-primary));
+  color: white;
+  text-transform: uppercase;
+  padding: 0.75rem 2rem;
+  border-radius: 9999px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  transition: filter 0.2s, transform 0.2s;
+}
+
+@utility progress-bar {
+  height: 0.25rem;
+  border-radius: 0.125rem;
+  background-color: #e5e7eb;
+  overflow: hidden;
+}
+
+@utility progress-bar-fill {
+  height: 100%;
+  background-image: linear-gradient(to right, var(--color-primary-light), var(--color-primary));
+}
