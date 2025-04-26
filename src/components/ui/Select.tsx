@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { validateField } from '@/helpers/validation';
 
 type SelectProps = {
@@ -12,6 +12,7 @@ type SelectProps = {
   context?: { title?: string };
   options: Array<{ value: string; label: string }>;
   className?: string;
+  forceValidate?: boolean;
 };
 
 export const Select = ({
@@ -24,14 +25,32 @@ export const Select = ({
   rules = [],
   context,
   options,
-  className = ''
+  className = '',
+  forceValidate = false
 }: SelectProps) => {
+  const [errorState, setError] = useState(error || '');
+  const [internalValue, setInternalValue] = useState(value);
+
+  useEffect(() => {
+    setInternalValue(value);
+  }, [value]);
+
+  useEffect(() => {
+    if (forceValidate && rules.length > 0) {
+      const errorMsg = validateField(internalValue, rules, { title: label });
+      setError(errorMsg);
+    }
+  }, [forceValidate, internalValue]);
+
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newValue = e.target.value;
+    setInternalValue(newValue);
     onChange(e);
     
-    if (onValidate && rules.length > 0) {
-      const error = validateField(e.target.value, rules, context);
-      onValidate(error);
+    if (rules.length > 0) {
+      const errorMsg = validateField(newValue, rules, context);
+      setError(errorMsg);
+      onValidate?.(errorMsg);
     }
   };
 
@@ -40,23 +59,22 @@ export const Select = ({
       {label && (
         <label className="block text-sm font-medium mb-2">
           {label}
-          {rules.includes('required') && <span className="text-red-500">*</span>}
+          {rules?.includes('required') && <span className="text-red-500">*</span>}
         </label>
       )}
       <select
         name={name}
-        value={value}
+        value={internalValue}
         onChange={handleChange}
-        className={`w-full p-2 border rounded ${error ? 'border-red-500' : ''} ${className}`}
+        className={`w-full p-2 border rounded ${errorState ? 'border-red-500' : ''} ${className}`}
       >
-        <option value="">Chọn {label?.toLowerCase()}</option>
         {options.map(option => (
           <option key={option.value} value={option.value}>
             {option.label}
           </option>
         ))}
       </select>
-      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+      {errorState && <div className="text-red-500 text-sm">{errorState}</div>}
     </div>
   );
 };

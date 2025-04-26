@@ -1,58 +1,135 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import apiClient from './apiClient';
-import { Candidate } from '@/types/candidate';
+import { Candidate, CandidateDetail, CandidatesResponse } from '@/types/candidate';
+import { Topic } from '@/types/topic';
 
+interface ApiError {
+  message: string;
+  status?: number;
+  data?: any;
+}
+
+interface ApiResponse<T> {
+  data?: T;
+  error?: ApiError;
+  success: boolean;
+  message?: string;
+  pagination?: {
+    total: number;
+    page: number;
+    page_size: number;
+    total_pages: number;
+  };
+}
 
 type CreateCandidateDto = Omit<Candidate, 'id'>;
 
 const candidateService = {
-  async getCandidates(): Promise<Candidate[]> {
+  /**
+   * Fetches all candidates with optional query parameters
+   * @param params Query parameters for filtering candidates
+   * @returns Promise resolving to array of Candidate objects
+   */
+  async getCandidates(params = {}): Promise<CandidatesResponse> {
     try {
-      const response = await apiClient.get('/api/candidates');
-      return response.data;
+      const response = await apiClient.get<ApiResponse<Candidate[]>>('/api/candidates', { params });
+      return {
+        success: response.data?.success ?? true,
+        data: response.data?.data || [],
+        pagination: response.data?.pagination || {
+          total: 0,
+          page: 1,
+          page_size: 10,
+          total_pages: 1
+        }
+      };
     } catch (error) {
-      console.error('Error fetching candidates:', error);
-      throw error;
+      const axiosError = error as AxiosError<ApiResponse<Candidate[]>>;
+      console.error('Error fetching candidates:', axiosError.response?.data?.error);
+      throw new Error(axiosError.response?.data?.error?.message || 'Failed to fetch candidates');
     }
   },
 
-  async getCandidateById(id: string): Promise<Candidate> {
+  /**
+   * Fetches a single candidate by ID
+   * @param id Candidate ID
+   * @returns Promise resolving to Candidate object
+   */
+  async getCandidateById(id: string): Promise<ApiResponse<CandidateDetail>> {
     try {
-      const response = await apiClient.get(`/api/candidates/${id}`);
+      const response = await apiClient.get<ApiResponse<CandidateDetail>>(`/api/candidates/${id}`);
       return response.data;
     } catch (error) {
-      console.error(`Error fetching candidate ${id}:`, error);
-      throw error;
+      const axiosError = error as AxiosError<ApiResponse<CandidateDetail>>;
+      console.error('Error fetching candidate:', axiosError.response?.data?.error);
+      throw new Error(axiosError.response?.data?.error?.message || 'Failed to fetch candidate');
     }
   },
 
-  async createCandidate(candidateData: CreateCandidateDto): Promise<Candidate> {
+  /**
+   * Creates a new candidate
+   * @param candidateData Candidate data without ID
+   * @returns Promise resolving to created Candidate object
+   */
+  async createCandidate(candidateData: CreateCandidateDto): Promise<ApiResponse<CandidateDetail>> {
     try {
-      const response = await apiClient.post('/api/candidates', candidateData);
+      const response = await apiClient.post<ApiResponse<CandidateDetail>>('/api/candidates', candidateData);
       return response.data;
     } catch (error) {
-      console.error('Error creating candidate:', error);
-      
-      throw new Error(error?.response?.data?.error);
+      const axiosError = error as AxiosError<ApiResponse<CandidateDetail>>;
+      console.error('Error creating candidate:', axiosError.response?.data?.error);
+      throw new Error(axiosError.response?.data?.error?.message || 'Failed to create candidate');
     }
   },
 
+  /**
+   * Updates an existing candidate
+   * @param id Candidate ID to update
+   * @param candidateData Partial candidate data to update
+   * @returns Promise resolving to updated Candidate object
+   */
   async updateCandidate(id: string, candidateData: Partial<CreateCandidateDto>): Promise<Candidate> {
     try {
-      const response = await apiClient.put(`/api/candidates/${id}`, candidateData);
-      return response.data;
+      const response = await apiClient.patch<ApiResponse<Candidate>>(`/api/candidates/${id}`, candidateData);
+      if (!response.data?.data) {
+        throw new Error('Failed to update candidate');
+      }
+      return response.data.data;
     } catch (error) {
-      console.error(`Error updating candidate ${id}:`, error);
-      throw error;
+      const axiosError = error as AxiosError<ApiResponse<Candidate>>;
+      console.error('Error updating candidate:', axiosError.response?.data?.error);
+      throw new Error(axiosError.response?.data?.error?.message || 'Failed to update candidate');
     }
   },
 
+  /**
+   * Deletes a candidate by ID
+   * @param id Candidate ID to delete
+   * @returns Promise resolving when deletion is complete
+   */
   async deleteCandidate(id: string): Promise<void> {
     try {
       await apiClient.delete(`/api/candidates/${id}`);
     } catch (error) {
-      console.error(`Error deleting candidate ${id}:`, error);
-      throw error;
+      const axiosError = error as AxiosError<ApiResponse<void>>;
+      console.error('Error deleting candidate:', axiosError.response?.data?.error);
+      throw new Error(axiosError.response?.data?.error?.message || 'Failed to delete candidate');
+    }
+  },
+
+  /**
+   * Fetches topics for a candidate by ID
+   * @param candidateId Candidate ID
+   * @returns Promise resolving to array of Topic objects
+   */
+  async getTopics(): Promise<ApiResponse<Topic[]>> {
+    try {
+      const response = await apiClient.get<ApiResponse<Topic[]>>(`/api/topics`);
+      return response.data;
+    } catch (error) {
+      const axiosError = error as AxiosError<ApiResponse<Topic[]>>;
+      console.error('Error fetching topics:', axiosError.response?.data?.error);
+      throw new Error(axiosError.response?.data?.error?.message || 'Failed to fetch topics');
     }
   }
 };

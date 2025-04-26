@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { validateField } from '@/helpers/validation';
 
 type InputProps = {
@@ -6,15 +6,14 @@ type InputProps = {
   name: string;
   value: string | number;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onValidate?: (error: string) => void;
   label?: string;
   placeholder?: string;
-  error?: string;
   rules?: Array<'required' | 'number' | { min: number } | { max: number } | any>;
   context?: { title?: string };
   min?: number;
   max?: number;
   className?: string;
+  forceValidate?: boolean;
 };
 
 export const Input = ({
@@ -22,22 +21,30 @@ export const Input = ({
   name,
   value,
   onChange,
-  onValidate,
   label,
   placeholder,
-  error,
   rules = [],
   context,
   min,
   max,
-  className = ''
+  className = '',
+  forceValidate = false
 }: InputProps) => {
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (forceValidate && rules.length > 0) {
+      const errorMsg = validateField(value, rules, context);
+      setError(errorMsg);
+    }
+  }, [forceValidate]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(e);
     
-    if (onValidate && rules.length > 0) {
+    if (rules.length > 0) {
       const errorMsg = validateField(e.target.value, rules, context);
-      onValidate(errorMsg);
+      setError(errorMsg);
     }
   };
 
@@ -46,7 +53,7 @@ export const Input = ({
       {label && (
         <label className="block text-sm font-medium mb-2">
           {label}
-          {rules.includes('required') && <span className="text-red-500">*</span>}
+          {rules?.includes('required') && <span className="text-red-500">*</span>}
         </label>
       )}
       <input

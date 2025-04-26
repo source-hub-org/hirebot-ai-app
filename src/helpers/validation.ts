@@ -68,7 +68,7 @@ const max = (value: number, maxValue: number, fieldName?: string): ValidationRes
 });
 
 export const validateField = (
-  value: string,
+  value: string | number,
   rules: ValidationRule[],
   context: ValidationContext = {}
 ): string => {
@@ -78,7 +78,7 @@ export const validateField = (
     if (typeof rule === 'string') {
       switch (rule) {
         case 'required':
-          if (!value.trim()) {
+          if (value && !value.toString().trim()) {
             return context.title ? `${context.title} là bắt buộc` : 'Trường này là bắt buộc';
           }
           break;
@@ -88,12 +88,12 @@ export const validateField = (
           }
           break;
         case 'phone':
-          if (!/^(0|\+84)[1-9][0-9]{8}$/.test(value)) {
+          if (!/^(0|\+84)[1-9][0-9]{8}$/.test(value.toString())) {
             return context.title ? `${context.title} không hợp lệ` : 'Số điện thoại không hợp lệ';
           }
           break;
         case 'email':
-          if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+          if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.toString())) {
             return context.title ? `${context.title} không hợp lệ` : 'Email không hợp lệ';
           }
           break;

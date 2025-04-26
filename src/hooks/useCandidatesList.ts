@@ -9,17 +9,17 @@ export const useCandidates = () => {
   
   const [pagination, setPagination] = useState({
     currentPage: 1,
-    itemsPerPage: 10,
+    itemsPerPage: 5,
     totalPages: 0,
     total: 0
   });
   
   const [showLoading, setShowLoading] = useState(false);
 
-  const fetchCandidates = async (page = 1, pageSize = 10) => {
+  const fetchCandidates = async (page = 1, pageSize = 5) => {
     try {
       setLoading(true);
-      const response: CandidatesResponse = await candidateService.getCandidates();
+      const response: CandidatesResponse = await candidateService.getCandidates({page,page_size: pageSize});
       setCandidates(response.data);
       
       setPagination({
@@ -43,11 +43,6 @@ export const useCandidates = () => {
 
   const paginate = (pageNumber: number) => {
     if (pageNumber < 1 || pageNumber > pagination.totalPages) return;
-    setPagination(prev => ({
-      ...prev,
-      currentPage: pageNumber,
-      currentItems: prev.allPages[pageNumber - 1] || []
-    }));
     fetchCandidates(pageNumber)
   };
 

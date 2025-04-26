@@ -1,15 +1,26 @@
 export type Candidate = {
-  id?: string;
-  full_name: string;
-  email: string;
-  phone_number: string;
-  interview_level: string;
-  gender: string;
+  _id?: string;
+  full_name?: string;
+  email?: string;
+  phone_number?: string;
+  interview_level?: string;
+  gender?: string;
   skills?: string[];
   programming_languages?: string[];
-  preferred_stack: string ;
-  status?: 'pending' | 'interviewed' | 'hired' | 'rejected';
+  preferred_stack?: string;
+  status?: string;
   date?: string;
+};
+
+export type Answer = {
+  questionId: string;
+  answer: string;
+  score?: number;
+  feedback?: string;
+};
+
+export type CandidateDetail = Candidate & {
+  answers: Answer[];
 };
 
 export type CandidatesResponse = {
@@ -22,3 +33,10 @@ export type CandidatesResponse = {
     total_pages: number;
   };
 };
+export type Topic = {
+  title: string,
+  difficulty: number,
+  popularity: string,
+  suitable_level: string,
+  description: string
+}

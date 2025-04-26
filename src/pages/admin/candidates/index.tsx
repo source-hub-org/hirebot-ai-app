@@ -2,13 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Head from 'next/head';
-import { formatDate } from '@/helpers/date';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { Button, Spinner } from '@/components/ui';
-import { useCandidates } from '@/composables/useCandidates';
+import { useCandidates } from '@/hooks/useCandidatesList';
 import { CreateCandidateModal } from '@/components/modals/CreateCandidateModal';
-import { Candidate } from '@/types/candidate';
-import candidateService from '@/services/candidateService';
 
 export default function CandidatesList() {
   const router = useRouter();
@@ -34,16 +30,6 @@ export default function CandidatesList() {
 
   const handleCreateSession = () => {
     setShowModal(true);
-  };
-
-  const handleCandidateSubmit = async (candidateData: Candidate) => {
-    try {
-      const result = await candidateService.createCandidate(candidateData);
-      router.push('/admin/sessions/new');
-    } catch (error) {
-      console.error('Failed to create candidate:', error);
-      // Handle error (show toast/notification)
-    }
   };
 
   return (
@@ -111,16 +97,16 @@ export default function CandidatesList() {
                 </thead>
                 <tbody>
                   {candidates.map((candidate, index) => (
-                    <tr key={candidate.id} className="border-b hover:bg-gray-50">
+                    <tr key={candidate._id} className="border-b hover:bg-gray-50">
                       <td className="py-3 px-4">{index + 1}</td>
                       <td className="py-3 px-4">{candidate.full_name}</td>
                       <td className="py-3 px-4">{candidate.interview_level}</td>
                       <td className="py-3 px-4">
-                        <StatusBadge status={candidate.status} />
+                        <StatusBadge status={candidate.status as 'pending' | 'interviewed' | 'hired' | 'rejected'} />
                       </td>
                       <td className="py-3 px-4">{candidate.date}</td>
                       <td className="py-3 px-4">
-                        <Link href={`/admin/candidates/${candidate.id}`}>
+                        <Link href={`/admin/candidates/${candidate._id}`}>
                           <button className="text-primary hover:underline">Xem chi tiết</button>
                         </Link>
                       </td>
@@ -139,7 +125,7 @@ export default function CandidatesList() {
             </div>
 
             {/* Pagination */}
-            {pagination.total > pagination.totalPages ?
+            {pagination.total > pagination.itemsPerPage ?
               <div className="flex justify-center mt-6">
                 <nav>
                   <ul className="flex">
