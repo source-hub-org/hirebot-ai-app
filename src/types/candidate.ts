@@ -9,7 +9,8 @@ export type Candidate = {
   programming_languages?: string[];
   preferred_stack?: string;
   status?: string;
-  date?: string;
+  created_at?: string;
+  updated_at?: string;
 };
 
 export type Answer = {
@@ -17,7 +18,6 @@ export type Answer = {
   answer: string;
   score?: number;
   feedback?: string;
-  question?: any;
   category: string;
   options: string[],
   position: string,

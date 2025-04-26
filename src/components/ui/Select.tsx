@@ -37,10 +37,11 @@ export const Select = ({
 
   useEffect(() => {
     if (forceValidate && rules.length > 0) {
-      const errorMsg = validateField(internalValue, rules, { title: label });
+      const valueToValidate = internalValue || '';
+      const errorMsg = validateField(valueToValidate, rules, { title: label });
       setError(errorMsg);
     }
-  }, [forceValidate, internalValue]);
+  }, [forceValidate, rules, internalValue, label]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newValue = e.target.value;

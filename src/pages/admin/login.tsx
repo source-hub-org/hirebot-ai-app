@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 
 export default function AdminLogin() {
   const router = useRouter();
@@ -87,7 +88,7 @@ export default function AdminLogin() {
           </form>
           
           <div className="mt-6 text-sm">
-            <a href="/" className="text-primary hover:underline">Quay về trang chủ</a>
+            <Link href="/" className="text-primary hover:underline">Quay về trang chủ</Link>
           </div>
         </div>
       </div>

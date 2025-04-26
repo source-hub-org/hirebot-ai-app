@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/stores/store';
 import { LEVEL_OPTIONS } from '@/constants/candidate';
@@ -15,9 +15,9 @@ export const useSessionForm = () => {
   const [topicOptions, setTopicOptions] = useState<{value: string, label: string}[]>([]);
   const storedTopics = useSelector((state: RootState) => state.candidateDetail.topics);
 
-  const changeLevel = (value: string) => {
+  const changeLevel = useCallback((level: string) => {
     const newFilteredTopics = storedTopics?.filter(topic => 
-      topic.suitable_level === value
+      topic.suitable_level === level
     ) || [];
     
     const newTopicOptions = newFilteredTopics.map(topic => ({
@@ -33,7 +33,7 @@ export const useSessionForm = () => {
         topic: newTopicOptions[0].value
       }));
     }
-  };
+  }, [storedTopics]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -61,7 +61,7 @@ export const useSessionForm = () => {
     if (storedTopics) {
       changeLevel(formData.level);
     }
-  }, [storedTopics]);
+  }, [storedTopics, formData.level, changeLevel]);
 
   return {
     formData,
