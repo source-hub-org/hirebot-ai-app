@@ -25,7 +25,7 @@ export const CreateCandidateModal = ({ isOpen, onClose, onCreateSuccess }: Props
     full_name: '',
     email: '',
     phone_number: '',
-    interview_level: '',
+    interview_level: 'intern',
     skills: []
   });
   const [loading, setLoading] = useState(false);
