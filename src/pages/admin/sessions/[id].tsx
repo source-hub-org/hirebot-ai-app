@@ -194,7 +194,7 @@ const SessionPage = ({ params }: { params: { id?: string } }) => {
               type="button"
               className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
               disabled={!storedCandidate.answers?.length}
-              onClick={() => router.push(`/admin/questions`)}
+              onClick={() => router.push(`/admin/sessions/interview`)}
             >
               Tạo phiên thi
             </button>

@@ -13,16 +13,24 @@ export type Candidate = {
 };
 
 export type Answer = {
-  questionId: string;
-  answer: string;
+  _id?: string;
+  questionId?: string;
+  content: string;
+  options: string[];
+  correctAnswer: number;
+  selectedAnswer?: number;
+  otherAnswer?: string;
+  language: string;
+  level: string;
+  category: string;
+  explanation?: string;
+  difficulty?: string;
+  topic?: string;
+  position?: string;
+  positionLevel?: number;
   score?: number;
   feedback?: string;
   question?: any;
-  category: string;
-  options: string[],
-  position: string,
-  positionLevel: string,
-  topic: string
 };
 
 export type CandidateDetail = Candidate & {
