@@ -6,7 +6,6 @@ import candidateDetailReducer from './candidateDetailSlice';
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['candidateDetail'] // only candidateDetail will be persisted
 };
 
 const persistedReducer = persistReducer(persistConfig, candidateDetailReducer);
