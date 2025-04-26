@@ -17,6 +17,12 @@ export type Answer = {
   answer: string;
   score?: number;
   feedback?: string;
+  question?: any;
+  category: string;
+  options: string[],
+  position: string,
+  positionLevel: string,
+  topic: string
 };
 
 export type CandidateDetail = Candidate & {

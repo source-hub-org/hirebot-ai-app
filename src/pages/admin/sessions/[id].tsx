@@ -13,6 +13,7 @@ import { Session } from '@/types/session';
 import questionService from '@/services/questionService';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Answer } from '@/types/candidate';
 
 const SessionPage = ({ params }: { params: { id?: string } }) => {
   const [isClient, setIsClient] = useState(false);
@@ -84,11 +85,8 @@ const SessionPage = ({ params }: { params: { id?: string } }) => {
         return;
       }
       // Save questions to candidate answers
-      questionsResponse.data.forEach((question: { _id: string }) => {
-        store.dispatch(addAnswer({
-          questionId: question._id,
-          answer: ''
-        }));
+      questionsResponse.data.forEach((question: Answer) => {
+        store.dispatch(addAnswer(question));
       });
       
       const newSession: Session = {
