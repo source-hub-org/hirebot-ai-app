@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-
 
 export default function Home() {
   const router = useRouter();
@@ -21,7 +20,9 @@ export default function Home() {
     // In a real app, we would validate the session token with the server
     router.push(`/quiz/${sessionToken}`);
   };
-  
+  useEffect(() => {
+    router.push('/admin/candidates');
+  }, [router]);
   return (
     <div className="min-h-screen py-10 px-4">
       {/* Wave pattern background */}

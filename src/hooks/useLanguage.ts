@@ -15,6 +15,7 @@ export const useLanguages = (autoFetch = true) => {
       setIsLoading(true);
       setError(null);
       const response = await languageService.getLanguages();
+
       dispatch(setLanguages(response.data as Language[]));
     } catch (err) {
       setError('Failed to load languages');

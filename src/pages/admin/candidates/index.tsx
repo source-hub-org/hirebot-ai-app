@@ -7,7 +7,6 @@ import { useCandidates } from '@/hooks/useCandidatesList';
 import { CreateCandidateModal } from '@/components/modals/CreateCandidateModal';
 import {formatDate} from '@/helpers/date';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-import { useLanguages } from '@/hooks/useLanguage';
 
 export default function CandidatesList() {
   const router = useRouter();
@@ -20,7 +19,6 @@ export default function CandidatesList() {
   
   const [showModal, setShowModal] = useState(false);
 
-  const { languages, isLoading, error } = useLanguages();
 
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
