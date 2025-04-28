@@ -29,7 +29,7 @@ const languagesService: LanguagesService = {
         error: {
           message: axiosError.response?.data?.error?.message || 'Failed to fetch Languages',
           status: axiosError.response?.status,
-          data: axiosError.response?.data
+          data: [] // Return an empty array to match the ApiError interface
         }
       };
     }
@@ -40,14 +40,21 @@ const languagesService: LanguagesService = {
    * @param id Language ID
    * @returns Promise resolving to Language object
    */
-  async getLanguageById(id: string): Promise<ApiResponse<Language> | AxiosError<ApiResponse<Language>>> {
+  async getLanguageById(id: string): Promise<ApiResponse<Language> | ApiError> {
     try {
       const response = await apiClient.get<ApiResponse<Language>>(`/api/languages/${id}`);
       return response.data;
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse<Language>>;
       console.error('Error fetching Language:', axiosError?.response?.data?.error);
-      return axiosError;
+      return {
+        success: false,
+        error: {
+          message: axiosError.response?.data?.error?.message || 'Failed to fetch Language',
+          status: axiosError.response?.status,
+          data: [] // Return an empty array to match the ApiError interface
+        }
+      };
     }
   },
 

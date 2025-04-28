@@ -40,7 +40,7 @@ export const useCandidates = (id?: string) => {
     } finally {
       setIsLoading(false);
     }
-  }, [dispatch, router]);
+  }, [dispatch, router, storedCandidate]);
 
   const getTopics = useCallback(async () => {
     if (!storedTopics) {
@@ -53,7 +53,7 @@ export const useCandidates = (id?: string) => {
         console.error('Error fetching topics:', error);
       }
     }
-  }, [dispatch, router]);
+  }, [dispatch, storedTopics]);
 
   useEffect(() => {
     if (id) {

@@ -45,7 +45,14 @@ const candidateService = {
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse<CandidateDetail>>;
       console.error('Error fetching candidate:', axiosError?.response?.data?.error);
-      return axiosError
+      return {
+        success: false,
+        error: {
+          message: axiosError.response?.data?.error?.message || 'Failed to fetch candidate',
+          status: axiosError.response?.status,
+          data: [] // Return an empty array to match the ApiError interface
+        }
+      };
     }
   },
 

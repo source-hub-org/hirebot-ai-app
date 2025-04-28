@@ -8,7 +8,7 @@ import Head from 'next/head';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import { Candidate as CandidateType, Answer, CandidateDetail } from '@/types/candidate';
+import { Answer, CandidateDetail } from '@/types/candidate';
 import apiClient from '@/services/apiClient';
 
 const InterviewPage = () => {
@@ -16,7 +16,6 @@ const InterviewPage = () => {
   const [isClient, setIsClient] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   
   // Lấy thông tin ứng viên từ Redux store
@@ -78,7 +77,7 @@ const InterviewPage = () => {
               if (!answer.content && answer.question?.content) {
                 const processedAnswer = {
                   ...answer,
-                  __id: answer._id  || answer.questionId || `question_${index}`, // Đảm bảo mỗi câu hỏi có ID duy nhất
+                  _id: answer._id  || answer.questionId || `question_${index}`, // Đảm bảo mỗi câu hỏi có ID duy nhất
                   content: answer.question.content,
                   options: answer.options || answer.question?.options || [],
                   correctAnswer: answer.correctAnswer || 0
@@ -91,7 +90,7 @@ const InterviewPage = () => {
               if (!answer.options || answer.options.length === 0) {
                 const processedAnswer = {
                   ...answer,
-                  __id: answer._id || answer.questionId || `question_${index}`, // Đảm bảo mỗi câu hỏi có ID duy nhất
+                  _id: answer._id || answer.questionId || `question_${index}`, // Đảm bảo mỗi câu hỏi có ID duy nhất
                   options: ['Option A', 'Option B', 'Option C', 'Option D']
                 };
                 console.log(`Processed answer ${index} with default options:`, processedAnswer);
@@ -162,7 +161,7 @@ const InterviewPage = () => {
       console.error('Interview - Error checking authentication:', error);
       router.push('/admin/login');
     }
-  }, [router, answers]);
+  }, [router, answers, candidate]);
   
   // Hàm xử lý khi chọn câu trả lời
   const handleSelectAnswer = (questionId: string, optionIndex: number) => {
@@ -331,13 +330,21 @@ const InterviewPage = () => {
         
         // Chuyển đến trang danh sách ứng viên
         router.push('/admin/candidates');
-      } catch (apiError) {
+      } catch (apiError: unknown) {
         console.error('API call error:', apiError);
-        toast.error(apiError.message || 'Có lỗi xảy ra khi lưu phiên phỏng vấn!');
+        toast.error(
+          apiError instanceof Error 
+            ? apiError.message 
+            : 'Có lỗi xảy ra khi lưu phiên phỏng vấn!'
+        );
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error saving interview:', error);
-      toast.error('Có lỗi xảy ra khi lưu phiên phỏng vấn!');
+      toast.error(
+        error instanceof Error 
+          ? error.message 
+          : 'Có lỗi xảy ra khi lưu phiên phỏng vấn!'
+      );
     } finally {
       setSaving(false);
     }
@@ -522,7 +529,7 @@ const InterviewPage = () => {
                     <div className="mb-2">
                       <button
                         type="button"
-                        onClick={() => handleSkipQuestion(question._id, !question.is_skip)}
+                        onClick={() => handleSkipQuestion(question._id || question.questionId || `question_${index}`, !question.is_skip)}
                         className={`px-3 py-1 rounded-md text-sm font-medium ${
                           question.is_skip 
                             ? 'bg-gray-200 text-gray-700 hover:bg-gray-300' 
@@ -560,11 +567,11 @@ const InterviewPage = () => {
                 
                 <div className="mb-4">
                   <p className="text-gray-800 whitespace-pre-wrap">
-                    {question.question || question.question?.question || 'Không có nội dung câu hỏi'}
+                    {question.content || question.question?.content || 'Không có nội dung câu hỏi'}
                   </p>
-                  {question.question && question.question.includes('```') && (
+                  {question.content && question.content.includes('```') && (
                     <div className="mt-2 p-3 bg-gray-800 text-white rounded-md overflow-x-auto">
-                      <pre>{question.question.split('```').filter((_, i) => i % 2 === 1).join('\n')}</pre>
+                      <pre>{question.content.split('```').filter((_, i) => i % 2 === 1).join('\n')}</pre>
                     </div>
                   )}
                 </div>
@@ -581,7 +588,9 @@ const InterviewPage = () => {
                       onClick={() => {
                         if (!question.is_skip) {
                           console.log(`Clicked option ${optionIndex} for question with id ${question._id}`);
-                          handleSelectAnswer(question._id, optionIndex);
+                          // Use _id if available, otherwise fall back to questionId or a generated ID
+                          const questionId = question._id || question.questionId || `question_${optionIndex}`;
+                          handleSelectAnswer(questionId, optionIndex);
                         }
                       }}
                     >
@@ -617,7 +626,8 @@ const InterviewPage = () => {
                           onChange={(e) => {
                             if (!question.is_skip) {
                               console.log(`Changing other answer for question with id ${question._id}`);
-                              handleOtherAnswer(question._id, e.target.value);
+                              // Add null check and fallback to ensure we always pass a string
+                              handleOtherAnswer(question._id || question.id || question.questionId || '', e.target.value);
                             }
                           }}
                           disabled={question.is_skip === 1}
