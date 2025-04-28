@@ -1,32 +1,35 @@
-import { NextAuthOptions } from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
+import { NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
 // Import the extended types
-import '@/types/next-auth';
+import "@/types/next-auth";
 
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
-      name: 'Credentials',
+      name: "Credentials",
       credentials: {
-        username: { label: 'Username', type: 'text' },
-        password: { label: 'Password', type: 'password' }
+        username: { label: "Username", type: "text" },
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         // In a real app, you would check the credentials against a database
-        if (credentials?.username === 'admin' && credentials?.password === 'password') {
+        if (
+          credentials?.username === "admin" &&
+          credentials?.password === "password"
+        ) {
           return {
-            id: '1',
-            name: 'Admin User',
-            email: 'admin@example.com',
-            role: 'admin'
+            id: "1",
+            name: "Admin User",
+            email: "admin@example.com",
+            role: "admin",
           };
         }
         return null;
-      }
-    })
+      },
+    }),
   ],
   session: {
-    strategy: 'jwt',
+    strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
@@ -43,20 +46,20 @@ export const authOptions: NextAuthOptions = {
         session.user.role = token.role;
       }
       return session;
-    }
+    },
   },
   pages: {
-    signIn: '/admin/login',
-    error: '/admin/login',
+    signIn: "/admin/login",
+    error: "/admin/login",
   },
   cookies: {
     sessionToken: {
       name: `next-auth.session-token`,
       options: {
         httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
       },
     },
   },

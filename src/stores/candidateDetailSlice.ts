@@ -1,5 +1,5 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { CandidateDetail, Answer, Topic } from '@/types/candidate';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { CandidateDetail, Answer, Topic } from "@/types/candidate";
 
 interface CandidateDetailState {
   candidate: CandidateDetail | null;
@@ -12,7 +12,7 @@ const initialState: CandidateDetailState = {
 };
 
 export const candidateDetailSlice = createSlice({
-  name: 'candidateDetail',
+  name: "candidateDetail",
   initialState,
   reducers: {
     setCandidate: (state, action: PayloadAction<CandidateDetail>) => {
@@ -23,20 +23,34 @@ export const candidateDetailSlice = createSlice({
     },
     addAnswer: (state, action: PayloadAction<Answer>) => {
       if (!state.candidate) return;
-      state.candidate.answers = [...(state.candidate.answers || []), action.payload];
+      state.candidate.answers = [
+        ...(state.candidate.answers || []),
+        action.payload,
+      ];
     },
     clearCandidate: (state) => {
       state.candidate = null;
     },
-    updateAnswer: (state, action: PayloadAction<{questionId: string; update: Partial<Answer>}>) => {
+    updateAnswer: (
+      state,
+      action: PayloadAction<{ questionId: string; update: Partial<Answer> }>,
+    ) => {
       if (state.candidate) {
-        state.candidate.answers = state.candidate.answers.map(a => 
-          a.questionId === action.payload.questionId ? {...a, ...action.payload.update} : a
+        state.candidate.answers = state.candidate.answers.map((a) =>
+          a.questionId === action.payload.questionId
+            ? { ...a, ...action.payload.update }
+            : a,
         );
       }
-    }
+    },
   },
 });
 
-export const { setCandidate, setTopic, addAnswer, clearCandidate, updateAnswer } = candidateDetailSlice.actions;
+export const {
+  setCandidate,
+  setTopic,
+  addAnswer,
+  clearCandidate,
+  updateAnswer,
+} = candidateDetailSlice.actions;
 export default candidateDetailSlice.reducer;

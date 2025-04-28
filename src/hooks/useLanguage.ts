@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import languageService from '../services/languageService';
-import { Language } from '../constants/language';
-import { setLanguages, selectLanguages } from '@/stores/languageSlice';
+import { useState, useEffect, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import languageService from "../services/languageService";
+import { Language } from "../constants/language";
+import { setLanguages, selectLanguages } from "@/stores/languageSlice";
 
 export const useLanguages = (autoFetch = true) => {
   const dispatch = useDispatch();
@@ -18,8 +18,8 @@ export const useLanguages = (autoFetch = true) => {
 
       dispatch(setLanguages(response.data as Language[]));
     } catch (err) {
-      setError('Failed to load languages');
-      console.error('Failed to load languages:', err);
+      setError("Failed to load languages");
+      console.error("Failed to load languages:", err);
     } finally {
       setIsLoading(false);
     }
@@ -35,6 +35,6 @@ export const useLanguages = (autoFetch = true) => {
     languages,
     isLoading,
     error,
-    refresh: fetchLanguages
+    refresh: fetchLanguages,
   };
 };

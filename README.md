@@ -1,151 +1,224 @@
-# Hệ thống Trắc nghiệm Ứng viên
+# HireBot AI - Candidate Assessment System
 
-Hệ thống Trắc nghiệm Ứng viên là một ứng dụng web được phát triển để giúp các nhà tuyển dụng đánh giá kỹ năng và kiến thức của ứng viên thông qua các bài kiểm tra trực tuyến. Ứng dụng được xây dựng bằng Next.js, React và sử dụng Mock Service Worker (MSW) để mô phỏng API trong quá trình phát triển.
+HireBot AI is a web application designed to help employers evaluate candidates' skills and knowledge through online tests. The application is built with Next.js, React, and uses Mock Service Worker (MSW) to simulate APIs during development.
 
-## Yêu cầu hệ thống
+## System Requirements
 
-- Node.js (phiên bản 16.x hoặc cao hơn)
-- npm (phiên bản 8.x hoặc cao hơn)
+- Node.js (version 16.x or higher)
+- npm (version 8.x or higher)
+- Docker (optional, for containerized deployment)
 
-## Cài đặt
+## Installation
 
-1. Clone repository từ GitHub:
+1. Clone the repository from GitHub:
+
    ```bash
    git clone <repository-url>
    cd hirebot-ai-app
    ```
 
-2. Cài đặt các dependencies:
+2. Install dependencies:
+
    ```bash
    npm install
    ```
 
-3. Khởi tạo Mock Service Worker:
+3. Initialize Mock Service Worker:
+
    ```bash
    npx msw init public
    ```
 
-4. Chạy ứng dụng ở môi trường phát triển:
+4. Run the application in development mode:
+
    ```bash
    npm run dev
    ```
 
-5. Truy cập ứng dụng tại địa chỉ: http://localhost:3000
+5. Access the application at: http://localhost:3000
 
-## Cấu trúc dự án
+## Project Structure
 
 ```
 hirebot-ai-app/
-├── public/                  # Tài nguyên tĩnh
-│   └── mockServiceWorker.js # Service Worker cho MSW
+├── public/                  # Static resources
+│   └── mockServiceWorker.js # Service Worker for MSW
 ├── src/
-│   ├── components/          # Các component React
-│   ├── mock/                # Mô phỏng API với MSW
-│   │   ├── data/            # Dữ liệu mẫu
-│   │   ├── browser.ts       # Cấu hình MSW cho trình duyệt
-│   │   └── handlers.ts      # Định nghĩa các API endpoint
-│   ├── pages/               # Các trang của ứng dụng (Pages Router)
-│   │   ├── admin/           # Trang quản trị
-│   │   ├── quiz/            # Trang làm bài thi
-│   │   └── index.tsx        # Trang chủ
-│   ├── styles/              # CSS và các style
-│   └── utils/               # Các hàm tiện ích
+│   ├── components/          # React components
+│   ├── mock/                # API mocking with MSW
+│   │   ├── data/            # Sample data
+│   │   ├── browser.ts       # MSW browser configuration
+│   │   └── handlers.ts      # API endpoint definitions
+│   ├── pages/               # Application pages (Pages Router)
+│   │   ├── admin/           # Admin pages
+│   │   ├── quiz/            # Quiz pages
+│   │   └── index.tsx        # Home page
+│   ├── styles/              # CSS and styles
+│   └── utils/               # Utility functions
+├── Dockerfile               # Docker configuration
+├── docker-compose.yml       # Docker Compose configuration
+├── ecosystem.config.js      # PM2 configuration
 ├── package.json
 └── next.config.js
 ```
 
-## Tính năng chính
+## Key Features
 
-### 1. Dành cho ứng viên
+### 1. For Candidates
 
-- **Trang chủ**: Ứng viên nhập thông tin cá nhân và mã phiên thi để bắt đầu làm bài.
-- **Trang làm bài thi**: Hiển thị các câu hỏi trắc nghiệm và cho phép ứng viên trả lời trong thời gian quy định.
-- **Trang kết quả**: Hiển thị điểm số và đánh giá sau khi hoàn thành bài thi.
+- **Home Page**: Candidates enter personal information and session code to start the test.
+- **Quiz Page**: Displays multiple-choice questions and allows candidates to answer within the time limit.
+- **Results Page**: Shows scores and evaluation after completing the test.
 
-### 2. Dành cho quản trị viên
+### 2. For Administrators
 
-- **Đăng nhập**: Quản trị viên đăng nhập vào hệ thống.
-- **Quản lý ứng viên**: Xem danh sách, thông tin chi tiết và kết quả của ứng viên.
-- **Quản lý câu hỏi**: Thêm, sửa, xóa câu hỏi trắc nghiệm.
-- **Tạo phiên thi**: Tạo phiên thi mới với các tham số như ngôn ngữ, cấp độ, số lượng câu hỏi và thời gian làm bài.
+- **Login**: Administrators log in to the system.
+- **Candidate Management**: View list, details, and results of candidates.
+- **Question Management**: Add, edit, delete multiple-choice questions.
+- **Session Creation**: Create new test sessions with parameters such as language, level, number of questions, and time limit.
 
-## Hướng dẫn sử dụng
+## User Guide
 
-### Dành cho ứng viên
+### For Candidates
 
-1. Truy cập trang chủ tại http://localhost:3000
-2. Nhập họ tên, email và mã phiên thi (được cung cấp bởi nhà tuyển dụng)
-3. Nhấn "Bắt đầu làm bài" để vào trang làm bài thi
-4. Trả lời các câu hỏi trong thời gian quy định
-5. Nhấn "Nộp bài" khi hoàn thành
-6. Xem kết quả và đánh giá
+1. Access the home page at http://localhost:3000
+2. Enter your name, email, and session code (provided by the employer)
+3. Click "Start Test" to enter the quiz page
+4. Answer the questions within the time limit
+5. Click "Submit" when finished
+6. View your results and evaluation
 
-### Dành cho quản trị viên
+### For Administrators
 
-1. Truy cập trang đăng nhập tại http://localhost:3000/admin/login
-2. Đăng nhập với thông tin:
+1. Access the login page at http://localhost:3000/admin/login
+2. Log in with the following credentials:
    - Username: admin
    - Password: password
-3. Sau khi đăng nhập, bạn có thể:
-   - Xem danh sách ứng viên và kết quả
-   - Quản lý câu hỏi trắc nghiệm
-   - Tạo phiên thi mới và chia sẻ mã phiên thi cho ứng viên
+3. After logging in, you can:
+   - View the list of candidates and their results
+   - Manage multiple-choice questions
+   - Create new test sessions and share session codes with candidates
 
 ## API Endpoints (Mock)
 
-Ứng dụng sử dụng Mock Service Worker để mô phỏng các API endpoint sau:
+The application uses Mock Service Worker to simulate the following API endpoints:
 
-### Xác thực
-- `POST /api/login`: Đăng nhập quản trị viên
+### Authentication
 
-### Ứng viên
-- `GET /api/candidates`: Lấy danh sách ứng viên (hỗ trợ lọc và phân trang)
-- `GET /api/candidates/:id`: Lấy thông tin chi tiết của ứng viên
-- `GET /api/candidates/:id/results`: Lấy kết quả bài thi của ứng viên
+- `POST /api/login`: Administrator login
 
-### Câu hỏi
-- `GET /api/questions`: Lấy danh sách câu hỏi (hỗ trợ lọc và phân trang)
-- `POST /api/questions`: Tạo câu hỏi mới
-- `PUT /api/questions/:id`: Cập nhật câu hỏi
-- `DELETE /api/questions/:id`: Xóa câu hỏi
+### Candidates
 
-### Phiên thi
-- `POST /api/sessions`: Tạo phiên thi mới
-- `GET /api/sessions/:token`: Lấy thông tin phiên thi theo token
-- `GET /api/sessions/:token/questions`: Lấy danh sách câu hỏi cho phiên thi
-- `POST /api/sessions/:token/submit`: Nộp bài thi
+- `GET /api/candidates`: Get list of candidates (supports filtering and pagination)
+- `GET /api/candidates/:id`: Get candidate details
+- `GET /api/candidates/:id/results`: Get candidate test results
 
-## Môi trường triển khai
+### Questions
 
-### Phát triển
+- `GET /api/questions`: Get list of questions (supports filtering and pagination)
+- `POST /api/questions`: Create new question
+- `PUT /api/questions/:id`: Update question
+- `DELETE /api/questions/:id`: Delete question
+
+### Test Sessions
+
+- `POST /api/sessions`: Create new test session
+- `GET /api/sessions/:token`: Get session information by token
+- `GET /api/sessions/:token/questions`: Get list of questions for the session
+- `POST /api/sessions/:token/submit`: Submit test
+
+## Development Commands
+
+### Development Server
+
 ```bash
 npm run dev
 ```
 
-### Xây dựng
+### Linting and Formatting
+
 ```bash
-npm run build
+# Run ESLint to check for issues
+npm run lint
+
+# Run ESLint with auto-fix
+npm run lint:fix
+
+# Format code with Prettier
+npm run format
 ```
 
-### Chạy phiên bản production
+### Build and Production
+
 ```bash
+# Build the application
+npm run build
+
+# Start the production server
 npm run start
 ```
 
-## Công nghệ sử dụng
+### Docker Deployment
 
-- **Next.js**: Framework React cho phát triển ứng dụng web
-- **React**: Thư viện JavaScript để xây dựng giao diện người dùng
-- **TypeScript**: Ngôn ngữ lập trình mở rộng JavaScript với kiểu dữ liệu tĩnh
-- **Tailwind CSS**: Framework CSS tiện ích
-- **Mock Service Worker (MSW)**: Thư viện mô phỏng API cho phát triển và kiểm thử
+1. Build and start the application:
 
-## Lưu ý
+   ```bash
+   docker-compose up -d
+   ```
 
-- Đây là phiên bản phát triển sử dụng dữ liệu mẫu và API mô phỏng.
-- Trong môi trường sản xuất, bạn cần thay thế MSW bằng API thực tế.
-- Các tính năng bảo mật như xác thực JWT, mã hóa mật khẩu, và bảo vệ CSRF cần được triển khai đầy đủ trước khi đưa vào sử dụng thực tế.
+2. Stop the application:
 
-## Hỗ trợ
+   ```bash
+   docker-compose down
+   ```
 
-Nếu bạn gặp vấn đề hoặc có câu hỏi, vui lòng tạo issue trên repository GitHub hoặc liên hệ với đội phát triển.
+3. View logs:
+   ```bash
+   docker-compose logs -f
+   ```
+
+### PM2 Deployment (without Docker)
+
+1. Install PM2 globally:
+
+   ```bash
+   npm install -g pm2
+   ```
+
+2. Start the application:
+
+   ```bash
+   pm2 start ecosystem.config.js
+   ```
+
+3. View logs:
+
+   ```bash
+   pm2 logs hirebot-ai-app
+   ```
+
+4. Monitor the application:
+   ```bash
+   pm2 monit
+   ```
+
+## Technologies Used
+
+- **Next.js**: React framework for web application development
+- **React**: JavaScript library for building user interfaces
+- **TypeScript**: JavaScript extension with static typing
+- **Tailwind CSS**: Utility-first CSS framework
+- **Mock Service Worker (MSW)**: API mocking library for development and testing
+- **Docker**: Containerization platform for consistent deployment
+- **PM2**: Process manager for Node.js applications in production
+
+## Notes
+
+- This is a development version using sample data and mock APIs.
+- In a production environment, you should replace MSW with actual APIs.
+- Security features such as JWT authentication, password encryption, and CSRF protection should be fully implemented before actual use.
+- The Docker and PM2 configurations are optimized for production deployment.
+
+## Support
+
+If you encounter any issues or have questions, please create an issue on the GitHub repository or contact the development team.

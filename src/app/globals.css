@@ -1,29 +1,38 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@400;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@400;600;700&display=swap");
 
 @import "tailwindcss";
 @import "../../tailwind.css";
 
 :root {
-  --color-primary-light: #4DD4F4;
-  --color-primary: #4067F4;
-  --color-primary-dark: #0E1B4D;
+  --color-primary-light: #4dd4f4;
+  --color-primary: #4067f4;
+  --color-primary-dark: #0e1b4d;
 }
 
 body {
-  background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-light) 0%,
+    var(--color-primary) 100%
+  );
   color: var(--color-primary-dark);
-  font-family: 'Montserrat', 'Poppins', sans-serif;
+  font-family: "Montserrat", "Poppins", sans-serif;
   font-weight: 400;
   position: relative;
   min-height: 100vh;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-weight: 600;
 }
 
 .wave-pattern {
-  background-image: url('/images/wave-pattern.svg');
+  background-image: url("/images/wave-pattern.svg");
   opacity: 0.1;
   position: absolute;
   inset: 0;

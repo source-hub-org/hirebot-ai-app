@@ -22,7 +22,7 @@ export type Answer = {
   correctAnswer: number;
   selectedAnswer?: number;
   otherAnswer?: string;
-  is_skip?: number;  // 1 nếu bỏ qua, 0 nếu không bỏ qua
+  is_skip?: number; // 1 nếu bỏ qua, 0 nếu không bỏ qua
   language: string;
   level: string;
   category: string;
@@ -54,9 +54,9 @@ export type CandidatesResponse = {
   };
 };
 export type Topic = {
-  title: string,
-  difficulty: number,
-  popularity: string,
-  suitable_level: string,
-  description: string
-}
+  title: string;
+  difficulty: number;
+  popularity: string;
+  suitable_level: string;
+  description: string;
+};

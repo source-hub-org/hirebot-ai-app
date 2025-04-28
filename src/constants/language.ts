@@ -9,9 +9,9 @@ export interface Language {
 }
 
 export const initialLanguage: Language = {
-  _id: '',
-  name: '',
-  description: '',
-  category: '',
-  level: 1
+  _id: "",
+  name: "",
+  description: "",
+  category: "",
+  level: 1,
 };
