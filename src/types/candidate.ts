@@ -15,12 +15,14 @@ export type Candidate = {
 
 export type Answer = {
   _id?: string;
+  id?: string;
   questionId?: string;
   content: string;
   options: string[];
   correctAnswer: number;
   selectedAnswer?: number;
   otherAnswer?: string;
+  is_skip?: number;  // 1 nếu bỏ qua, 0 nếu không bỏ qua
   language: string;
   level: string;
   category: string;

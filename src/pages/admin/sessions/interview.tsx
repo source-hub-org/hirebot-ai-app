@@ -200,6 +200,29 @@ const InterviewPage = () => {
     });
   };
   
+  // Hàm xử lý khi bỏ qua câu hỏi
+  const handleSkipQuestion = (questionId: string, isSkipped: boolean) => {
+    console.log(`${isSkipped ? 'Skipping' : 'Unskipping'} question ${questionId}`);
+    
+    setCandidateAnswers(prev => {
+      const newAnswers = prev.map(q => {
+        if (q._id === questionId) {
+          console.log(`Found question with id ${q._id}, updating is_skip to ${isSkipped ? 1 : 0}`);
+          return { 
+            ...q, 
+            is_skip: isSkipped ? 1 : 0,
+            // Nếu bỏ qua, xóa câu trả lời đã chọn
+            selectedAnswer: isSkipped ? undefined : q.selectedAnswer
+          };
+        }
+        return q;
+      });
+      
+      console.log('Updated answers with skip status:', newAnswers);
+      return newAnswers;
+    });
+  };
+  
   // Log candidateAnswers để kiểm tra
   console.log('candidateAnswers before filtering:', candidateAnswers);
   
@@ -256,10 +279,10 @@ const InterviewPage = () => {
       
       // Chuẩn bị dữ liệu để gửi lên API
       const formattedAnswers = candidateAnswers.map(q => ({
-        question_id: q._id || q.questionId || q.id, // Ưu tiên sử dụng _id cho MongoDB, fallback sang questionId hoặc id
+        question_id: q._id || q.questionId, // Ưu tiên sử dụng _id cho MongoDB, fallback sang questionId hoặc id
         answer: q.selectedAnswer !== undefined ? q.selectedAnswer : null,
         other: q.otherAnswer || '',
-        is_skip: q.selectedAnswer === undefined ? 1 : 0
+        is_skip: q.is_skip === 1 ? 1 : (q.selectedAnswer === undefined ? 1 : 0) // Ưu tiên sử dụng is_skip nếu đã đặt
       }));
       
       const submissionData = {
@@ -494,7 +517,22 @@ const InterviewPage = () => {
                     data-question-id={question._id}
                   >
                 <div className="flex justify-between">
-                  <h3 className="font-bold text-lg mb-2">Câu {index + 1}</h3>
+                  <div className="flex items-center">
+                    <h3 className="font-bold text-lg mb-2 mr-3">Câu {index + 1}</h3>
+                    <div className="mb-2">
+                      <button
+                        type="button"
+                        onClick={() => handleSkipQuestion(question._id, !question.is_skip)}
+                        className={`px-3 py-1 rounded-md text-sm font-medium ${
+                          question.is_skip 
+                            ? 'bg-gray-200 text-gray-700 hover:bg-gray-300' 
+                            : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
+                        }`}
+                      >
+                        {question.is_skip ? 'Đã bỏ qua' : 'Bỏ qua câu hỏi'}
+                      </button>
+                    </div>
+                  </div>
                   <div className="text-sm text-gray-500">
                     <span className="mr-3">Ngôn ngữ: {question.language}</span>
                     <span className="mr-3">Cấp độ: {question.level}</span>
@@ -535,14 +573,16 @@ const InterviewPage = () => {
                   {question.options.map((option, optionIndex) => (
                     <div 
                       key={optionIndex} 
-                      className={`p-3 rounded-lg cursor-pointer ${
+                      className={`p-3 rounded-lg ${question.is_skip ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'} ${
                         question.selectedAnswer === optionIndex
                           ? 'bg-blue-100 border border-blue-300' 
                           : 'bg-gray-50 border border-gray-200 hover:bg-gray-100'
                       }`}
                       onClick={() => {
-                        console.log(`Clicked option ${optionIndex} for question with id ${question._id}`);
-                        handleSelectAnswer(question._id, optionIndex);
+                        if (!question.is_skip) {
+                          console.log(`Clicked option ${optionIndex} for question with id ${question._id}`);
+                          handleSelectAnswer(question._id, optionIndex);
+                        }
                       }}
                     >
                       <div className="flex items-start">
@@ -571,13 +611,16 @@ const InterviewPage = () => {
                       <div className="flex-1">
                         <p className="font-medium mb-1">Câu trả lời khác:</p>
                         <textarea
-                          className="w-full border border-gray-300 rounded-lg p-2 min-h-[80px]"
+                          className={`w-full border border-gray-300 rounded-lg p-2 min-h-[80px] ${question.is_skip ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                           placeholder="Nhập câu trả lời khác của ứng viên..."
                           value={question.otherAnswer || ''}
                           onChange={(e) => {
-                            console.log(`Changing other answer for question with id ${question._id}`);
-                            handleOtherAnswer(question._id, e.target.value);
+                            if (!question.is_skip) {
+                              console.log(`Changing other answer for question with id ${question._id}`);
+                              handleOtherAnswer(question._id, e.target.value);
+                            }
                           }}
+                          disabled={question.is_skip === 1}
                         />
                       </div>
                     </div>
