@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Head from 'next/head';
-import { StatusBadge } from '@/components/ui/StatusBadge';
 import { useCandidates } from '@/hooks/useCandidatesList';
 import { CreateCandidateModal } from '@/components/modals/CreateCandidateModal';
 import {formatDate} from '@/helpers/date';

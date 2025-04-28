@@ -28,12 +28,12 @@ export const useCandidates = (id?: string) => {
           router.push('/admin/candidates');
           return
         }
+        dispatch(setCandidate({
+          ...data,
+          answers: []
+        } as CandidateDetail));
       }
       
-      dispatch(setCandidate({
-        ...data,
-        answers: []
-      } as CandidateDetail));
     } catch (error) {
       router.push('/admin/candidates');
       console.error('Failed to load candidate:', error);
