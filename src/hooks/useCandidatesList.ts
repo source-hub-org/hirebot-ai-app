@@ -1,36 +1,39 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Candidate, CandidatesResponse } from '@/types/candidate';
-import candidateService from '@/services/candidateService';
+import { useState, useEffect, useCallback } from "react";
+import { Candidate, CandidatesResponse } from "@/types/candidate";
+import candidateService from "@/services/candidateService";
 
 export const useCandidates = () => {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  
+  const [error, setError] = useState("");
+
   const [pagination, setPagination] = useState({
     currentPage: 1,
     itemsPerPage: 5,
     totalPages: 0,
-    total: 0
+    total: 0,
   });
-  
+
   const [showLoading, setShowLoading] = useState(false);
 
   const fetchCandidates = useCallback(async (page = 1, pageSize = 5) => {
     try {
       setLoading(true);
-      const response: CandidatesResponse = await candidateService.getCandidates({page, page_size: pageSize});
+      const response: CandidatesResponse = await candidateService.getCandidates(
+        { page, page_size: pageSize },
+      );
       setCandidates(response.data);
-      
+
       setPagination({
         currentPage: response.pagination.page,
         itemsPerPage: response.pagination.page_size,
         totalPages: response.pagination.total_pages,
         total: response.pagination.total,
       });
-      
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      setError(
+        err instanceof Error ? err.message : "An unknown error occurred",
+      );
     } finally {
       setLoading(false);
     }
@@ -40,10 +43,9 @@ export const useCandidates = () => {
     fetchCandidates(page, pagination.itemsPerPage);
   };
 
-
   const paginate = (pageNumber: number) => {
     if (pageNumber < 1 || pageNumber > pagination.totalPages) return;
-    fetchCandidates(pageNumber)
+    fetchCandidates(pageNumber);
   };
 
   useEffect(() => {

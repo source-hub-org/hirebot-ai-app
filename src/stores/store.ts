@@ -1,11 +1,11 @@
-import { configureStore } from '@reduxjs/toolkit';
-import { persistStore, persistReducer } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
-import candidateDetailReducer from './candidateDetailSlice';
-import languageReducer from './languageSlice';
+import { configureStore } from "@reduxjs/toolkit";
+import { persistStore, persistReducer } from "redux-persist";
+import storage from "redux-persist/lib/storage";
+import candidateDetailReducer from "./candidateDetailSlice";
+import languageReducer from "./languageSlice";
 
 const persistConfig = {
-  key: 'root',
+  key: "root",
   storage,
 };
 
@@ -14,14 +14,14 @@ const persistedReducer = persistReducer(persistConfig, candidateDetailReducer);
 export const store = configureStore({
   reducer: {
     candidateDetail: persistedReducer,
-    language: languageReducer
+    language: languageReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        ignoredActions: ['persist/PERSIST']
-      }
-    })
+        ignoredActions: ["persist/PERSIST"],
+      },
+    }),
 });
 
 export const persistor = persistStore(store);

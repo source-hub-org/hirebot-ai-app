@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  nextjs-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hirebot-ai-app
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+    restart: unless-stopped
+    # Uncomment the following lines for development with hot-reloading
+    # volumes:
+    #   - ./src:/app/src
+    #   - ./public:/app/public
+    #   - ./.env:/app/.env

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { validateField } from '@/helpers/validation';
+import React, { useState, useEffect } from "react";
+import { validateField } from "@/helpers/validation";
 
 type SelectProps = {
   name: string;
@@ -8,7 +8,7 @@ type SelectProps = {
   onValidate?: (error: string) => void;
   label?: string;
   error?: string;
-  rules?: Array<'required'>;
+  rules?: Array<"required">;
   context?: { title?: string };
   options: Array<{ value: string; label: string }>;
   className?: string;
@@ -25,10 +25,10 @@ export const Select = ({
   rules = [],
   context,
   options,
-  className = '',
-  forceValidate = false
+  className = "",
+  forceValidate = false,
 }: SelectProps) => {
-  const [errorState, setError] = useState(error || '');
+  const [errorState, setError] = useState(error || "");
   const [internalValue, setInternalValue] = useState(value);
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export const Select = ({
 
   useEffect(() => {
     if (forceValidate && rules.length > 0) {
-      const valueToValidate = internalValue || '';
+      const valueToValidate = internalValue || "";
       const errorMsg = validateField(valueToValidate, rules, { title: label });
       setError(errorMsg);
     }
@@ -47,7 +47,7 @@ export const Select = ({
     const newValue = e.target.value;
     setInternalValue(newValue);
     onChange(e);
-    
+
     if (rules.length > 0) {
       const errorMsg = validateField(newValue, rules, context);
       setError(errorMsg);
@@ -60,16 +60,18 @@ export const Select = ({
       {label && (
         <label className="block text-sm font-medium mb-2">
           {label}
-          {rules?.includes('required') && <span className="text-red-500">*</span>}
+          {rules?.includes("required") && (
+            <span className="text-red-500">*</span>
+          )}
         </label>
       )}
       <select
         name={name}
         value={internalValue}
         onChange={handleChange}
-        className={`w-full p-2 border rounded ${errorState ? 'border-red-500' : ''} ${className}`}
+        className={`w-full p-2 border rounded ${errorState ? "border-red-500" : ""} ${className}`}
       >
-        {options.map(option => (
+        {options.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
           </option>

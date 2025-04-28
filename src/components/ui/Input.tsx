@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { validateField } from '@/helpers/validation';
+import React, { useEffect, useState } from "react";
+import { validateField } from "@/helpers/validation";
 
 type InputProps = {
   type?: string;
@@ -17,7 +17,7 @@ type InputProps = {
 };
 
 export const Input = ({
-  type = 'text',
+  type = "text",
   name,
   value,
   onChange,
@@ -27,10 +27,10 @@ export const Input = ({
   context,
   min,
   max,
-  className = '',
-  forceValidate = false
+  className = "",
+  forceValidate = false,
 }: InputProps) => {
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (forceValidate && rules.length > 0) {
@@ -41,7 +41,7 @@ export const Input = ({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(e);
-    
+
     if (rules.length > 0) {
       const errorMsg = validateField(e.target.value, rules, context);
       setError(errorMsg);
@@ -53,7 +53,9 @@ export const Input = ({
       {label && (
         <label className="block text-sm font-medium mb-2">
           {label}
-          {rules?.includes('required') && <span className="text-red-500">*</span>}
+          {rules?.includes("required") && (
+            <span className="text-red-500">*</span>
+          )}
         </label>
       )}
       <input
@@ -64,7 +66,7 @@ export const Input = ({
         placeholder={placeholder}
         min={min}
         max={max}
-        className={`w-full p-2 border rounded ${error ? 'border-red-500' : ''} ${className}`}
+        className={`w-full p-2 border rounded ${error ? "border-red-500" : ""} ${className}`}
       />
       {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
     </div>
