@@ -33,12 +33,10 @@ export type Answer = {
   positionLevel?: number;
   score?: number;
   feedback?: string;
-  category: string;
-  options: string[],
-  position: string,
-  positionLevel: string,
-  topic: string
-
+  question?: {
+    content?: string;
+    options?: string[];
+  };
 };
 
 export type CandidateDetail = Candidate & {

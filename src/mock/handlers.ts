@@ -5,10 +5,46 @@ import { candidates } from './data/candidates'; // Danh sách ứng viên
 import { questions } from './data/questions'; // Danh sách câu hỏi
 import { sessions } from './data/sessions'; // Danh sách phiên thi
 
+// Define types for request bodies
+interface LoginRequestBody {
+  username: string;
+  password: string;
+}
+
+interface SessionRequestBody {
+  language: string;
+  level: string;
+  questionCount: number;
+  timeLimit: number;
+}
+
+interface SubmitQuizRequestBody {
+  candidateName: string;
+  candidateEmail: string;
+  timeSpent: string;
+  answers?: Array<{ questionId: number; answerId: number }>;
+}
+
+// Define types for questions
+interface QuestionOption {
+  id: string;
+  text: string;
+  correct?: boolean;
+}
+
+interface Question {
+  id: number;
+  question: string;
+  type: string;
+  language: string;
+  level: string;
+  options?: QuestionOption[];
+}
+
 export const handlers = [
   // API đăng nhập quản trị viên
   http.post('/api/login', async ({ request }) => {
-    const body = await request.json();
+    const body = await request.json() as LoginRequestBody;
     const { username, password } = body;
     
     if (username === 'admin' && password === 'password') {
@@ -180,7 +216,7 @@ export const handlers = [
   
   // Create question
   http.post('/api/questions', async ({ request }) => {
-    const newQuestion = await request.json();
+    const newQuestion = await request.json() as Question;
     
     // Generate ID
     newQuestion.id = Math.max(...questions.map(q => q.id)) + 1;
@@ -194,7 +230,7 @@ export const handlers = [
   // Update question
   http.put('/api/questions/:id', async ({ params, request }) => {
     const { id } = params;
-    const updatedQuestion = await request.json();
+    const updatedQuestion = await request.json() as Partial<Question>;
     
     const index = questions.findIndex(q => q.id === parseInt(id as string));
     
@@ -226,7 +262,7 @@ export const handlers = [
   
   // Create session
   http.post('/api/sessions', async ({ request }) => {
-    const body = await request.json();
+    const body = await request.json() as SessionRequestBody;
     const { language, level, questionCount, timeLimit } = body;
     
     // Generate session token
@@ -290,10 +326,11 @@ export const handlers = [
   // Submit quiz answers
   http.post('/api/sessions/:token/submit', async ({ params, request }) => {
     const { token } = params;
-    const body = await request.json();
-    const { candidateName, candidateEmail, answers, timeSpent } = body;
+    const body = await request.json() as SubmitQuizRequestBody;
+    const { candidateName, candidateEmail, timeSpent } = body;
     
-    const session = sessions.find(s => s.token === token);
+    const sessionToken = token as string; // Cast token to string
+    const session = sessions.find(s => s.token === sessionToken);
     
     if (!session) {
       return HttpResponse.json({ message: 'Session not found' }, { status: 404 });
@@ -312,7 +349,7 @@ export const handlers = [
       level: session.level,
       status,
       date: new Date().toISOString().split('T')[0],
-      sessionToken: token
+      sessionToken: sessionToken
     };
     
     // Add to candidates array
@@ -321,7 +358,7 @@ export const handlers = [
     // Create result object
     const result = {
       candidateId: newCandidate.id,
-      sessionToken: token,
+      sessionToken: sessionToken,
       score,
       status,
       timeSpent,

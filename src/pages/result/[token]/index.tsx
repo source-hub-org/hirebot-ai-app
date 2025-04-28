@@ -1,10 +1,9 @@
 import React from 'react';
-import { useRouter } from 'next/router';
 import Link from 'next/link';
 
 export default function Result() {
-  const router = useRouter();
-  const { token } = router.query;
+  // We'll need the router later when implementing the actual API call
+  // const router = useRouter();
   
   // Mock result data - would be fetched from API in real implementation
   const result = {

@@ -23,7 +23,7 @@ const SessionPage = ({ params }: { params: { id?: string } }) => {
   const router = useRouter();
   const id = params?.id || (router.query.id as string);
   
-  const { candidate: storedCandidate, topics: storedTopics, isLoading } = useCandidates(id);
+  const { candidate: storedCandidate, isLoading } = useCandidates(id);
   
   const {
     formData,
@@ -38,7 +38,7 @@ const SessionPage = ({ params }: { params: { id?: string } }) => {
       ...prev,
       language: storedCandidate?.skills?.[0] || ''
     }));
-  }, [storedCandidate?.skills]);
+  }, [storedCandidate?.skills, setFormData]);
 
   const formRef = useRef<HTMLFormElement>(null);
 

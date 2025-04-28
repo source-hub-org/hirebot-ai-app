@@ -35,7 +35,7 @@ export default function AdminLogin() {
       } else {
         setError('Tên đăng nhập hoặc mật khẩu không đúng');
       }
-    } catch (err) {
+    } catch {
       setError('Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại sau.');
     } finally {
       setIsLoading(false);
