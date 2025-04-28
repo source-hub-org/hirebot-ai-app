@@ -87,8 +87,7 @@ export default function CandidatesList() {
                     <th className="py-3 px-4 text-left">Họ tên</th>
                     <th className="py-3 px-4 text-left">Kỹ năng</th>
                     <th className="py-3 px-4 text-left">Cấp độ</th>
-                    <th className="py-3 px-4 text-left">Trạng thái</th>
-                    <th className="py-3 px-4 text-left">Ngày thi</th>
+                    <th className="py-3 px-4 text-left">Ngày tham gia</th>
                     <th className="py-3 px-4 text-left">Thao tác</th>
                   </tr>
                 </thead>
@@ -99,9 +98,6 @@ export default function CandidatesList() {
                       <td className="py-3 px-4">{candidate.full_name}</td>
                       <td className="py-3 px-4">{candidate.skills?.join(',')}</td>
                       <td className="py-3 px-4">{candidate.interview_level}</td>
-                      <td className="py-3 px-4">
-                        <StatusBadge status={candidate.status as 'pending' | 'interviewed' | 'hired' | 'rejected'} />
-                      </td>
                       <td className="py-3 px-4">{candidate.updated_at ? formatDate(candidate.updated_at) : ''}</td>
                       <td className="py-3 px-4">
                         <Link href={`/admin/candidates/${candidate._id}`}>
