@@ -1,3 +1,4 @@
+import { Answer } from '@/types/candidate';
 import apiClient from './apiClient';
 import { ApiResponse } from '@/types/common';
 
@@ -9,7 +10,7 @@ export interface SearchQuestionsParams {
 }
 
 const questionService = {
-  async searchQuestions(params: SearchQuestionsParams): Promise<ApiResponse<any>> {
+  async searchQuestions(params: SearchQuestionsParams): Promise<ApiResponse<Answer[]>> {
     try {
       const response = await apiClient.get('/api/questions/search', { params });
       return response.data;

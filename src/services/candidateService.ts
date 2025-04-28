@@ -1,4 +1,4 @@
-import axios, { AxiosError } from 'axios';
+import { AxiosError } from 'axios';
 import apiClient from './apiClient';
 import { Candidate, CandidateDetail, CandidatesResponse } from '@/types/candidate';
 import { Topic } from '@/types/topic';
@@ -6,7 +6,7 @@ import { Topic } from '@/types/topic';
 interface ApiError {
   message: string;
   status?: number;
-  data?: any;
+  data?: [];
 }
 
 interface ApiResponse<T> {

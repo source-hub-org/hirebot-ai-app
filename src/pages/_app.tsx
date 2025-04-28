@@ -1,6 +1,5 @@
 import '../app/globals.css';
 import '../app/tailwind.css';
-import { useEffect } from 'react';
 import type { AppProps } from 'next/app';
 import { SessionProvider } from 'next-auth/react';
 import { ToastContainer } from 'react-toastify';

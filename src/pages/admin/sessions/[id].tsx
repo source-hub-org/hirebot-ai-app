@@ -14,11 +14,11 @@ import questionService from '@/services/questionService';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Answer } from '@/types/candidate';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 
 const SessionPage = ({ params }: { params: { id?: string } }) => {
   const [isClient, setIsClient] = useState(false);
   const [generatedSessions, setGeneratedSessions] = useState<Session[]>([]);
-  const [forceValidate, setForceValidate] = useState(false);
   const [loading, setLoading] = useState(false);
   
   const router = useRouter();
@@ -41,23 +41,12 @@ const SessionPage = ({ params }: { params: { id?: string } }) => {
     }));
   }, [storedCandidate?.skills]);
 
-  const getTopic = async () => {
-    if (!storedTopics) {
-        const topicsResponse = await candidateService.getTopics();
-        if (topicsResponse?.data) {
-          store.dispatch(setTopic(topicsResponse.data));
-        }
-    }
-  }
-
   const formRef = useRef<HTMLFormElement>(null);
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formRef.current) return;
-    
-    setForceValidate(true);
     
     // Wait for validation to complete
     await new Promise(resolve => setTimeout(resolve, 100));
@@ -102,17 +91,16 @@ const SessionPage = ({ params }: { params: { id?: string } }) => {
   };
 
   if (!storedCandidate || !isClient || isLoading) {
-    return  <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-primary bg-white p-2"></div>
-    </div>
+    return <LoadingSpinner />
   };
 
   return (
     <>
+      {loading && <LoadingSpinner />}
     <Head>
-    <title>Quizo Admin | Quản lý ứng viên</title>
-    <meta name="description" content="Danh sách ứng viên Quizo" />
-  </Head>
+      <title>Quizo Admin | Quản lý ứng viên</title>
+      <meta name="description" content="Danh sách ứng viên Quizo" />
+    </Head>
     <div className="container mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">Tạo Phiên Thi Mới</h1>
       

@@ -8,7 +8,7 @@ type InputProps = {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   label?: string;
   placeholder?: string;
-  rules?: Array<'required' | 'number' | { min: number } | { max: number } | any>;
+  rules?: Array<string | { min: number } | { max: number }>;
   context?: { title?: string };
   min?: number;
   max?: number;
@@ -37,7 +37,7 @@ export const Input = ({
       const errorMsg = validateField(value, rules, context);
       setError(errorMsg);
     }
-  }, [forceValidate]);
+  }, [forceValidate, rules, value, context]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(e);

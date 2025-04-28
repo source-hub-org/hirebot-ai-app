@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 
 
 export default function Home() {
@@ -80,7 +81,7 @@ export default function Home() {
           </form>
           
           <div className="mt-8 text-sm text-gray-500">
-            <p>Bạn là quản trị viên? <a href="/admin/login" className="text-primary hover:underline">Đăng nhập</a></p>
+            <p>Bạn là quản trị viên? <Link href="/admin/login" className="text-primary hover:underline">Đăng nhập</Link></p>
           </div>
         </div>
       </div>

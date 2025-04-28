@@ -10,16 +10,15 @@ import candidateService from '@/services/candidateService';
 import { Candidate } from '@/types/candidate';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { SKILL_OPTIONS, DEFAULT_CANDIDATE_FORM, STATUS } from '@/constants/candidate';
+import { SKILL_OPTIONS, STATUS } from '@/constants/candidate';
 
 
 type Props = {
   isOpen: boolean;
   onClose: () => void;
-  onCreateSuccess?: (candidate: any) => void;
 };
 
-export const CreateCandidateModal = ({ isOpen, onClose, onCreateSuccess }: Props) => {
+export const CreateCandidateModal = ({ isOpen, onClose }: Props) => {
   const formRef = useRef<HTMLFormElement>(null);
   const [formData, setFormData] = useState<Partial<Candidate>>({
     full_name: '',
@@ -28,8 +27,6 @@ export const CreateCandidateModal = ({ isOpen, onClose, onCreateSuccess }: Props
     interview_level: 'intern',
     skills: []
   });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [forceValidate, setForceValidate] = useState(false);
 
   const router = useRouter();
@@ -62,8 +59,6 @@ export const CreateCandidateModal = ({ isOpen, onClose, onCreateSuccess }: Props
     }
     
     try {
-      setLoading(true);
-      setError('');
       
       const candidateData = {
         full_name: formData.full_name || '',
@@ -85,17 +80,14 @@ export const CreateCandidateModal = ({ isOpen, onClose, onCreateSuccess }: Props
       router.push(`/admin/sessions/${result?.data?._id}`);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to create candidate';
-      setError(message);
       toast.error(message);
-    } finally {
-      setLoading(false);
     }
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
       <div className="bg-white rounded-lg p-6 w-full max-w-md">
         <h2 className="text-xl font-bold mb-4">Thêm ứng viên mới</h2>
         
@@ -107,6 +99,7 @@ export const CreateCandidateModal = ({ isOpen, onClose, onCreateSuccess }: Props
             label="Tên ứng viên"
             rules={['required']}
             context={{ title: 'Tên ứng viên' }}
+            placeholder="Tên ứng viên"
             forceValidate={forceValidate}
           />
           
@@ -117,6 +110,7 @@ export const CreateCandidateModal = ({ isOpen, onClose, onCreateSuccess }: Props
             label="Số điện thoại"
             rules={['required', 'phone']}
             context={{ title: 'Số điện thoại' }}
+            placeholder="Số điện thoại"
             forceValidate={forceValidate}
           />
           
@@ -127,6 +121,7 @@ export const CreateCandidateModal = ({ isOpen, onClose, onCreateSuccess }: Props
             label="Email"
             rules={['required', 'email']}
             context={{ title: 'Email' }}
+            placeholder="Email"
             forceValidate={forceValidate}
           />
           

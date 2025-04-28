@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Candidate, CandidatesResponse } from '@/types/candidate';
 import candidateService from '@/services/candidateService';
 
@@ -16,10 +16,10 @@ export const useCandidates = () => {
   
   const [showLoading, setShowLoading] = useState(false);
 
-  const fetchCandidates = async (page = 1, pageSize = 5) => {
+  const fetchCandidates = useCallback(async (page = 1, pageSize = 5) => {
     try {
       setLoading(true);
-      const response: CandidatesResponse = await candidateService.getCandidates({page,page_size: pageSize});
+      const response: CandidatesResponse = await candidateService.getCandidates({page, page_size: pageSize});
       setCandidates(response.data);
       
       setPagination({
@@ -34,7 +34,7 @@ export const useCandidates = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const handlePageChange = (page: number) => {
     fetchCandidates(page, pagination.itemsPerPage);
@@ -48,7 +48,7 @@ export const useCandidates = () => {
 
   useEffect(() => {
     fetchCandidates();
-  }, []);
+  }, [fetchCandidates]);
 
   useEffect(() => {
     if (loading) {

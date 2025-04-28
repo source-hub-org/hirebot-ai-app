@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/stores/store';
 import candidateService from '@/services/candidateService';
@@ -12,16 +12,16 @@ export const useCandidates = (id?: string) => {
   const storedCandidate = useSelector((state: RootState) => state.candidateDetail.candidate as CandidateDetail | null);
   const storedTopics = useSelector((state: RootState) => state.candidateDetail.topics);
 
-  const fetchCandidateIfNeeded = async () => {
+  const fetchCandidateIfNeeded = useCallback(async (candidateId: string) => {
     try {
-      if (!id) {
+      if (!candidateId) {
         setIsLoading(false);
         return;
       }
       
       let data: CandidateDetail | null = storedCandidate;
-      if (!storedCandidate || storedCandidate._id !== id) {
-        const response = await candidateService.getCandidateById(id);
+      if (!storedCandidate || storedCandidate._id !== candidateId) {
+        const response = await candidateService.getCandidateById(candidateId);
         data = response.data as CandidateDetail;
       }
       
@@ -34,21 +34,27 @@ export const useCandidates = (id?: string) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [dispatch]);
 
-  const getTopics = async () => {
+  const getTopics = useCallback(async () => {
     if (!storedTopics) {
-      const topicsResponse = await candidateService.getTopics();
-      if (topicsResponse?.data) {
-        dispatch(setTopic(topicsResponse.data));
+      try {
+        const topicsResponse = await candidateService.getTopics();
+        if (topicsResponse?.data) {
+          dispatch(setTopic(topicsResponse.data));
+        }
+      } catch (error) {
+        console.error('Error fetching topics:', error);
       }
     }
-  };
+  }, [dispatch]);
 
   useEffect(() => {
-    fetchCandidateIfNeeded();
+    if (id) {
+      fetchCandidateIfNeeded(id);
+    }
     getTopics();
-  }, [id]);
+  }, [id, fetchCandidateIfNeeded, getTopics]);
 
   return {
     candidate: storedCandidate,

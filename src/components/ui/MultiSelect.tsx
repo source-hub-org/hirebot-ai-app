@@ -68,11 +68,11 @@ export function MultiSelect({
 
   useEffect(() => {
     if (forceValidate && rules.length > 0) {
-      const valueToValidate = (rules.includes('required') && internalSelected.length) ? internalSelected.join(',') : '';
+      const valueToValidate = internalSelected.length > 0 ? internalSelected.join(',') : '';
       const errorMsg = validateField(valueToValidate, rules, context);
       setError(errorMsg);
     }
-  }, [forceValidate]);
+  }, [forceValidate, rules, internalSelected, context]);
 
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
