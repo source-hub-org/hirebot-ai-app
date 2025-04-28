@@ -3,26 +3,18 @@ import { http, HttpResponse } from 'msw';
 // Import dữ liệu mẫu
 import { candidates } from './data/candidates'; // Danh sách ứng viên
 import { questions } from './data/questions'; // Danh sách câu hỏi
-import { sessions } from './data/sessions'; // Danh sách phiên thi
 
 export const handlers = [
   // API đăng nhập quản trị viên
-  http.post('/api/login', async ({ request }) => {
-    const body = await request.json();
-    const { username, password } = body;
-    
-    if (username === 'admin' && password === 'password') {
-      return HttpResponse.json({
-        token: 'mock-jwt-token',
-        user: {
-          id: 1,
-          name: 'Admin User',
-          role: 'admin'
-        }
-      }, { status: 200 });
-    }
-    
-    return HttpResponse.json({ message: 'Invalid credentials' }, { status: 401 });
+  http.post('/api/login', async ({  }) => {
+    return HttpResponse.json({
+      token: 'mock-jwt-token',
+      user: {
+        id: 1,
+        name: 'Admin User',
+        role: 'admin'
+      }
+    }, { status: 200 });
   }),
   
   // Get candidates list
@@ -179,156 +171,46 @@ export const handlers = [
   }),
   
   // Create question
-  http.post('/api/questions', async ({ request }) => {
-    const newQuestion = await request.json();
+  http.post('/api/questions', async () => {
+
     
-    // Generate ID
-    newQuestion.id = Math.max(...questions.map(q => q.id)) + 1;
-    
-    // Add to questions array
-    questions.push(newQuestion);
-    
-    return HttpResponse.json({ data: newQuestion }, { status: 201 });
+    return HttpResponse.json({ data: null }, { status: 201 });
   }),
   
   // Update question
-  http.put('/api/questions/:id', async ({ params, request }) => {
-    const { id } = params;
-    const updatedQuestion = await request.json();
+  http.put('/api/questions/:id', async () => {
+
     
-    const index = questions.findIndex(q => q.id === parseInt(id as string));
-    
-    if (index === -1) {
-      return HttpResponse.json({ message: 'Question not found' }, { status: 404 });
-    }
-    
-    // Update question
-    questions[index] = { ...questions[index], ...updatedQuestion };
-    
-    return HttpResponse.json({ data: questions[index] }, { status: 200 });
+    return HttpResponse.json({ data: null }, { status: 200 });
   }),
   
   // Delete question
-  http.delete('/api/questions/:id', ({ params }) => {
-    const { id } = params;
-    
-    const index = questions.findIndex(q => q.id === parseInt(id as string));
-    
-    if (index === -1) {
-      return HttpResponse.json({ message: 'Question not found' }, { status: 404 });
-    }
-    
-    // Remove question
-    questions.splice(index, 1);
-    
+  http.delete('/api/questions/:id', () => {
+
     return HttpResponse.json({ message: 'Question deleted successfully' }, { status: 200 });
   }),
   
   // Create session
-  http.post('/api/sessions', async ({ request }) => {
-    const body = await request.json();
-    const { language, level, questionCount, timeLimit } = body;
+  http.post('/api/sessions', async () => {
     
-    // Generate session token
-    const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-    
-    // Create new session
-    const newSession = {
-      id: Math.max(...sessions.map(s => s.id)) + 1,
-      token,
-      language,
-      level,
-      questionCount,
-      timeLimit,
-      createdAt: new Date().toISOString(),
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours from now
-      status: 'ACTIVE'
-    };
-    
-    // Add to sessions array
-    sessions.push(newSession);
-    
-    return HttpResponse.json({ data: newSession }, { status: 201 });
+    return HttpResponse.json({ data: null }, { status: 201 });
   }),
   
   // Get session by token
-  http.get('/api/sessions/:token', ({ params }) => {
-    const { token } = params;
-    
-    const session = sessions.find(s => s.token === token);
-    
-    if (!session) {
-      return HttpResponse.json({ message: 'Session not found' }, { status: 404 });
-    }
-    
-    return HttpResponse.json({ data: session }, { status: 200 });
+  http.get('/api/sessions/:token', () => {
+
+    return HttpResponse.json({ data: null }, { status: 200 });
   }),
   
   // Get questions for session
-  http.get('/api/sessions/:token/questions', ({ params }) => {
-    const { token } = params;
-    
-    const session = sessions.find(s => s.token === token);
-    
-    if (!session) {
-      return HttpResponse.json({ message: 'Session not found' }, { status: 404 });
-    }
-    
-    // Filter questions by language and level
-    const filteredQuestions = questions.filter(
-      q => q.language === session.language && q.level === session.level
-    );
-    
-    // Randomly select questions
-    const selectedQuestions = filteredQuestions
-      .sort(() => 0.5 - Math.random())
-      .slice(0, session.questionCount);
-    
-    return HttpResponse.json({ data: selectedQuestions }, { status: 200 });
+  http.get('/api/sessions/:token/questions', () => {
+
+    return HttpResponse.json({ data: null }, { status: 200 });
   }),
   
   // Submit quiz answers
-  http.post('/api/sessions/:token/submit', async ({ params, request }) => {
-    const { token } = params;
-    const body = await request.json();
-    const { candidateName, candidateEmail, timeSpent } = body;
-    // Using destructured answers in the future implementation
+  http.post('/api/sessions/:token/submit', async () => {
     
-    const session = sessions.find(s => s.token === token);
-    
-    if (!session) {
-      return HttpResponse.json({ message: 'Session not found' }, { status: 404 });
-    }
-    
-    // Calculate score (in a real app, this would be more complex)
-    const score = Math.floor(Math.random() * 41) + 60; // Random score between 60-100
-    const status = score >= 70 ? 'PASS' : 'FAIL';
-    
-    // Create new candidate
-    const newCandidate = {
-      id: Math.max(...candidates.map(c => c.id)) + 1,
-      name: candidateName,
-      email: candidateEmail,
-      language: session.language,
-      level: session.level,
-      status,
-      date: new Date().toISOString().split('T')[0],
-      sessionToken: token
-    };
-    
-    // Add to candidates array
-    candidates.push(newCandidate);
-    
-    // Create result object
-    const result = {
-      candidateId: newCandidate.id,
-      sessionToken: token,
-      score,
-      status,
-      timeSpent,
-      submittedAt: new Date().toISOString()
-    };
-    
-    return HttpResponse.json({ data: result }, { status: 201 });
+    return HttpResponse.json({ data: null }, { status: 201 });
   })
 ];

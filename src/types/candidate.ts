@@ -25,20 +25,14 @@ export type Answer = {
   is_skip?: number;  // 1 nếu bỏ qua, 0 nếu không bỏ qua
   language: string;
   level: string;
-  category: string;
   explanation?: string;
   difficulty?: string;
-  topic?: string;
-  position?: string;
   positionLevel?: number;
   score?: number;
   feedback?: string;
   category: string;
-  options: string[],
   position: string,
-  positionLevel: string,
   topic: string
-
 };
 
 export type CandidateDetail = Candidate & {

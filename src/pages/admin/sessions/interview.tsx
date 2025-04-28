@@ -75,12 +75,12 @@ const InterviewPage = () => {
               console.log(`Processing answer ${index}:`, answer);
               
               // Nếu câu hỏi không có content, sử dụng question.content nếu có
-              if (!answer.content && answer.question?.content) {
+              if (!answer.content && answer?.content) {
                 const processedAnswer = {
                   ...answer,
                   __id: answer._id  || answer.questionId || `question_${index}`, // Đảm bảo mỗi câu hỏi có ID duy nhất
-                  content: answer.question.content,
-                  options: answer.options || answer.question?.options || [],
+                  content: answer.content,
+                  options: answer.options || answer?.options || [],
                   correctAnswer: answer.correctAnswer || 0
                 };
                 console.log(`Processed answer ${index} with question content:`, processedAnswer);
@@ -110,49 +110,7 @@ const InterviewPage = () => {
             setCandidateAnswers(processedAnswers);
           } else {
             console.log('No answers found in Redux store');
-            
-            // Nếu không có câu trả lời, tạo dữ liệu mẫu để test
-            // Luôn tạo dữ liệu mẫu để đảm bảo có câu hỏi hiển thị
-            {
-              const mockAnswers: Answer[] = [
-                {
-                  _id: '1',
-                  content: 'Trong PHP, cấu trúc dữ liệu nào phù hợp nhất để lưu trữ danh sách các sản phẩm, nơi bạn cần truy cập sản phẩm theo ID một cách nhanh chóng?',
-                  options: [
-                    'Mảng tuần tự',
-                    'Mảng kết hợp (associative array)',
-                    'SplFixedArray',
-                    'SplObjectStorage'
-                  ],
-                  correctAnswer: 1,
-                  language: 'PHP',
-                  level: 'Junior',
-                  category: 'Data Structures',
-                  explanation: 'Mảng kết hợp (associative array) cho phép bạn sử dụng ID sản phẩm làm khóa (key), giúp truy cập sản phẩm một cách nhanh chóng với độ phức tạp O(1) trung bình.',
-                  difficulty: 'easy',
-                  topic: 'Data Structures'
-                },
-                {
-                  _id: '2',
-                  content: 'Cho đoạn code PHP sau: `$queue = new SplQueue(); $queue->enqueue(\'A\'); $queue->enqueue(\'B\'); echo $queue->dequeue();`. Kết quả in ra màn hình là gì?',
-                  options: [
-                    'B',
-                    'A',
-                    'NULL',
-                    'Lỗi'
-                  ],
-                  correctAnswer: 1,
-                  language: 'PHP',
-                  level: 'Junior',
-                  category: 'Data Structures',
-                  explanation: 'SplQueue là một hàng đợi FIFO (First-In-First-Out). Phần tử \'A\' được thêm vào trước, nên khi dequeue, \'A\' sẽ được lấy ra đầu tiên.',
-                  difficulty: 'easy',
-                  topic: 'Data Structures'
-                }
-              ];
-              console.log('Setting mock answers:', mockAnswers);
-              setCandidateAnswers(mockAnswers);
-            }
+
           }
           
           setLoading(false);
@@ -333,7 +291,7 @@ const InterviewPage = () => {
         router.push('/admin/candidates');
       } catch (apiError) {
         console.error('API call error:', apiError);
-        toast.error(apiError.message || 'Có lỗi xảy ra khi lưu phiên phỏng vấn!');
+        // toast.error(apiError.message || 'Có lỗi xảy ra khi lưu phiên phỏng vấn!');
       }
     } catch (error) {
       console.error('Error saving interview:', error);
@@ -522,7 +480,7 @@ const InterviewPage = () => {
                     <div className="mb-2">
                       <button
                         type="button"
-                        onClick={() => handleSkipQuestion(question._id, !question.is_skip)}
+                        onClick={() => handleSkipQuestion(question?._id ?? "", !question.is_skip)}
                         className={`px-3 py-1 rounded-md text-sm font-medium ${
                           question.is_skip 
                             ? 'bg-gray-200 text-gray-700 hover:bg-gray-300' 

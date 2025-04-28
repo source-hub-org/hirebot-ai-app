@@ -29,7 +29,7 @@ const languagesService: LanguagesService = {
         error: {
           message: axiosError.response?.data?.error?.message || 'Failed to fetch Languages',
           status: axiosError.response?.status,
-          data: axiosError.response?.data
+
         }
       };
     }
