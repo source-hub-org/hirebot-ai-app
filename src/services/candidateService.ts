@@ -2,25 +2,8 @@ import { AxiosError } from 'axios';
 import apiClient from './apiClient';
 import { Candidate, CandidateDetail, CandidatesResponse } from '@/types/candidate';
 import { Topic } from '@/types/topic';
+import { ApiResponse, ApiError } from '@/types/common';
 
-interface ApiError {
-  message: string;
-  status?: number;
-  data?: [];
-}
-
-interface ApiResponse<T> {
-  data?: T;
-  error?: ApiError;
-  success: boolean;
-  message?: string;
-  pagination?: {
-    total: number;
-    page: number;
-    page_size: number;
-    total_pages: number;
-  };
-}
 
 type CreateCandidateDto = Omit<Candidate, 'id'>;
 
@@ -46,7 +29,7 @@ const candidateService = {
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse<Candidate[]>>;
       console.error('Error fetching candidates:', axiosError.response?.data?.error);
-      throw new Error(axiosError.response?.data?.error?.message || 'Failed to fetch candidates');
+      throw new Error(JSON.stringify(axiosError.response?.data?.error) || 'Failed to fetch candidates');
     }
   },
 
@@ -55,14 +38,14 @@ const candidateService = {
    * @param id Candidate ID
    * @returns Promise resolving to Candidate object
    */
-  async getCandidateById(id: string): Promise<ApiResponse<CandidateDetail>> {
+  async getCandidateById(id: string): Promise<ApiResponse<CandidateDetail> | ApiError> {
     try {
       const response = await apiClient.get<ApiResponse<CandidateDetail>>(`/api/candidates/${id}`);
       return response.data;
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse<CandidateDetail>>;
-      console.error('Error fetching candidate:', axiosError.response?.data?.error);
-      throw new Error(axiosError.response?.data?.error?.message || 'Failed to fetch candidate');
+      console.error('Error fetching candidate:', axiosError?.response?.data?.error);
+      return axiosError
     }
   },
 
@@ -78,7 +61,7 @@ const candidateService = {
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse<CandidateDetail>>;
       console.error('Error creating candidate:', axiosError.response?.data?.error);
-      throw new Error(axiosError.response?.data?.error?.message || 'Failed to create candidate');
+      throw new Error(JSON.stringify(axiosError.response?.data?.error) || 'Failed to create candidate');
     }
   },
 
@@ -98,7 +81,7 @@ const candidateService = {
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse<Candidate>>;
       console.error('Error updating candidate:', axiosError.response?.data?.error);
-      throw new Error(axiosError.response?.data?.error?.message || 'Failed to update candidate');
+      throw new Error(JSON.stringify(axiosError.response?.data?.error) || 'Failed to update candidate');
     }
   },
 
@@ -113,7 +96,7 @@ const candidateService = {
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse<void>>;
       console.error('Error deleting candidate:', axiosError.response?.data?.error);
-      throw new Error(axiosError.response?.data?.error?.message || 'Failed to delete candidate');
+      throw new Error(JSON.stringify(axiosError.response?.data?.error) || 'Failed to delete candidate');
     }
   },
 
@@ -129,7 +112,7 @@ const candidateService = {
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse<Topic[]>>;
       console.error('Error fetching topics:', axiosError.response?.data?.error);
-      throw new Error(axiosError.response?.data?.error?.message || 'Failed to fetch topics');
+      throw new Error(JSON.stringify(axiosError.response?.data?.error) || 'Failed to fetch topics');
     }
   }
 };

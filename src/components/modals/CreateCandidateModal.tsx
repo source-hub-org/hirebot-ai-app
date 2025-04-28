@@ -10,8 +10,10 @@ import candidateService from '@/services/candidateService';
 import { Candidate } from '@/types/candidate';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { SKILL_OPTIONS, STATUS } from '@/constants/candidate';
-
+import { STATUS } from '@/constants/candidate';
+import { useSelector } from 'react-redux';
+import { selectLanguages } from '@/stores/languageSlice';
+import type { RootState } from '@/stores/store';
 
 type Props = {
   isOpen: boolean;
@@ -30,6 +32,9 @@ export const CreateCandidateModal = ({ isOpen, onClose }: Props) => {
   const [forceValidate, setForceValidate] = useState(false);
 
   const router = useRouter();
+  const languages = useSelector((state: RootState) => selectLanguages(state));
+  const languageOptions = languages.map(lang => lang.name);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -144,7 +149,7 @@ export const CreateCandidateModal = ({ isOpen, onClose }: Props) => {
           />
           
           <MultiSelect
-            options={SKILL_OPTIONS}
+            options={languageOptions}
             selected={formData.skills || []}
             onChange={(selected: string[]) => setFormData({...formData, skills: selected})}
             label="Chọn kỹ năng"

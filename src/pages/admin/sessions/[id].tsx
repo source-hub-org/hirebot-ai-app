@@ -2,8 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Input, Select } from '@/components/ui';
 import { useRouter } from 'next/router';
-import candidateService from '@/services/candidateService';
-import {  setTopic, addAnswer } from '@/stores/candidateDetailSlice';
+import { addAnswer } from '@/stores/candidateDetailSlice';
 import { store } from '@/stores/store';
 import { LEVEL_OPTIONS } from '@/constants/candidate';
 import Head from 'next/head';
@@ -69,12 +68,12 @@ const SessionPage = ({ params }: { params: { id?: string } }) => {
         topic: formData.topic,
         page_size: formData.questionCount
       });
-      if (!questionsResponse.data.length) {
+      if (!questionsResponse?.data?.length) {
         toast.error('Không tìm thấy câu hỏi phù hợp');
         return;
       }
       // Save questions to candidate answers
-      questionsResponse.data.forEach((question: Answer) => {
+      questionsResponse?.data?.forEach((question: Answer) => {
         store.dispatch(addAnswer(question));
       });
       

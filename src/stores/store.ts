@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import candidateDetailReducer from './candidateDetailSlice';
+import languageReducer from './languageSlice';
 
 const persistConfig = {
   key: 'root',
@@ -12,7 +13,8 @@ const persistedReducer = persistReducer(persistConfig, candidateDetailReducer);
 
 export const store = configureStore({
   reducer: {
-    candidateDetail: persistedReducer
+    candidateDetail: persistedReducer,
+    language: languageReducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
