@@ -567,7 +567,9 @@ const InterviewPage = () => {
                 
                 <div className="mb-4">
                   <p className="text-gray-800 whitespace-pre-wrap">
-                    {question.content || question.question?.content || 'Không có nội dung câu hỏi'}
+                    {typeof question.question === 'string' 
+                      ? question.question 
+                      : question.question?.content || 'Không có nội dung câu hỏi'}
                   </p>
                   {question.content && question.content.includes('```') && (
                     <div className="mt-2 p-3 bg-gray-800 text-white rounded-md overflow-x-auto">
