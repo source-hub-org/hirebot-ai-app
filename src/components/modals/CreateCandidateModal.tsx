@@ -1,16 +1,16 @@
-"use client";
-import React, { useState, useRef } from "react";
-import { Input } from "@/components/ui/Input";
-import { Select } from "@/components/ui/Select";
-import { MultiSelect } from "@/components/ui/MultiSelect";
-import { useRouter } from "next/router";
-import { store } from "@/stores/store";
-import { setCandidate } from "@/stores/candidateDetailSlice";
-import candidateService from "@/services/candidateService";
-import { Candidate } from "@/types/candidate";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { SKILL_OPTIONS, STATUS } from "@/constants/candidate";
+'use client';
+import React, { useState, useRef } from 'react';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
+import { MultiSelect } from '@/components/ui/MultiSelect';
+import { useRouter } from 'next/router';
+import { store } from '@/stores/store';
+import { setCandidate } from '@/stores/candidateDetailSlice';
+import candidateService from '@/services/candidateService';
+import { Candidate } from '@/types/candidate';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { LEVEL_OPTIONS, SKILL_OPTIONS, STATUS } from '@/constants/candidate';
 
 type Props = {
   isOpen: boolean;
@@ -139,14 +139,7 @@ export const CreateCandidateModal = ({ isOpen, onClose }: Props) => {
             rules={["required"]}
             context={{ title: "Cấp độ phỏng vấn" }}
             forceValidate={forceValidate}
-            options={[
-              { value: "intern", label: "Intern" },
-              { value: "fresher", label: "Fresher" },
-              { value: "junior", label: "Junior" },
-              { value: "middle", label: "Middle" },
-              { value: "senior", label: "Senior" },
-              { value: "expert", label: "Expert" },
-            ]}
+            options={LEVEL_OPTIONS}
           />
 
           <MultiSelect
