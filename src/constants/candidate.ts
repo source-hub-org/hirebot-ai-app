@@ -76,7 +76,10 @@ export const STATUS = {
   rejected:'rejected',
 }
 export const LEVEL_OPTIONS = [
+  { value: 'intern', label: 'Intern' },
+  { value: 'fresher', label: 'Fresher' },
   { value: 'junior', label: 'Junior' },
   { value: 'middle', label: 'Middle' },
-  { value: 'senior', label: 'Senior' }
+  { value: 'senior', label: 'Senior' },
+  { value: 'expert', label: 'Expert' }
 ];
