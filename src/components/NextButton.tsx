@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface NextButtonProps {
   onClick: () => void;
@@ -6,14 +6,18 @@ interface NextButtonProps {
   isLastQuestion: boolean;
 }
 
-export default function NextButton({ onClick, disabled, isLastQuestion }: NextButtonProps) {
+export default function NextButton({
+  onClick,
+  disabled,
+  isLastQuestion,
+}: NextButtonProps) {
   return (
-    <button 
+    <button
       className="next-button disabled:opacity-50 disabled:cursor-not-allowed"
       onClick={onClick}
       disabled={disabled}
     >
-      {isLastQuestion ? 'Nộp bài' : 'Câu tiếp theo'}
+      {isLastQuestion ? "Nộp bài" : "Câu tiếp theo"}
     </button>
   );
 }

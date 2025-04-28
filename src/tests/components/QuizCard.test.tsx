@@ -1,27 +1,27 @@
-import React from 'react';
-import { render, screen } from '@testing-library/react';
-import QuizCard from '@/components/QuizCard';
+import React from "react";
+import { render, screen } from "@testing-library/react";
+import QuizCard from "@/components/QuizCard";
 
-describe('QuizCard', () => {
-  it('renders children correctly', () => {
+describe("QuizCard", () => {
+  it("renders children correctly", () => {
     render(
       <QuizCard>
         <div data-testid="test-child">Test Content</div>
-      </QuizCard>
+      </QuizCard>,
     );
-    
-    expect(screen.getByTestId('test-child')).toBeInTheDocument();
-    expect(screen.getByText('Test Content')).toBeInTheDocument();
+
+    expect(screen.getByTestId("test-child")).toBeInTheDocument();
+    expect(screen.getByText("Test Content")).toBeInTheDocument();
   });
-  
-  it('has the correct styling classes', () => {
+
+  it("has the correct styling classes", () => {
     render(
       <QuizCard>
         <div>Test Content</div>
-      </QuizCard>
+      </QuizCard>,
     );
-    
-    const card = screen.getByText('Test Content').closest('.quiz-card');
-    expect(card).toHaveClass('quiz-card');
+
+    const card = screen.getByText("Test Content").closest(".quiz-card");
+    expect(card).toHaveClass("quiz-card");
   });
 });
