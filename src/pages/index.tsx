@@ -1,10 +1,10 @@
-import { GetServerSideProps } from 'next';
+import { GetServerSideProps } from "next";
 
 // This function gets called at request time
 export const getServerSideProps: GetServerSideProps = async () => {
   return {
     redirect: {
-      destination: '/admin/candidates',
+      destination: "/admin/candidates",
       permanent: false,
     },
   };

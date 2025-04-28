@@ -1,16 +1,16 @@
-'use client';
-import React, { useState, useRef } from 'react';
-import { Input } from '@/components/ui/Input';
-import { Select } from '@/components/ui/Select';
-import { MultiSelect } from '@/components/ui/MultiSelect';
-import { useRouter } from 'next/router';
-import { store } from '@/stores/store';
-import { setCandidate } from '@/stores/candidateDetailSlice';
-import candidateService from '@/services/candidateService';
-import { Candidate } from '@/types/candidate';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { LEVEL_OPTIONS, SKILL_OPTIONS, STATUS } from '@/constants/candidate';
+"use client";
+import React, { useState, useRef } from "react";
+import { Input } from "@/components/ui/Input";
+import { Select } from "@/components/ui/Select";
+import { MultiSelect } from "@/components/ui/MultiSelect";
+import { useRouter } from "next/router";
+import { store } from "@/stores/store";
+import { setCandidate } from "@/stores/candidateDetailSlice";
+import candidateService from "@/services/candidateService";
+import { Candidate } from "@/types/candidate";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { LEVEL_OPTIONS, SKILL_OPTIONS, STATUS } from "@/constants/candidate";
 
 type Props = {
   isOpen: boolean;
