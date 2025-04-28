@@ -19,6 +19,7 @@ export default function CandidatesList() {
   
   const [showModal, setShowModal] = useState(false);
 
+
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
     router.push('/admin/login');

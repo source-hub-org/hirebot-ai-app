@@ -4,11 +4,12 @@ import { RootState } from '@/stores/store';
 import candidateService from '@/services/candidateService';
 import { setCandidate, setTopic } from '@/stores/candidateDetailSlice';
 import { CandidateDetail } from '@/types/candidate';
+import { useRouter } from 'next/router';
 
 export const useCandidates = (id?: string) => {
   const [isLoading, setIsLoading] = useState(true);
   const dispatch = useDispatch();
-  
+  const router = useRouter();
   const storedCandidate = useSelector((state: RootState) => state.candidateDetail.candidate as CandidateDetail | null);
   const storedTopics = useSelector((state: RootState) => state.candidateDetail.topics);
 
@@ -23,6 +24,10 @@ export const useCandidates = (id?: string) => {
       if (!storedCandidate || storedCandidate._id !== candidateId) {
         const response = await candidateService.getCandidateById(candidateId);
         data = response.data as CandidateDetail;
+        if (!response?.data) {
+          router.push('/admin/candidates');
+          return
+        }
       }
       
       dispatch(setCandidate({
@@ -30,11 +35,12 @@ export const useCandidates = (id?: string) => {
         answers: []
       } as CandidateDetail));
     } catch (error) {
+      router.push('/admin/candidates');
       console.error('Failed to load candidate:', error);
     } finally {
       setIsLoading(false);
     }
-  }, [dispatch]);
+  }, [dispatch, router]);
 
   const getTopics = useCallback(async () => {
     if (!storedTopics) {
@@ -47,7 +53,7 @@ export const useCandidates = (id?: string) => {
         console.error('Error fetching topics:', error);
       }
     }
-  }, [dispatch]);
+  }, [dispatch, router]);
 
   useEffect(() => {
     if (id) {

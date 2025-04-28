@@ -12,7 +12,6 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { SKILL_OPTIONS, STATUS } from '@/constants/candidate';
 
-
 type Props = {
   isOpen: boolean;
   onClose: () => void;
@@ -30,6 +29,7 @@ export const CreateCandidateModal = ({ isOpen, onClose }: Props) => {
   const [forceValidate, setForceValidate] = useState(false);
 
   const router = useRouter();
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
