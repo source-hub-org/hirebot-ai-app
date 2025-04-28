@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
-import Image from 'next/image';
 
 // Components - Các thành phần UI
 import QuizCard from '@/components/QuizCard';
@@ -77,6 +76,15 @@ export default function Quiz() {
   const [answers, setAnswers] = useState<Record<number, string>>({}); // Lưu trữ câu trả lời
   const [timeLeft, setTimeLeft] = useState(1800); // 30 phút tính bằng giây
   
+  // Submit quiz - wrapped in useCallback to prevent recreation on each render
+  const submitQuiz = useCallback(() => {
+    // In a real app, we would send answers to the server
+    console.log('Submitting answers:', answers);
+    
+    // Redirect to results page
+    router.push(`/result/${token}`);
+  }, [answers, router, token]);
+  
   // Xử lý đồng hồ đếm ngược
   useEffect(() => {
     // Nếu hết thời gian, tự động nộp bài
@@ -92,7 +100,7 @@ export default function Quiz() {
     
     // Dọn dẹp interval khi component unmount
     return () => clearInterval(timer);
-  }, [timeLeft]);
+  }, [timeLeft, submitQuiz]);
   
   // Format time as MM:SS
   const formatTime = (seconds: number) => {
@@ -121,15 +129,6 @@ export default function Quiz() {
     } else {
       submitQuiz();
     }
-  };
-  
-  // Submit quiz
-  const submitQuiz = () => {
-    // In a real app, we would send answers to the server
-    console.log('Submitting answers:', answers);
-    
-    // Redirect to results page
-    router.push(`/result/${token}`);
   };
   
   // Calculate progress percentage

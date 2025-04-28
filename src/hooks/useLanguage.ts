@@ -10,7 +10,7 @@ export const useLanguages = (autoFetch = true) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchLanguages = async () => {
+  const fetchLanguages = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
@@ -23,13 +23,13 @@ export const useLanguages = (autoFetch = true) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [dispatch]);
 
   useEffect(() => {
     if (!languages?.length) {
       fetchLanguages();
     }
-  }, [dispatch, autoFetch]);
+  }, [dispatch, autoFetch, fetchLanguages, languages?.length]);
 
   return {
     languages,

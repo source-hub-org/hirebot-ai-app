@@ -1,10 +1,12 @@
 import React from 'react';
-import { useRouter } from 'next/router';
+// import { useRouter } from 'next/router'; // Will be used in real implementation
 import Link from 'next/link';
 
 export default function Result() {
-  const router = useRouter();
-  const { token } = router.query;
+  // Router will be used in a real implementation for navigation
+  // const router = useRouter();
+  // Token will be used in a real implementation for API calls
+  // const { token } = router.query;
   
   // Mock result data - would be fetched from API in real implementation
   const result = {

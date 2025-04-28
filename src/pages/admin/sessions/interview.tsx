@@ -8,7 +8,7 @@ import Head from 'next/head';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import { Candidate as CandidateType, Answer, CandidateDetail } from '@/types/candidate';
+import { Answer, CandidateDetail } from '@/types/candidate';
 import apiClient from '@/services/apiClient';
 
 const InterviewPage = () => {
@@ -16,7 +16,7 @@ const InterviewPage = () => {
   const [isClient, setIsClient] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
+  // Error state removed as it's not being used
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   
   // Lấy thông tin ứng viên từ Redux store
@@ -162,7 +162,7 @@ const InterviewPage = () => {
       console.error('Interview - Error checking authentication:', error);
       router.push('/admin/login');
     }
-  }, [router, answers]);
+  }, [router, answers, candidate]);
   
   // Hàm xử lý khi chọn câu trả lời
   const handleSelectAnswer = (questionId: string, optionIndex: number) => {

@@ -291,7 +291,8 @@ export const handlers = [
   http.post('/api/sessions/:token/submit', async ({ params, request }) => {
     const { token } = params;
     const body = await request.json();
-    const { candidateName, candidateEmail, answers, timeSpent } = body;
+    const { candidateName, candidateEmail, timeSpent } = body;
+    // Using destructured answers in the future implementation
     
     const session = sessions.find(s => s.token === token);
     

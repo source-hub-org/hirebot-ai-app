@@ -1,0 +1,19 @@
+services:
+  nextjs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hirebot-ai-app
+    restart: always
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./public:/app/public
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
