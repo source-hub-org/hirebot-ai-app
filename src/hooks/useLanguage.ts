@@ -33,6 +33,7 @@ export const useLanguages = (autoFetch = true, limit?: number) => {
   useEffect(() => {
     if (autoFetch && !languages?.length && !hasFetched.current) {
       fetchLanguages();
+      hasFetched.current = true
     }
   }, [autoFetch, fetchLanguages, languages?.length]);
 
