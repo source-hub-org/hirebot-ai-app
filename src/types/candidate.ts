@@ -17,7 +17,6 @@ export type Answer = {
   _id?: string;
   id?: string;
   questionId?: string;
-  content: string;
   options: string[];
   correctAnswer: number;
   selectedAnswer?: number;
@@ -33,10 +32,7 @@ export type Answer = {
   positionLevel?: number;
   score?: number;
   feedback?: string;
-  question?: {
-    content?: string;
-    options?: string[];
-  };
+  question :string;
 };
 
 export type CandidateDetail = Candidate & {

@@ -2,83 +2,57 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 
-// Mock data
-const mockQuestions = [
-  {
-    id: 1,
-    question: "JavaScript là ngôn ngữ lập trình thuộc loại nào?",
-    type: "MCQ",
-    language: "JavaScript",
-    level: "Junior",
-    options: [
-      { id: "a", text: "Compiled Language" },
-      { id: "b", text: "Interpreted Language", correct: true },
-      { id: "c", text: "Both Compiled & Interpreted" },
-      { id: "d", text: "Neither Compiled nor Interpreted" },
-    ],
-  },
-  {
-    id: 2,
-    question: "Đâu KHÔNG phải là kiểu dữ liệu nguyên thủy trong JavaScript?",
-    type: "MCQ",
-    language: "JavaScript",
-    level: "Junior",
-    options: [
-      { id: "a", text: "String" },
-      { id: "b", text: "Number" },
-      { id: "c", text: "Object", correct: true },
-      { id: "d", text: "Boolean" },
-    ],
-  },
-  {
-    id: 3,
-    question:
-      "Giải thích cách hoạt động của Event Loop trong JavaScript và vai trò của nó trong mô hình bất đồng bộ.",
-    type: "Essay",
-    language: "JavaScript",
-    level: "Senior",
-  },
-  {
-    id: 4,
-    question:
-      "Phân biệt giữa shallow copy và deep copy trong Python. Cung cấp ví dụ minh họa.",
-    type: "Essay",
-    language: "Python",
-    level: "Middle",
-  },
-  {
-    id: 5,
-    question:
-      "Trong Python, phương thức nào được sử dụng để sao chép một list?",
-    type: "MCQ",
-    language: "Python",
-    level: "Junior",
-    options: [
-      { id: "a", text: "copy()" },
-      { id: "b", text: "clone()" },
-      { id: "c", text: "duplicate()" },
-      { id: "d", text: "replicate()" },
-    ],
-  },
-];
+// Services
+import questionService from "@/services/questionService";
+import candidateService from "@/services/candidateService";
+
+// Types
+import {Topic } from "@/types/candidate";
+
+// Interface for Question
+interface Question {
+  _id: string;
+  question: string;
+  options: string[];
+  correctAnswer: number;
+  explanation?: string;
+  topic: string;
+  language: string;
+  position: string;
+  type?: string; // For UI compatibility
+  level?: string; // For UI compatibility
+}
 
 export default function QuestionsList() {
   const router = useRouter();
-  const [questions, setQuestions] = useState(mockQuestions);
-  const [filteredQuestions, setFilteredQuestions] = useState(mockQuestions);
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [topics, setTopics] = useState<Topic[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [totalQuestions, setTotalQuestions] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  
+  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(5);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  
+  // Filters
   const [filters, setFilters] = useState({
-    type: "",
-    language: "",
-    level: "",
+    topic: "",
+    language: "JavaScript",
+    position: "junior",
+    sort_by: "createdAt",
+    sort_direction: "desc",
+    mode: "full"
   });
+  
   const [showAddModal, setShowAddModal] = useState(false);
   const [newQuestion, setNewQuestion] = useState({
     question: "",
     type: "MCQ",
     language: "JavaScript",
-    level: "Junior",
+    level: "junior",
+    topic: "",
     options: [
       { id: "a", text: "", correct: false },
       { id: "b", text: "", correct: false },
@@ -89,33 +63,164 @@ export default function QuestionsList() {
 
   // Check if user is authenticated
   useEffect(() => {
-    const token = localStorage.getItem("adminToken");
-    if (!token) {
-      router.push("/admin/login");
+    // Use try-catch to handle localStorage errors in SSR
+    try {
+      const token = localStorage.getItem("adminToken");
+      if (!token) {
+        router.push("/admin/login");
+      } else {
+        // Fetch topics when component mounts
+        console.log("Calling fetchTopics from useEffect");
+        fetchTopics();
+      }
+    } catch (error) {
+      console.error("Error accessing localStorage:", error);
     }
   }, [router]);
 
-  // Apply filters
+  // Fetch topics from API
+  const fetchTopics = async () => {
+    try {
+      console.log("Fetching topics...");
+      
+      // Try to get topics from API
+      const response = await candidateService.getTopics();
+      console.log("Topics API response:", response);
+      
+      if (response.data && response.data.length > 0) {
+        console.log("Setting topics from API:", response.data);
+        setTopics(response.data);
+        
+        // Set the first topic as default
+        const firstTopic = response.data[0].title;
+        console.log("Setting first topic as default:", firstTopic);
+        
+        setFilters(prev => ({
+          ...prev,
+          topic: firstTopic
+        }));
+        
+        setNewQuestion(prev => ({
+          ...prev,
+          topic: firstTopic
+        }));
+      } else {
+        console.log("API returned no topics, using fallback data");
+        
+        // Fallback: Use hardcoded topics if API fails
+        const fallbackTopics: Topic[] = [
+          { title: "JavaScript Basics", difficulty: 1, popularity: "high", suitable_level: "junior", description: "Basic JavaScript concepts" },
+          { title: "React", difficulty: 2, popularity: "high", suitable_level: "middle", description: "React framework" },
+          { title: "Node.js", difficulty: 2, popularity: "high", suitable_level: "middle", description: "Node.js runtime" },
+          { title: "TypeScript", difficulty: 3, popularity: "medium", suitable_level: "senior", description: "TypeScript language" },
+          { title: "Data Structures", difficulty: 3, popularity: "medium", suitable_level: "senior", description: "Common data structures" }
+        ];
+        
+        console.log("Setting fallback topics:", fallbackTopics);
+        setTopics(fallbackTopics);
+        
+        // Set the first fallback topic as default
+        const firstTopic = fallbackTopics[0].title;
+        setFilters(prev => ({
+          ...prev,
+          topic: firstTopic
+        }));
+        
+        setNewQuestion(prev => ({
+          ...prev,
+          topic: firstTopic
+        }));
+      }
+    } catch (error) {
+      console.error("Error fetching topics:", error);
+      setError("Failed to load topics. Please try again.");
+      
+      // Fallback: Use hardcoded topics if API fails
+      const fallbackTopics: Topic[] = [
+        { title: "JavaScript Basics", difficulty: 1, popularity: "high", suitable_level: "junior", description: "Basic JavaScript concepts" },
+        { title: "React", difficulty: 2, popularity: "high", suitable_level: "middle", description: "React framework" },
+        { title: "Node.js", difficulty: 2, popularity: "high", suitable_level: "middle", description: "Node.js runtime" },
+        { title: "TypeScript", difficulty: 3, popularity: "medium", suitable_level: "senior", description: "TypeScript language" },
+        { title: "Data Structures", difficulty: 3, popularity: "medium", suitable_level: "senior", description: "Common data structures" }
+      ];
+      
+      console.log("Setting fallback topics after error:", fallbackTopics);
+      setTopics(fallbackTopics);
+      
+      // Set the first fallback topic as default
+      const firstTopic = fallbackTopics[0].title;
+      setFilters(prev => ({
+        ...prev,
+        topic: firstTopic
+      }));
+      
+      setNewQuestion(prev => ({
+        ...prev,
+        topic: firstTopic
+      }));
+    }
+  };
+
+  // Fetch questions from API
+  const fetchQuestions = async () => {
+    if (!filters.topic) return;
+    
+    setLoading(true);
+    try {
+      const response = await questionService.searchQuestions({
+        topic: filters.topic,
+        language: filters.language,
+        position: filters.position,
+        page: currentPage,
+        page_size: itemsPerPage,
+        mode: filters.mode,
+        sort_by: filters.sort_by,
+        sort_direction: filters.sort_direction
+      });
+      
+      console.log('API response:', response);
+      
+      // Kiểm tra cả hai trường hợp: response.success || response.status === "success") hoặc response.status === "success"
+      if (response.data) {
+        // Transform API response to match our UI needs
+        const formattedQuestions = response.data.map((q: Partial<Question>) => ({
+          ...q,
+          _id: q._id || '', // Ensure _id is always a string
+          // Không cần map 'question' field vì chúng ta đã sử dụng trực tiếp trong UI
+          type: q.options && q.options.length > 0 ? "MCQ" : "Essay",
+          level: q.position || '' // Map position to level for UI compatibility
+        })) as Question[];
+        
+        console.log('Formatted questions:', formattedQuestions);
+        setQuestions(formattedQuestions);
+        
+        // Set pagination data
+        if (response.pagination) {
+          console.log('Pagination data:', response.pagination);
+          setTotalQuestions(response.pagination.total);
+          setTotalPages(response.pagination.total_pages || 1);
+        } else {
+          // Nếu không có thông tin phân trang, tính toán dựa trên số lượng câu hỏi
+          const calculatedTotalPages = Math.ceil(formattedQuestions.length / itemsPerPage);
+          console.log('Calculated total pages:', calculatedTotalPages);
+          setTotalQuestions(formattedQuestions.length);
+          setTotalPages(calculatedTotalPages > 0 ? calculatedTotalPages : 1);
+        }
+        
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("Error fetching questions:", error);
+      setError("Failed to load questions. Please try again.");
+      setLoading(false);
+    }
+  };
+
+  // Fetch questions when filters or pagination changes
   useEffect(() => {
-    let result = [...questions];
-
-    if (filters.type) {
-      result = result.filter((question) => question.type === filters.type);
-    }
-
-    if (filters.language) {
-      result = result.filter(
-        (question) => question.language === filters.language,
-      );
-    }
-
-    if (filters.level) {
-      result = result.filter((question) => question.level === filters.level);
-    }
-
-    setFilteredQuestions(result);
-    setCurrentPage(1); // Reset to first page when filters change
-  }, [filters, questions]);
+    fetchQuestions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters, currentPage, itemsPerPage]);
 
   // Handle filter change
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -124,7 +229,17 @@ export default function QuestionsList() {
       ...prev,
       [name]: value,
     }));
+    // Reset to first page when filters change
+    setCurrentPage(1);
   };
+
+  // Handle page size change
+  const handlePageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setItemsPerPage(Number(e.target.value));
+    setCurrentPage(1); // Reset to first page when page size changes
+  };
+
+  
 
   // Handle logout
   const handleLogout = () => {
@@ -160,7 +275,7 @@ export default function QuestionsList() {
   };
 
   // Handle add question
-  const handleAddQuestion = () => {
+  const handleAddQuestion = async () => {
     // Validate form
     if (!newQuestion.question) {
       alert("Vui lòng nhập câu hỏi");
@@ -185,47 +300,39 @@ export default function QuestionsList() {
       }
     }
 
-    // Add new question
-    const newId = Math.max(...questions.map((q) => q.id)) + 1;
-    const questionToAdd = {
-      ...newQuestion,
-      id: newId,
-    };
-
-    setQuestions((prev) => [...prev, questionToAdd]);
-
-    // Reset form and close modal
-    setNewQuestion({
-      question: "",
-      type: "MCQ",
-      language: "JavaScript",
-      level: "Junior",
-      options: [
-        { id: "a", text: "", correct: false },
-        { id: "b", text: "", correct: false },
-        { id: "c", text: "", correct: false },
-        { id: "d", text: "", correct: false },
-      ],
-    });
-    setShowAddModal(false);
-  };
-
-  // Handle delete question
-  const handleDeleteQuestion = (id: number) => {
-    if (confirm("Bạn có chắc chắn muốn xóa câu hỏi này?")) {
-      setQuestions((prev) => prev.filter((question) => question.id !== id));
+    try {
+      // Prepare question data for API      
+      // Uncomment and implement this when ready to add questions
+      /*
+      const response = await questionService.addQuestion({
+        content: newQuestion.question,
+        topic: newQuestion.topic,
+        language: newQuestion.language,
+        position: newQuestion.level.toLowerCase(), // Convert level to position
+        options: newQuestion.options.map(opt => opt.text),
+        correctAnswer: correctAnswerIndex >= 0 ? correctAnswerIndex : 0
+      });
+      
+      if (response.success) {
+        alert("Thêm câu hỏi thành công!");
+        setShowAddModal(false);
+        fetchQuestions(); // Refresh the question list
+      } else {
+        alert("Lỗi khi thêm câu hỏi: " + (response.message || "Vui lòng thử lại"));
+      }
+      */
+      
+      // Temporary placeholder
+      console.log("Chức năng thêm câu hỏi chưa được triển khai");
+      alert("Chức năng thêm câu hỏi chưa được triển khai");
+    
+    } catch (error) {
+      console.error("Error adding question:", error);
+      alert("Lỗi khi thêm câu hỏi. Vui lòng thử lại.");
     }
   };
 
-  // Pagination
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredQuestions.slice(
-    indexOfFirstItem,
-    indexOfLastItem,
-  );
-  const totalPages = Math.ceil(filteredQuestions.length / itemsPerPage);
-
+  // Pagination handler
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   return (
@@ -239,9 +346,6 @@ export default function QuestionsList() {
             </Link>
             <Link href="/admin/questions">
               <span className="hover:underline">Câu hỏi</span>
-            </Link>
-            <Link href="/admin/sessions/new">
-              <span className="hover:underline">Tạo phiên thi</span>
             </Link>
             <button
               onClick={handleLogout}
@@ -258,36 +362,30 @@ export default function QuestionsList() {
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold">Quản lý câu hỏi</h1>
             <div className="flex gap-2">
-              <button
-                onClick={() => setShowAddModal(true)}
-                className="bg-gradient-to-r from-primary-light to-primary text-white px-4 py-2 rounded hover:opacity-90"
-              >
-                Thêm câu hỏi
-              </button>
-              <button className="bg-green-500 text-white px-4 py-2 rounded hover:opacity-90">
-                Import CSV
-              </button>
-              <button className="bg-blue-500 text-white px-4 py-2 rounded hover:opacity-90">
-                Export CSV
-              </button>
             </div>
           </div>
 
           {/* Filters */}
-          <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-4 gap-4 mb-6">
             <div>
               <label className="block text-sm font-medium mb-2">
-                Loại câu hỏi
+                Chủ đề
               </label>
               <select
-                name="type"
+                name="topic"
                 className="w-full p-2 border rounded"
-                value={filters.type}
+                value={filters.topic}
                 onChange={handleFilterChange}
               >
-                <option value="">Tất cả</option>
-                <option value="MCQ">Trắc nghiệm</option>
-                <option value="Essay">Tự luận</option>
+                {topics && topics.length > 0 ? (
+                  topics.map((topic) => (
+                    <option key={topic.title} value={topic.title}>
+                      {topic.title}
+                    </option>
+                  ))
+                ) : (
+                  <option value="">No topics available</option>
+                )}
               </select>
             </div>
             <div>
@@ -298,134 +396,272 @@ export default function QuestionsList() {
                 value={filters.language}
                 onChange={handleFilterChange}
               >
-                <option value="">Tất cả</option>
                 <option value="JavaScript">JavaScript</option>
                 <option value="Python">Python</option>
                 <option value="Java">Java</option>
                 <option value="C#">C#</option>
+                <option value="PHP">PHP</option>
               </select>
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Cấp độ</label>
               <select
-                name="level"
+                name="position"
                 className="w-full p-2 border rounded"
-                value={filters.level}
+                value={filters.position}
                 onChange={handleFilterChange}
               >
-                <option value="">Tất cả</option>
-                <option value="Junior">Junior</option>
-                <option value="Middle">Middle</option>
-                <option value="Senior">Senior</option>
+                <option value="intern">Intern</option>
+                <option value="fresher">Fresher</option>
+                <option value="junior">Junior</option>
+                <option value="middle">Middle</option>
+                <option value="senior">Senior</option>
+                <option value="expert">Expert</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Sắp xếp theo</label>
+              <select
+                name="sort_by"
+                className="w-full p-2 border rounded"
+                value={filters.sort_by}
+                onChange={handleFilterChange}
+              >
+                <option value="question">Câu hỏi</option>
+                <option value="category">Danh mục</option>
+                <option value="createdAt">Ngày tạo</option>
+              </select>
+            </div>
+          </div>
+          
+          {/* Sort direction */}
+          <div className="flex justify-end items-center mb-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm">Thứ tự:</span>
+              <select
+                name="sort_direction"
+                className="p-1 border rounded"
+                value={filters.sort_direction}
+                onChange={handleFilterChange}
+              >
+                <option value="asc">Tăng dần</option>
+                <option value="desc">Giảm dần</option>
               </select>
             </div>
           </div>
 
+          {/* Loading indicator */}
+          {loading && (
+            <div className="flex justify-center items-center py-8">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+            </div>
+          )}
+          
+          {/* Error message */}
+          {error && !loading && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+              <p>{error}</p>
+              <button 
+                onClick={fetchQuestions}
+                className="mt-2 bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600"
+              >
+                Thử lại
+              </button>
+            </div>
+          )}
+          
           {/* Table */}
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="py-3 px-4 text-left">ID</th>
-                  <th className="py-3 px-4 text-left">Câu hỏi</th>
-                  <th className="py-3 px-4 text-left">Loại</th>
-                  <th className="py-3 px-4 text-left">Ngôn ngữ</th>
-                  <th className="py-3 px-4 text-left">Cấp độ</th>
-                  <th className="py-3 px-4 text-left">Thao tác</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentItems.map((question) => (
-                  <tr key={question.id} className="border-b hover:bg-gray-50">
-                    <td className="py-3 px-4">{question.id}</td>
-                    <td className="py-3 px-4">
-                      <div className="max-w-md truncate">
-                        {question.question}
-                      </div>
-                    </td>
-                    <td className="py-3 px-4">
-                      <span
-                        className={`inline-block px-2 py-1 rounded-full text-xs text-white ${
-                          question.type === "MCQ"
-                            ? "bg-blue-500"
-                            : "bg-purple-500"
-                        }`}
-                      >
-                        {question.type === "MCQ" ? "Trắc nghiệm" : "Tự luận"}
+          {!loading && !error && (
+            <div className="grid grid-cols-1 gap-6">
+              {questions.map((question) => (
+                <div key={question._id} className="bg-white border rounded-lg shadow-sm hover:shadow-md transition-shadow p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full mr-2">
+                        {question.topic}
                       </span>
-                    </td>
-                    <td className="py-3 px-4">{question.language}</td>
-                    <td className="py-3 px-4">{question.level}</td>
-                    <td className="py-3 px-4">
-                      <div className="flex gap-2">
-                        <button className="text-blue-500 hover:underline">
-                          Sửa
-                        </button>
-                        <button
-                          className="text-red-500 hover:underline"
-                          onClick={() => handleDeleteQuestion(question.id)}
-                        >
-                          Xóa
-                        </button>
+                      <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded-full mr-2">
+                        {question.language}
+                      </span>
+                      <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                        {question.position}
+                      </span>
+                    </div>
+                    <div className="text-xs text-gray-500">ID: {question._id.substring(0, 8)}...</div>
+                  </div>
+                  
+                  <h3 className="text-lg font-semibold mb-4">{question.question}</h3>
+                  
+                  {question.options && question.options.length > 0 && (
+                    <div className="mb-4">
+                      <p className="text-sm font-medium text-gray-700 mb-2">Đáp án:</p>
+                      <div className="space-y-2">
+                        {question.options.map((option, index) => (
+                          <div 
+                            key={index} 
+                            className={`p-3 rounded-md ${
+                              index === question.correctAnswer 
+                                ? 'bg-green-50 border border-green-200' 
+                                : 'bg-gray-50 border border-gray-200'
+                            }`}
+                          >
+                            <div className="flex items-start">
+                              <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center mr-2 ${
+                                index === question.correctAnswer 
+                                  ? 'bg-green-500 text-white' 
+                                  : 'bg-gray-300 text-gray-700'
+                              }`}>
+                                {String.fromCharCode(65 + index)}
+                              </div>
+                              <div className="flex-1">
+                                <p className={`text-sm ${
+                                  index === question.correctAnswer 
+                                    ? 'text-green-800 font-medium' 
+                                    : 'text-gray-800'
+                                }`}>
+                                  {option}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    </td>
-                  </tr>
-                ))}
+                    </div>
+                  )}
+                  
+                  {question.explanation && (
+                    <div className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-md">
+                      <p className="text-sm font-medium text-blue-800 mb-1">Giải thích:</p>
+                      <p className="text-sm text-blue-700">{question.explanation}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
 
-                {currentItems.length === 0 && (
-                  <tr>
-                    <td colSpan={6} className="py-4 text-center text-gray-500">
-                      Không có dữ liệu
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+              {questions.length === 0 && !loading && (
+                <div className="bg-white border rounded-lg p-8 text-center text-gray-500">
+                  Không có dữ liệu
+                </div>
+              )}
+            </div>
+          )}
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex justify-center mt-6">
-              <nav>
-                <ul className="flex">
-                  <li>
-                    <button
-                      onClick={() => paginate(Math.max(1, currentPage - 1))}
-                      disabled={currentPage === 1}
-                      className="px-3 py-1 border rounded-l hover:bg-gray-100 disabled:opacity-50"
+          {/* Pagination - Always show */}
+          {!loading && (
+            <div className="mt-8 bg-white rounded-lg shadow-sm p-4 border">
+              <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div className="text-sm text-gray-600 font-medium">
+                  Hiển thị <span className="text-primary font-bold">{questions.length}</span> trong tổng số <span className="text-primary font-bold">{totalQuestions}</span> câu hỏi
+                </div>
+                
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center">
+                    <label className="text-sm text-gray-600 mr-2">Số mục mỗi trang:</label>
+                    <select
+                      value={itemsPerPage}
+                      onChange={handlePageSizeChange}
+                      className="border rounded px-2 py-1 text-sm"
                     >
-                      &laquo;
-                    </button>
-                  </li>
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                    (number) => (
-                      <li key={number}>
+                      <option value="5">5</option>
+                      <option value="10">10</option>
+                      <option value="20">20</option>
+                      <option value="50">50</option>
+                    </select>
+                  </div>
+                
+                  <nav aria-label="Phân trang">
+                    <ul className="flex items-center">
+                      <li>
                         <button
-                          onClick={() => paginate(number)}
-                          className={`px-3 py-1 border-t border-b hover:bg-gray-100 ${
-                            currentPage === number
-                              ? "bg-primary text-white"
-                              : ""
-                          }`}
+                          onClick={() => paginate(Math.max(1, currentPage - 1))}
+                          disabled={currentPage === 1}
+                          className="flex items-center justify-center w-9 h-9 rounded-l-lg border bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                          aria-label="Trang trước"
                         >
-                          {number}
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path fillRule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+                          </svg>
                         </button>
                       </li>
-                    ),
-                  )}
-                  <li>
-                    <button
-                      onClick={() =>
-                        paginate(Math.min(totalPages, currentPage + 1))
-                      }
-                      disabled={currentPage === totalPages}
-                      className="px-3 py-1 border rounded-r hover:bg-gray-100 disabled:opacity-50"
-                    >
-                      &raquo;
-                    </button>
-                  </li>
-                </ul>
-              </nav>
+                      
+                      {/* Show limited page numbers with ellipsis for large page counts */}
+                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        // For many pages, show first, last, current and neighbors
+                        let pageNum;
+                        if (totalPages <= 5) {
+                          // Show all pages if 5 or fewer
+                          pageNum = i + 1;
+                        } else if (currentPage <= 3) {
+                          // Near start
+                          pageNum = i + 1;
+                          if (i === 4) pageNum = totalPages;
+                        } else if (currentPage >= totalPages - 2) {
+                          // Near end
+                          if (i === 0) pageNum = 1;
+                          else pageNum = totalPages - (4 - i);
+                        } else {
+                          // Middle
+                          if (i === 0) pageNum = 1;
+                          else if (i === 4) pageNum = totalPages;
+                          else pageNum = currentPage + (i - 2);
+                        }
+                        
+                        // Add ellipsis
+                        if ((i === 1 && pageNum !== 2) || (i === 3 && pageNum !== totalPages - 1)) {
+                          return (
+                            <li key={`ellipsis-${i}`}>
+                              <span className="flex items-center justify-center w-9 h-9 border-t border-b">...</span>
+                            </li>
+                          );
+                        }
+                        
+                        return (
+                          <li key={pageNum}>
+                            <button
+                              onClick={() => paginate(pageNum)}
+                              className={`flex items-center justify-center w-9 h-9 border-t border-b hover:bg-gray-50 ${
+                                currentPage === pageNum
+                                  ? "bg-primary text-white hover:bg-primary-dark"
+                                  : "text-gray-700"
+                              }`}
+                              aria-label={`Trang ${pageNum}`}
+                              aria-current={currentPage === pageNum ? "page" : undefined}
+                            >
+                              {pageNum}
+                            </button>
+                          </li>
+                        );
+                      })}
+                      
+                      <li>
+                        <button
+                          onClick={() => paginate(Math.min(totalPages, currentPage + 1))}
+                          disabled={currentPage === totalPages}
+                          className="flex items-center justify-center w-9 h-9 rounded-r-lg border bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                          aria-label="Trang sau"
+                        >
+                      {/* Hiển thị trang hiện tại khi chỉ có 1 trang */}
+                      {totalPages <= 1 && (
+                        <li>
+                          <button
+                            className="flex items-center justify-center w-9 h-9 border bg-primary text-white"
+                            aria-current="page"
+                            disabled
+                          >
+                            1
+                          </button>
+                        </li>
+                      )}
+                      
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                          </svg>
+                        </button>
+                      </li>
+                    </ul>
+                  </nav>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -460,7 +696,24 @@ export default function QuestionsList() {
                 ></textarea>
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-4 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Chủ đề
+                  </label>
+                  <select
+                    name="topic"
+                    className="w-full p-2 border rounded"
+                    value={newQuestion.topic}
+                    onChange={handleNewQuestionChange}
+                  >
+                    {topics.map((topic) => (
+                      <option key={topic.title} value={topic.title}>
+                        {topic.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <div>
                   <label className="block text-sm font-medium mb-2">
                     Loại câu hỏi
@@ -489,6 +742,7 @@ export default function QuestionsList() {
                     <option value="Python">Python</option>
                     <option value="Java">Java</option>
                     <option value="C#">C#</option>
+                    <option value="PHP">PHP</option>
                   </select>
                 </div>
                 <div>
@@ -501,9 +755,12 @@ export default function QuestionsList() {
                     value={newQuestion.level}
                     onChange={handleNewQuestionChange}
                   >
-                    <option value="Junior">Junior</option>
-                    <option value="Middle">Middle</option>
-                    <option value="Senior">Senior</option>
+                    <option value="intern">Intern</option>
+                    <option value="fresher">Fresher</option>
+                    <option value="junior">Junior</option>
+                    <option value="middle">Middle</option>
+                    <option value="senior">Senior</option>
+                    <option value="expert">Expert</option>
                   </select>
                 </div>
               </div>

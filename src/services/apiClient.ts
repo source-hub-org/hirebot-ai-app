@@ -17,10 +17,13 @@ apiClient.interceptors.request.use(
     // Add auth token if available
     const token =
       typeof localStorage !== "undefined"
-        ? localStorage.getItem("authToken")
+        ? localStorage.getItem("authToken") || localStorage.getItem("adminToken")
         : null;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log("Added token to request:", config.url);
+    } else {
+      console.log("No token found for request:", config.url);
     }
     return config;
   },

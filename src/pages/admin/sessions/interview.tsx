@@ -83,12 +83,12 @@ const InterviewPage = () => {
               console.log(`Processing answer ${index}:`, answer);
 
               // Nếu câu hỏi không có content, sử dụng question.content nếu có
-              if (!answer.content && answer.question?.content) {
+              if (!answer.question) {
                 const processedAnswer = {
                   ...answer,
                   _id: answer._id || answer.questionId || `question_${index}`, // Đảm bảo mỗi câu hỏi có ID duy nhất
-                  content: answer.question.content,
-                  options: answer.options || answer.question?.options || [],
+                  content: answer.question,
+                  options: answer.options || [],
                   correctAnswer: answer.correctAnswer || 0,
                 };
                 console.log(
@@ -138,7 +138,7 @@ const InterviewPage = () => {
               const mockAnswers: Answer[] = [
                 {
                   _id: "1",
-                  content:
+                  question:
                     "Trong PHP, cấu trúc dữ liệu nào phù hợp nhất để lưu trữ danh sách các sản phẩm, nơi bạn cần truy cập sản phẩm theo ID một cách nhanh chóng?",
                   options: [
                     "Mảng tuần tự",
@@ -157,7 +157,7 @@ const InterviewPage = () => {
                 },
                 {
                   _id: "2",
-                  content:
+                  question:
                     "Cho đoạn code PHP sau: `$queue = new SplQueue(); $queue->enqueue('A'); $queue->enqueue('B'); echo $queue->dequeue();`. Kết quả in ra màn hình là gì?",
                   options: ["B", "A", "NULL", "Lỗi"],
                   correctAnswer: 1,
@@ -758,14 +758,13 @@ const InterviewPage = () => {
 
                     <div className="mb-4">
                       <p className="text-gray-800 whitespace-pre-wrap">
-                        {question.content ||
-                          question.question?.content ||
+                        {question.question ||
                           "Không có nội dung câu hỏi"}
                       </p>
-                      {question.content && question.content.includes("```") && (
+                      {question.question && question.question.includes("```") && (
                         <div className="mt-2 p-3 bg-gray-800 text-white rounded-md overflow-x-auto">
                           <pre>
-                            {question.content
+                            {question.question
                               .split("```")
                               .filter((_, i) => i % 2 === 1)
                               .join("\n")}
