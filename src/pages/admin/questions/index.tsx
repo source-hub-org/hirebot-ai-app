@@ -396,11 +396,24 @@ export default function QuestionsList() {
                 value={filters.language}
                 onChange={handleFilterChange}
               >
-                <option value="JavaScript">JavaScript</option>
-                <option value="Python">Python</option>
-                <option value="Java">Java</option>
-                <option value="C#">C#</option>
-                <option value="PHP">PHP</option>
+                <option value="Python">Python - Dễ học, dùng trong AI, web, data science</option>
+                <option value="JavaScript">JavaScript - Chủ yếu cho web front-end, back-end (Node.js)</option>
+                <option value="Java">Java - Ứng dụng doanh nghiệp, Android</option>
+                <option value="C#">C# - Web (ASP.NET), game (Unity)</option>
+                <option value="C++">C++ - Game, hệ thống nhúng, phần mềm hiệu năng cao</option>
+                <option value="C">C - Hệ điều hành, nhúng, hệ thống</option>
+                <option value="Golang">Golang - Cloud, server-side, microservices</option>
+                <option value="TypeScript">TypeScript - JavaScript có kiểm tra kiểu, phổ biến trong web</option>
+                <option value="PHP">PHP - Web server-side (WordPress, Laravel)</option>
+                <option value="Kotlin">Kotlin - Android development thay thế Java</option>
+                <option value="Swift">Swift - Phát triển ứng dụng iOS, macOS</option>
+                <option value="Rust">Rust - Hệ thống hiệu suất cao, thay thế C++</option>
+                <option value="Ruby">Ruby - Web development (Ruby on Rails)</option>
+                <option value="Dart">Dart - App đa nền tảng (Flutter)</option>
+                <option value="SQL">SQL - Ngôn ngữ truy vấn cơ sở dữ liệu</option>
+                <option value="Shell">Shell (Bash) - Scripting cho Linux/Unix</option>
+                <option value="R">R - Thống kê, phân tích dữ liệu</option>
+                <option value="Scala">Scala - Big Data (Apache Spark), backend</option>
               </select>
             </div>
             <div>
@@ -738,11 +751,24 @@ export default function QuestionsList() {
                     value={newQuestion.language}
                     onChange={handleNewQuestionChange}
                   >
-                    <option value="JavaScript">JavaScript</option>
-                    <option value="Python">Python</option>
-                    <option value="Java">Java</option>
-                    <option value="C#">C#</option>
-                    <option value="PHP">PHP</option>
+                    <option value="Python">Python - Dễ học, dùng trong AI, web, data science</option>
+                    <option value="JavaScript">JavaScript - Chủ yếu cho web front-end, back-end (Node.js)</option>
+                    <option value="Java">Java - Ứng dụng doanh nghiệp, Android</option>
+                    <option value="C#">C# - Web (ASP.NET), game (Unity)</option>
+                    <option value="C++">C++ - Game, hệ thống nhúng, phần mềm hiệu năng cao</option>
+                    <option value="C">C - Hệ điều hành, nhúng, hệ thống</option>
+                    <option value="Golang">Golang - Cloud, server-side, microservices</option>
+                    <option value="TypeScript">TypeScript - JavaScript có kiểm tra kiểu, phổ biến trong web</option>
+                    <option value="PHP">PHP - Web server-side (WordPress, Laravel)</option>
+                    <option value="Kotlin">Kotlin - Android development thay thế Java</option>
+                    <option value="Swift">Swift - Phát triển ứng dụng iOS, macOS</option>
+                    <option value="Rust">Rust - Hệ thống hiệu suất cao, thay thế C++</option>
+                    <option value="Ruby">Ruby - Web development (Ruby on Rails)</option>
+                    <option value="Dart">Dart - App đa nền tảng (Flutter)</option>
+                    <option value="SQL">SQL - Ngôn ngữ truy vấn cơ sở dữ liệu</option>
+                    <option value="Shell">Shell (Bash) - Scripting cho Linux/Unix</option>
+                    <option value="R">R - Thống kê, phân tích dữ liệu</option>
+                    <option value="Scala">Scala - Big Data (Apache Spark), backend</option>
                   </select>
                 </div>
                 <div>

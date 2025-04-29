@@ -64,7 +64,11 @@ const SessionPage = ({ params }: { params: { id?: string } }) => {
         language: formData.language,
         position: formData.level,
         topic: formData.topic,
+        page: 1,
         page_size: formData.questionCount,
+        mode:'',
+        sort_by: '',
+        sort_direction: ''
       });
       if (!questionsResponse?.data?.length) {
         toast.error("Không tìm thấy câu hỏi phù hợp");
