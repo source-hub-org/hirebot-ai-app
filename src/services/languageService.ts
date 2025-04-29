@@ -4,7 +4,7 @@ import { Language } from "@/constants/language";
 import { AxiosError } from "axios";
 
 export interface LanguagesService {
-  getLanguages(): Promise<ApiResponse<Language[]> | ApiError>;
+  getLanguages(params?: { limit?: number }): Promise<ApiResponse<Language[]> | ApiError>;
   getLanguageById(id: string): Promise<ApiResponse<Language> | ApiError>;
   createLanguage(
     LanguageData: Partial<Language>,
@@ -21,10 +21,10 @@ const languagesService: LanguagesService = {
    * Fetches all Languages
    * @returns Promise resolving to array of Language objects
    */
-  async getLanguages(): Promise<ApiResponse<Language[]> | ApiError> {
+  async getLanguages(params?: { limit?: number }): Promise<ApiResponse<Language[]> | ApiError> {
     try {
       const response =
-        await apiClient.get<ApiResponse<Language[]>>("/api/languages");
+        await apiClient.get<ApiResponse<Language[]>>("/api/languages", { params });
       return response.data;
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse<Language[]>>;

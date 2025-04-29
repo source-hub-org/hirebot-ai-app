@@ -11,7 +11,7 @@ import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 export default function CandidatesList() {
   const router = useRouter();
   const { candidates, showLoading, pagination, paginate } = useCandidates();
-  useLanguages();
+  useLanguages(true, 100);
   const [showModal, setShowModal] = useState(false);
 
   const handleLogout = () => {
