@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import languageService from "../services/languageService";
 import { Language } from "../constants/language";
@@ -9,14 +9,18 @@ export const useLanguages = (autoFetch = true) => {
   const languages = useSelector(selectLanguages);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const hasFetched = useRef(false);
 
   const fetchLanguages = useCallback(async () => {
     try {
+      if (hasFetched.current) return;
+      
       setIsLoading(true);
       setError(null);
       const response = await languageService.getLanguages();
 
       dispatch(setLanguages(response.data as Language[]));
+      hasFetched.current = true;
     } catch (err) {
       setError("Failed to load languages");
       console.error("Failed to load languages:", err);
@@ -26,10 +30,12 @@ export const useLanguages = (autoFetch = true) => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (!languages?.length) {
+    if (autoFetch && !languages?.length && !hasFetched.current) {
       fetchLanguages();
+      hasFetched.current =true
     }
-  }, [dispatch, autoFetch, fetchLanguages, languages?.length]);
+  }, [autoFetch, fetchLanguages, languages?.length]);
+
 
   return {
     languages,
