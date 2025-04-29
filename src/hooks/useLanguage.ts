@@ -3,8 +3,9 @@ import { useDispatch, useSelector } from "react-redux";
 import languageService from "../services/languageService";
 import { Language } from "../constants/language";
 import { setLanguages, selectLanguages } from "@/stores/languageSlice";
+import { PAGINATION } from "@/constants/candidate";
 
-export const useLanguages = (autoFetch = true) => {
+export const useLanguages = (autoFetch = true, limit?: number) => {
   const dispatch = useDispatch();
   const languages = useSelector(selectLanguages);
   const [isLoading, setIsLoading] = useState(false);
@@ -17,7 +18,7 @@ export const useLanguages = (autoFetch = true) => {
       
       setIsLoading(true);
       setError(null);
-      const response = await languageService.getLanguages();
+      const response = await languageService.getLanguages({limit: limit ?? PAGINATION.itemsPerPage});
 
       dispatch(setLanguages(response.data as Language[]));
       hasFetched.current = true;
@@ -27,15 +28,13 @@ export const useLanguages = (autoFetch = true) => {
     } finally {
       setIsLoading(false);
     }
-  }, [dispatch]);
+  }, [dispatch, limit]);
 
   useEffect(() => {
     if (autoFetch && !languages?.length && !hasFetched.current) {
       fetchLanguages();
-      hasFetched.current =true
     }
   }, [autoFetch, fetchLanguages, languages?.length]);
-
 
   return {
     languages,
