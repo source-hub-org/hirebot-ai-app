@@ -7,6 +7,10 @@ export interface SearchQuestionsParams {
   position: string;
   topic: string;
   page_size: number;
+  page: number;
+  mode: string,
+  sort_by: string,
+  sort_direction: string
 }
 
 const questionService = {

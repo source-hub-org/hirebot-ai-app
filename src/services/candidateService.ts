@@ -158,13 +158,21 @@ const candidateService = {
   },
 
   /**
-   * Fetches topics for a candidate by ID
-   * @param candidateId Candidate ID
+   * Fetches all available topics
    * @returns Promise resolving to array of Topic objects
    */
   async getTopics(): Promise<ApiResponse<Topic[]>> {
     try {
+      console.log("Calling API: /api/topics");
       const response = await apiClient.get<ApiResponse<Topic[]>>(`/api/topics`);
+      console.log("API response:", response);
+      
+      // Ensure we return a properly formatted response even if the API doesn't
+      if (!response.data) {
+        console.warn("API returned empty data");
+        return { success: false, data: [], message: "No data returned from API" };
+      }
+      
       return response.data;
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse<Topic[]>>;
