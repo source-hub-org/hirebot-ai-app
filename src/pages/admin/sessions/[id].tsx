@@ -66,9 +66,9 @@ const SessionPage = ({ params }: { params: { id?: string } }) => {
         topic: formData.topic,
         page: 1,
         page_size: formData.questionCount,
-        mode:'',
-        sort_by: '',
-        sort_direction: ''
+        mode:'full',
+        sort_by:'question',
+        sort_direction: 'desc'
       });
       if (!questionsResponse?.data?.length) {
         toast.error("Không tìm thấy câu hỏi phù hợp");
