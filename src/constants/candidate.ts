@@ -59,6 +59,13 @@ export const SKILL_OPTIONS = [
   "Electron",
 ];
 
+export const PAGINATION = {
+  currentPage: 1,
+  itemsPerPage: 10,
+  totalPages: 0,
+  total: 0,
+}
+
 export const DEFAULT_CANDIDATE_FORM = {
   full_name: "",
   phone_number: "",

@@ -70,14 +70,31 @@ const SessionPage = ({ params }: { params: { id?: string } }) => {
         sort_by:'question',
         sort_direction: 'desc'
       });
+
       if (!questionsResponse?.data?.length) {
-        toast.error("Không tìm thấy câu hỏi phù hợp");
-        return;
+        // Fallback to generate questions if search fails
+        const generatedQuestions = await questionService.generateQuestions({
+          language: formData.language,
+          position: formData.level,
+          topic: formData.topic,
+          count: formData.questionCount
+        });
+        
+        if (!generatedQuestions?.data?.length) {
+          toast.error("Không thể tạo câu hỏi phù hợp");
+          return;
+        }
+        
+        // Save generated questions to candidate answers
+        generatedQuestions.data.forEach((question: Answer) => {
+          store.dispatch(addAnswer(question));
+        });
+      } else {
+        // Save found questions to candidate answers
+        questionsResponse.data.forEach((question: Answer) => {
+          store.dispatch(addAnswer(question));
+        });
       }
-      // Save questions to candidate answers
-      questionsResponse?.data?.forEach((question: Answer) => {
-        store.dispatch(addAnswer(question));
-      });
 
       const newSession: Session = {
         ...formData,
@@ -86,6 +103,9 @@ const SessionPage = ({ params }: { params: { id?: string } }) => {
       };
 
       setGeneratedSessions((prev) => [...prev, newSession]);
+    } catch (err) {
+      toast.error("Đã xảy ra lỗi khi tạo phiên phỏng vấn");
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -137,7 +157,7 @@ const SessionPage = ({ params }: { params: { id?: string } }) => {
               rules={["required"]}
               options={
                 storedCandidate?.skills?.map((skill) => ({
-                  value: skill.toLowerCase(),
+                  value: skill,
                   label: skill,
                 })) || []
               }

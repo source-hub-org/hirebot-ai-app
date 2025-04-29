@@ -1,5 +1,7 @@
 "use client";
 import React, { useState, useRef } from "react";
+import { useSelector } from "react-redux";
+import { selectLanguages } from "@/stores/languageSlice";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { MultiSelect } from "@/components/ui/MultiSelect";
@@ -10,7 +12,7 @@ import candidateService from "@/services/candidateService";
 import { Candidate } from "@/types/candidate";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { LEVEL_OPTIONS, SKILL_OPTIONS, STATUS } from "@/constants/candidate";
+import { LEVEL_OPTIONS, STATUS } from "@/constants/candidate";
 
 type Props = {
   isOpen: boolean;
@@ -18,15 +20,18 @@ type Props = {
 };
 
 export const CreateCandidateModal = ({ isOpen, onClose }: Props) => {
+  const languages = useSelector(selectLanguages);
   const formRef = useRef<HTMLFormElement>(null);
   const [formData, setFormData] = useState<Partial<Candidate>>({
     full_name: "",
     email: "",
     phone_number: "",
-    interview_level: "intern",
+    interview_level: "",
     skills: [],
   });
   const [forceValidate, setForceValidate] = useState(false);
+
+  const skillOptions = languages?.map((lang) => lang.name) || [];
 
   const router = useRouter();
 
@@ -143,7 +148,7 @@ export const CreateCandidateModal = ({ isOpen, onClose }: Props) => {
           />
 
           <MultiSelect
-            options={SKILL_OPTIONS}
+            options={skillOptions}
             selected={formData.skills || []}
             onChange={(selected: string[]) =>
               setFormData({ ...formData, skills: selected })

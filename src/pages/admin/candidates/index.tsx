@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import Head from "next/head";
 import { useCandidates } from "@/hooks/useCandidatesList";
+import { useLanguages } from "@/hooks/useLanguage";
 import { CreateCandidateModal } from "@/components/modals/CreateCandidateModal";
 import { formatDate } from "@/helpers/date";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
@@ -10,7 +11,7 @@ import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 export default function CandidatesList() {
   const router = useRouter();
   const { candidates, showLoading, pagination, paginate } = useCandidates();
-
+  useLanguages();
   const [showModal, setShowModal] = useState(false);
 
   const handleLogout = () => {
