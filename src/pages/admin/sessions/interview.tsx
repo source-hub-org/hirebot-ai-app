@@ -54,6 +54,10 @@ const InterviewPage = () => {
     answered: "all",
   });
 
+  // Thêm state mới
+  const [selectedLanguage, setSelectedLanguage] = useState('all');
+  const [selectedLevel, setSelectedLevel] = useState('all');
+
   useEffect(() => {
     setIsClient(true);
 
@@ -286,6 +290,16 @@ const InterviewPage = () => {
       return false;
     }
 
+    // Lọc theo ngôn ngữ
+    if (selectedLanguage !== 'all' && question.language !== selectedLanguage) {
+      return false;
+    }
+
+    // Lọc theo cấp độ
+    if (selectedLevel !== 'all' && question.position !== selectedLevel) {
+      return false;
+    }
+
     return true;
   });
 
@@ -440,6 +454,41 @@ const InterviewPage = () => {
     );
   }
 
+  // Tạo mảng positions từ answers
+  const uniquePositions = Array.from(
+    new Set(
+      answers
+        .map((answer) => answer?.position)
+        .filter((position) => position)
+    )
+  );
+
+  const uniqueLanguge= Array.from(
+    new Set(
+      answers
+        .map((answer) => answer?.language)
+        .filter((language) => language)
+    )
+  );
+
+
+  // Thêm options cho select
+  const LANGUAGE_OPTIONS = [
+    { value: 'all', label: 'Tất cả ngôn ngữ' },
+    ...(uniqueLanguge.map((language) => ({
+      value: language,
+      label: language,
+    })) || []),
+  ];
+
+  const LEVEL_OPTIONS = [
+    { value: 'all', label: 'Tất cả cấp độ' },
+    ...(uniquePositions.map((position) => ({
+      value: position,
+      label: position,
+    })) || []),
+  ];
+
   return (
     <>
       <Head>
@@ -561,17 +610,29 @@ const InterviewPage = () => {
 
             {/* Bộ lọc */}
             <div className="flex flex-wrap gap-3 mb-6">
+
+            <select
+                className="border border-gray-300 rounded-md px-3 py-2 text-sm"
+                value={selectedLanguage}
+                onChange={(e) => setSelectedLanguage(e.target.value)}
+              >
+                {LANGUAGE_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+
               <select
                 className="border border-gray-300 rounded-md px-3 py-2 text-sm"
-                value={filters.difficulty}
-                onChange={(e) =>
-                  setFilters({ ...filters, difficulty: e.target.value })
-                }
+                value={selectedLevel}
+                onChange={(e) => setSelectedLevel(e.target.value)}
               >
-                <option value="all">Tất cả độ khó</option>
-                <option value="easy">Dễ</option>
-                <option value="medium">Trung bình</option>
-                <option value="hard">Khó</option>
+                {LEVEL_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
               </select>
 
               <select
@@ -589,6 +650,19 @@ const InterviewPage = () => {
                     </option>
                   ),
                 )}
+              </select>
+
+              <select
+                className="border border-gray-300 rounded-md px-3 py-2 text-sm"
+                value={filters.difficulty}
+                onChange={(e) =>
+                  setFilters({ ...filters, difficulty: e.target.value })
+                }
+              >
+                <option value="all">Tất cả độ khó</option>
+                <option value="easy">Dễ</option>
+                <option value="medium">Trung bình</option>
+                <option value="hard">Khó</option>
               </select>
 
               <select
@@ -655,7 +729,7 @@ const InterviewPage = () => {
                         <span className="mr-3">
                           Ngôn ngữ: {question.language}
                         </span>
-                        <span className="mr-3">Cấp độ: {question.level}</span>
+                        <span className="mr-3">Cấp độ: {question.position}</span>
                         <span className="mr-3">
                           Danh mục: {question.category}
                         </span>
@@ -753,7 +827,7 @@ const InterviewPage = () => {
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                                 strokeWidth={2}
-                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1 4l-3 3m0 0l-3-3m3 3V4"
                               />
                             </svg>
                           </div>
