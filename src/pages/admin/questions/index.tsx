@@ -389,34 +389,6 @@ export default function QuestionsList() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Ngôn ngữ</label>
-              <select
-                name="language"
-                className="w-full p-2 border rounded"
-                value={filters.language}
-                onChange={handleFilterChange}
-              >
-                <option value="Python">Python - Dễ học, dùng trong AI, web, data science</option>
-                <option value="JavaScript">JavaScript - Chủ yếu cho web front-end, back-end (Node.js)</option>
-                <option value="Java">Java - Ứng dụng doanh nghiệp, Android</option>
-                <option value="C#">C# - Web (ASP.NET), game (Unity)</option>
-                <option value="C++">C++ - Game, hệ thống nhúng, phần mềm hiệu năng cao</option>
-                <option value="C">C - Hệ điều hành, nhúng, hệ thống</option>
-                <option value="Golang">Golang - Cloud, server-side, microservices</option>
-                <option value="TypeScript">TypeScript - JavaScript có kiểm tra kiểu, phổ biến trong web</option>
-                <option value="PHP">PHP - Web server-side (WordPress, Laravel)</option>
-                <option value="Kotlin">Kotlin - Android development thay thế Java</option>
-                <option value="Swift">Swift - Phát triển ứng dụng iOS, macOS</option>
-                <option value="Rust">Rust - Hệ thống hiệu suất cao, thay thế C++</option>
-                <option value="Ruby">Ruby - Web development (Ruby on Rails)</option>
-                <option value="Dart">Dart - App đa nền tảng (Flutter)</option>
-                <option value="SQL">SQL - Ngôn ngữ truy vấn cơ sở dữ liệu</option>
-                <option value="Shell">Shell (Bash) - Scripting cho Linux/Unix</option>
-                <option value="R">R - Thống kê, phân tích dữ liệu</option>
-                <option value="Scala">Scala - Big Data (Apache Spark), backend</option>
-              </select>
-            </div>
-            <div>
               <label className="block text-sm font-medium mb-2">Cấp độ</label>
               <select
                 name="position"
@@ -432,6 +404,35 @@ export default function QuestionsList() {
                 <option value="expert">Expert</option>
               </select>
             </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Ngôn ngữ</label>
+              <select
+                name="language"
+                className="w-full p-2 border rounded"
+                value={filters.language}
+                onChange={handleFilterChange}
+              >
+                <option value="Python">Python</option>
+                <option value="JavaScript">JavaScript</option>
+                <option value="Java">Java</option>
+                <option value="C#">C#</option>
+                <option value="C++">C++</option>
+                <option value="C">C</option>
+                <option value="Golang">Golang</option>
+                <option value="TypeScript">TypeScript</option>
+                <option value="PHP">PHP</option>
+                <option value="Kotlin">Kotlin</option>
+                <option value="Swift">Swift</option>
+                <option value="Rust">Rust</option>
+                <option value="Ruby">Ruby</option>
+                <option value="Dart">Dart</option>
+                <option value="SQL">SQL</option>
+                <option value="Shell">Shell (Bash)</option>
+                <option value="R">R </option>
+                <option value="Scala">Scala</option>
+              </select>
+            </div>
+
             <div>
               <label className="block text-sm font-medium mb-2">Sắp xếp theo</label>
               <select
