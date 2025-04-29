@@ -70,7 +70,7 @@ const SessionPage = ({ params }: { params: { id?: string } }) => {
         sort_by:'question',
         sort_direction: 'desc'
       });
-
+      formData.questionCount = questionsResponse?.data?.length || 0
       if (!questionsResponse?.data?.length) {
         // Fallback to generate questions if search fails
         const generatedQuestions = await questionService.generateQuestions({
@@ -79,11 +79,11 @@ const SessionPage = ({ params }: { params: { id?: string } }) => {
           topic: formData.topic,
           count: formData.questionCount
         });
-        
         if (!generatedQuestions?.data?.length) {
           toast.error("Không thể tạo câu hỏi phù hợp");
           return;
         }
+        formData.questionCount = generatedQuestions?.data?.length || 0
         
         // Save generated questions to candidate answers
         generatedQuestions.data.forEach((question: Answer) => {
