@@ -4,6 +4,7 @@ import {
   Candidate,
   CandidateDetail,
   CandidatesResponse,
+  CandidateSubmission,
 } from "@/types/candidate";
 import { Topic } from "@/types/topic";
 import { ApiResponse, ApiError } from "@/types/common";
@@ -181,6 +182,38 @@ const candidateService = {
         JSON.stringify(axiosError.response?.data?.error) ||
           "Failed to fetch topics",
       );
+    }
+  },
+
+  /**
+   * Fetches submissions for a specific candidate
+   * @param candidateId Candidate ID to fetch submissions for
+   * @returns Promise resolving to array of CandidateSubmission objects
+   */
+  async getCandidateSubmissions(
+    candidateId: string
+  ): Promise<ApiResponse<CandidateSubmission[]> | ApiError> {
+    try {
+      const response = await apiClient.get<ApiResponse<CandidateSubmission[]>>(
+        `/api/submissions/candidate/${candidateId}`,{ params: { enrich: true } }
+      );
+      return response.data;
+    } catch (error) {
+      const axiosError = error as AxiosError<ApiResponse<CandidateSubmission[]>>;
+      console.error(
+        "Error fetching candidate submissions:",
+        axiosError?.response?.data?.error
+      );
+      return {
+        success: false,
+        error: {
+          message:
+            axiosError.response?.data?.error?.message ||
+            "Failed to fetch candidate submissions",
+          status: axiosError.response?.status,
+          data: [], // Return an empty array to match the ApiError interface
+        },
+      };
     }
   },
 };

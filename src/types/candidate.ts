@@ -56,3 +56,41 @@ export type Topic = {
   suitable_level: string;
   description: string;
 };
+
+export type QuestionDetail = {
+  _id: string;
+  question: string;
+  options: string[];
+  correctAnswer: number;
+  difficulty: string;
+  category: string;
+  topic: string;
+};
+
+export type SubmissionAnswer = {
+  question_id: string;
+  answer: number | null;
+  other: string;
+  is_skip: number;
+  question: QuestionDetail;
+};
+
+export type EssayQuestion = {
+  question: string;
+  answer: string;
+  is_skip: number;
+};
+
+export type ReviewStatus = {
+  comment: string;
+  status: string;
+};
+
+export type CandidateSubmission = {
+  _id: string;
+  candidate_id: string;
+  answers: SubmissionAnswer[];
+  essay: EssayQuestion;
+  review: ReviewStatus;
+  candidate: Candidate;
+};
