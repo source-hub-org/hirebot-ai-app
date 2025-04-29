@@ -46,9 +46,6 @@ export default function CandidatesList() {
               <Link href="/admin/questions">
                 <span className="hover:underline">Câu hỏi</span>
               </Link>
-              <Link href="/admin/sessions/new">
-                <span className="hover:underline">Tạo phiên thi</span>
-              </Link>
               <button
                 onClick={handleLogout}
                 className="bg-white text-primary px-3 py-1 rounded hover:bg-gray-100"
