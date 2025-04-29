@@ -437,7 +437,7 @@ export default function CandidateDetail() {
 
                     <div className="mt-6">
                       <h3 className="font-semibold text-lg mb-2">Nhận xét của người phỏng vấn</h3>
-                      {submission.review && submission.review.status && submission.review.status !== "false" ? (
+                      {submission.review ? (
                         <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                           <p>{submission.review.comment || "Chưa có nhận xét"}</p>
                           <div className="mt-2">
