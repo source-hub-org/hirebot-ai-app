@@ -95,8 +95,8 @@ export default function CandidatesList() {
                           1}
                       </td>
                       <td className="py-3 px-4">{candidate.full_name}</td>
-                      <td className="py-3 px-4">
-                        {candidate.skills?.join(",")}
+                      <td className="py-3 px-4 max-w-xs truncate" title={candidate.skills?.join(", ")}>
+                        {candidate.skills?.join(", ")}
                       </td>
                       <td className="py-3 px-4">{candidate.interview_level}</td>
                       <td className="py-3 px-4">

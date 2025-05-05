@@ -26,7 +26,7 @@ export const CreateCandidateModal = ({ isOpen, onClose }: Props) => {
     full_name: "",
     email: "",
     phone_number: "",
-    interview_level: "",
+    interview_level: LEVEL_OPTIONS[0].value,
     skills: [],
   });
   const [forceValidate, setForceValidate] = useState(false);
