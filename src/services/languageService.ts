@@ -4,7 +4,7 @@ import { Language } from "@/constants/language";
 import { AxiosError } from "axios";
 
 export interface LanguagesService {
-  getLanguages(params?: { limit?: number }): Promise<ApiResponse<Language[]> | ApiError>;
+  getLanguages(params?: { page?: number; limit?: number }): Promise<ApiResponse<Language[]> | ApiError>;
   getLanguageById(id: string): Promise<ApiResponse<Language> | ApiError>;
   createLanguage(
     LanguageData: Partial<Language>,
@@ -97,7 +97,7 @@ const languagesService: LanguagesService = {
         axiosError.response?.data?.error,
       );
       throw new Error(
-        JSON.stringify(axiosError.response?.data?.error) ||
+        JSON.stringify(axiosError.response?.data?.message) ||
           "Failed to create Language",
       );
     }
