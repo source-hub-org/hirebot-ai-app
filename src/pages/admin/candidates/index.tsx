@@ -100,8 +100,8 @@ export default function CandidatesList() {
                       </td>
                       <td className="py-3 px-4">{candidate.interview_level}</td>
                       <td className="py-3 px-4">
-                        {candidate.updated_at
-                          ? formatDate(candidate.updated_at)
+                        {candidate.createdAt
+                          ? formatDate(candidate.createdAt)
                           : ""}
                       </td>
                       <td className="py-3 px-4">
