@@ -9,7 +9,7 @@ export type Candidate = {
   programming_languages?: string[];
   preferred_stack?: string;
   status?: string;
-  created_at?: string;
+  createdAt?: string;
   updated_at?: string;
 };
 
