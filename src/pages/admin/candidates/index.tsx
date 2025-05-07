@@ -7,6 +7,7 @@ import { useLanguages } from "@/hooks/useLanguage";
 import { CreateCandidateModal } from "@/components/modals/CreateCandidateModal";
 import { formatDate } from "@/helpers/date";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { EyeIcon, RetryIcon } from '@/components/ui/Icons';
 
 export default function CandidatesList() {
   const router = useRouter();
@@ -76,6 +77,7 @@ export default function CandidatesList() {
                   <tr>
                     <th className="py-3 px-4 text-left">STT</th>
                     <th className="py-3 px-4 text-left">Họ tên</th>
+                    <th className="py-3 px-4 text-left">Email</th>
                     <th className="py-3 px-4 text-left">Kỹ năng</th>
                     <th className="py-3 px-4 text-left">Cấp độ</th>
                     <th className="py-3 px-4 text-left">Ngày tham gia</th>
@@ -95,6 +97,7 @@ export default function CandidatesList() {
                           1}
                       </td>
                       <td className="py-3 px-4">{candidate.full_name}</td>
+                      <td className="py-3 px-4">{candidate.email}</td>
                       <td className="py-3 px-4 max-w-xs truncate" title={candidate.skills?.join(", ")}>
                         {candidate.skills?.join(", ")}
                       </td>
@@ -104,11 +107,12 @@ export default function CandidatesList() {
                           ? formatDate(candidate.createdAt)
                           : ""}
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="py-3 px-4 flex items-center gap-2">
                         <Link href={`/admin/candidates/${candidate._id}`}>
-                          <button className="text-primary hover:underline">
-                            Xem chi tiết
-                          </button>
+                          <EyeIcon />
+                        </Link>
+                        <Link href={`/admin/sessions/${candidate._id}`}>
+                          <RetryIcon />
                         </Link>
                       </td>
                     </tr>

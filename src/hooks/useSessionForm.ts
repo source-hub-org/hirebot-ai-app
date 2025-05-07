@@ -1,17 +1,23 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "@/stores/store";
+import { RootState, store } from "@/stores/store";
 import { LEVEL_OPTIONS } from "@/constants/candidate";
-import { SessionFormData } from "@/types/session";
+import { Session, SessionFormData } from "@/types/session";
+import questionService from "@/services/questionService";
+import { toast } from "react-toastify";
+import { Answer } from "@/types/candidate";
+import { addAnswer, removeAnswersBySession } from "@/stores/candidateDetailSlice";
 
 export const useSessionForm = () => {
   const [formData, setFormData] = useState<SessionFormData>({
     language: "",
-    level: LEVEL_OPTIONS[0].value,
+    position: LEVEL_OPTIONS[0].value,
     topic: "",
     questionCount: 5,
   });
-
+  const [generatedSessions, setGeneratedSessions] = useState<Session[]>([]);
+  const [loading, setLoading] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
   const [topicOptions, setTopicOptions] = useState<
     { value: string; label: string }[]
   >([]);
@@ -50,7 +56,7 @@ export const useSessionForm = () => {
       [name]: value,
     }));
 
-    if (name === "level") {
+    if (name === "position") {
       changeLevel(value);
     }
   };
@@ -58,7 +64,7 @@ export const useSessionForm = () => {
   const handleClearForm = () => {
     setFormData({
       language: "",
-      level: LEVEL_OPTIONS[0].value,
+      position: LEVEL_OPTIONS[0].value,
       topic: "",
       questionCount: 5,
     });
@@ -67,13 +73,117 @@ export const useSessionForm = () => {
   // Initialize topic options
   useEffect(() => {
     if (storedTopics) {
-      changeLevel(formData.level);
+      changeLevel(formData.position);
     }
-  }, [storedTopics, formData.level, changeLevel]);
+  }, [storedTopics, formData.position, changeLevel]);
+
+  const handleGenerate = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!formRef.current) return;
+
+    // Wait for validation to complete
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    // Check for error messages
+    const errorElements = formRef.current.querySelectorAll(
+      ".text-red-500.text-xs.mt-1",
+    );
+    const hasErrors = Array.from(errorElements).some((el) => {
+      return el.textContent && el.textContent.trim() !== "";
+    });
+
+    if (hasErrors) return;
+
+    try {
+      setLoading(true);
+
+      // Get existing question IDs for this session criteria
+      const existingQuestionIds = store.getState().candidateDetail.candidate?.answers
+        ?.filter(answer => 
+          answer.language === formData.language &&
+          answer.position?.toLowerCase() === formData.position.toLowerCase() &&
+          answer.topic === formData.topic
+        )
+        .map(answer => answer._id)
+        .filter(Boolean)
+        .join(',');
+      // Call questions API with ignore_question_ids
+      const questionsResponse = await questionService.searchQuestions({
+        language: formData.language,
+        position: formData.position,
+        topic: formData.topic,
+        page: 1,
+        page_size: formData.questionCount,
+        mode: 'full',
+        sort_by: 'question',
+        sort_direction: 'desc',
+        ignore_question_ids: existingQuestionIds
+      });
+      formData.questionCount = questionsResponse?.data?.length || 0
+      if (!questionsResponse?.data?.length) {
+        // Fallback to generate questions if search fails
+        const generatedQuestions = await questionService.generateQuestions({
+          language: formData.language,
+          position: formData.position,
+          topic: formData.topic,
+          count: formData.questionCount
+        });
+        if (!generatedQuestions?.data?.length) {
+          toast.error("Không thể tạo câu hỏi phù hợp");
+          return;
+        }
+        formData.questionCount = generatedQuestions?.data?.length || 0
+        
+        // Save generated questions to candidate answers
+        generatedQuestions.data.forEach((question: Answer) => {
+          store.dispatch(addAnswer({ ...question, sessionId: Date.now() }));
+        });
+      } else {
+        // Save found questions to candidate answers
+        const newSession: Session = {
+          ...formData,
+          id: Date.now(),
+          createdAt: new Date().toISOString(),
+        };
+
+        questionsResponse.data.forEach((question: Answer) => {
+          store.dispatch(addAnswer({ ...question, sessionId: newSession.id }));
+        });
+
+        setGeneratedSessions((prev) => [...prev, newSession]);
+      }
+
+    } catch (err) {
+      toast.error("Đã xảy ra lỗi khi tạo phiên phỏng vấn");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteSession = (sessionId: number) => {
+    setGeneratedSessions(prev => {
+      // Get the session being deleted
+      const deletedSession = prev.find(session => session.id === sessionId);
+      
+      // Remove answers related to this session from Redux store
+      if (deletedSession) {
+        store.dispatch(removeAnswersBySession(deletedSession));
+      }
+      
+      return prev.filter(session => session.id !== sessionId);
+    });
+  };
 
   return {
     formData,
+    formRef,
+    loading,
     topicOptions,
+    handleGenerate,
+    generatedSessions,
+    deleteSession,
     handleChange,
     handleClearForm,
     setFormData,
