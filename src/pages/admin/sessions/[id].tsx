@@ -1,32 +1,33 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Input, Select } from "@/components/ui";
 import { useRouter } from "next/router";
-import { addAnswer } from "@/stores/candidateDetailSlice";
-import { store } from "@/stores/store";
 import { LEVEL_OPTIONS } from "@/constants/candidate";
 import Head from "next/head";
 import { useSessionForm } from "@/hooks/useSessionForm";
 import { useCandidates } from "@/hooks/useCandidates";
-import { Session } from "@/types/session";
-import questionService from "@/services/questionService";
-import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Answer } from "@/types/candidate";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 const SessionPage = ({ params }: { params: { id?: string } }) => {
   const [isClient, setIsClient] = useState(false);
-  const [generatedSessions, setGeneratedSessions] = useState<Session[]>([]);
-  const [loading, setLoading] = useState(false);
 
   const router = useRouter();
   const id = params?.id || (router.query.id as string);
 
   const { candidate: storedCandidate, isLoading } = useCandidates(id);
 
-  const { formData, topicOptions, handleChange, setFormData } =
-    useSessionForm();
+  const { 
+    loading, 
+    formRef, 
+    formData, 
+    topicOptions, 
+    handleChange, 
+    setFormData, 
+    generatedSessions, 
+    handleGenerate, 
+    deleteSession 
+  } = useSessionForm();
 
   useEffect(() => {
     setIsClient(true);
@@ -36,84 +37,10 @@ const SessionPage = ({ params }: { params: { id?: string } }) => {
     }));
   }, [storedCandidate?.skills, setFormData]);
 
-  const formRef = useRef<HTMLFormElement>(null);
-
-  const handleGenerate = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!formRef.current) return;
-
-    // Wait for validation to complete
-    await new Promise((resolve) => setTimeout(resolve, 100));
-
-    // Check for error messages
-    const errorElements = formRef.current.querySelectorAll(
-      ".text-red-500.text-xs.mt-1",
-    );
-    const hasErrors = Array.from(errorElements).some((el) => {
-      return el.textContent && el.textContent.trim() !== "";
-    });
-
-    if (hasErrors) return;
-
-    try {
-      setLoading(true);
-
-      // Call questions API
-      const questionsResponse = await questionService.searchQuestions({
-        language: formData.language,
-        position: formData.level,
-        topic: formData.topic,
-        page: 1,
-        page_size: formData.questionCount,
-        mode:'full',
-        sort_by:'question',
-        sort_direction: 'desc'
-      });
-      formData.questionCount = questionsResponse?.data?.length || 0
-      if (!questionsResponse?.data?.length) {
-        // Fallback to generate questions if search fails
-        const generatedQuestions = await questionService.generateQuestions({
-          language: formData.language,
-          position: formData.level,
-          topic: formData.topic,
-          count: formData.questionCount
-        });
-        if (!generatedQuestions?.data?.length) {
-          toast.error("Không thể tạo câu hỏi phù hợp");
-          return;
-        }
-        formData.questionCount = generatedQuestions?.data?.length || 0
-        
-        // Save generated questions to candidate answers
-        generatedQuestions.data.forEach((question: Answer) => {
-          store.dispatch(addAnswer(question));
-        });
-      } else {
-        // Save found questions to candidate answers
-        questionsResponse.data.forEach((question: Answer) => {
-          store.dispatch(addAnswer(question));
-        });
-      }
-
-      const newSession: Session = {
-        ...formData,
-        id: Date.now(),
-        createdAt: new Date().toISOString(),
-      };
-
-      setGeneratedSessions((prev) => [...prev, newSession]);
-    } catch (err) {
-      toast.error("Đã xảy ra lỗi khi tạo phiên phỏng vấn");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   if (!storedCandidate || !isClient || isLoading) {
     return <LoadingSpinner />;
   }
+
 
   return (
     <>
@@ -165,7 +92,7 @@ const SessionPage = ({ params }: { params: { id?: string } }) => {
 
             <Select
               name="level"
-              value={formData.level}
+              value={formData.position}
               onChange={handleChange}
               label="Cấp độ"
               error=""
@@ -218,24 +145,27 @@ const SessionPage = ({ params }: { params: { id?: string } }) => {
             <h2 className="text-xl font-semibold mb-4">Danh sách Phiên Thi</h2>
             <div className="space-y-4">
               {generatedSessions.map((session) => (
-                <div key={session.id} className="border p-4 rounded">
+                <div key={session.id} className="border p-4 rounded relative">
+                  <button 
+                    onClick={() => deleteSession(session.id)}
+                    className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+                  >
+                    Xóa
+                  </button>
                   <p>
-                    <span className="font-medium">Ngôn ngữ:</span>{" "}
-                    {session.language}
+                    <span className="font-medium">Ngôn ngữ:</span> {session.language}
                   </p>
                   <p>
-                    <span className="font-medium">Cấp độ:</span> {session.level}
+                    <span className="font-medium">Cấp độ:</span> {session.position}
                   </p>
                   <p>
                     <span className="font-medium">Chủ đề:</span> {session.topic}
                   </p>
                   <p>
-                    <span className="font-medium">Số câu hỏi:</span>{" "}
-                    {session.questionCount}
+                    <span className="font-medium">Số câu hỏi:</span> {session.questionCount}
                   </p>
                   <p>
-                    <span className="font-medium">Thời gian tạo:</span>{" "}
-                    {new Date(session.createdAt).toLocaleString()}
+                    <span className="font-medium">Thời gian tạo:</span> {new Date(session.createdAt).toLocaleString()}
                   </p>
                 </div>
               ))}

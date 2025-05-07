@@ -33,6 +33,7 @@ export type Answer = {
   score?: number;
   feedback?: string;
   question :string;
+  sessionId?: number; 
 };
 
 export type CandidateDetail = Candidate & {
@@ -49,6 +50,7 @@ export type CandidatesResponse = {
     total_pages: number;
   };
 };
+
 export type Topic = {
   title: string;
   difficulty: number;
@@ -93,4 +95,13 @@ export type CandidateSubmission = {
   essay: EssayQuestion;
   review: ReviewStatus;
   candidate: Candidate;
+};
+
+export type Session = {
+  id: number;
+  language: string;
+  position: string;
+  topic: string;
+  questionCount: number;
+  createdAt: string;
 };

@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { CandidateDetail, Answer, Topic } from "@/types/candidate";
+import { CandidateDetail, Answer, Topic, Session } from "@/types/candidate";
 
 interface CandidateDetailState {
   candidate: CandidateDetail | null;
@@ -43,6 +43,13 @@ export const candidateDetailSlice = createSlice({
         );
       }
     },
+    removeAnswersBySession: (state, action: PayloadAction<Session>) => {
+      if (state.candidate) {
+        state.candidate.answers = state.candidate.answers?.filter(
+          (answer) => answer.sessionId !== action.payload.id
+        ) || [];
+      }
+    },
   },
 });
 
@@ -52,5 +59,6 @@ export const {
   addAnswer,
   clearCandidate,
   updateAnswer,
+  removeAnswersBySession,
 } = candidateDetailSlice.actions;
 export default candidateDetailSlice.reducer;

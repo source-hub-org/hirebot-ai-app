@@ -2,14 +2,14 @@ export interface Session {
   id: number;
   createdAt: string;
   language: string;
-  level: string;
+  position: string;
   topic: string;
   questionCount: number;
 }
 
 export interface SessionFormData {
   language: string;
-  level: string;
+  position: string;
   topic: string;
   questionCount: number;
 }

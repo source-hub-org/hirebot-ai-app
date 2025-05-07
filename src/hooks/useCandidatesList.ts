@@ -32,7 +32,7 @@ export const useCandidates = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [pagination.currentPage, pagination.itemsPerPage]);
 
   const handlePageChange = (page: number) => {
     fetchCandidates(page, pagination.itemsPerPage);

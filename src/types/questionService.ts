@@ -10,6 +10,7 @@ export interface SearchQuestionsParams {
   mode: string;
   sort_by: string;
   sort_direction: string;
+  ignore_question_ids?: string;
 }
 
 export interface GenerateQuestionsParams {
