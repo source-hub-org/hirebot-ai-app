@@ -1,18 +1,12 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Input, Select } from "@/components/ui";
 import { useRouter } from "next/router";
-import { addAnswer } from "@/stores/candidateDetailSlice";
-import { store } from "@/stores/store";
 import { LEVEL_OPTIONS } from "@/constants/candidate";
 import Head from "next/head";
 import { useSessionForm } from "@/hooks/useSessionForm";
 import { useCandidates } from "@/hooks/useCandidates";
-import { Session } from "@/types/session";
-import questionService from "@/services/questionService";
-import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Answer } from "@/types/candidate";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 const SessionPage = ({ params }: { params: { id?: string } }) => {

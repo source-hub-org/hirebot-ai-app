@@ -15,8 +15,8 @@ export type Candidate = {
 
 export type Answer = {
   _id?: string;
-  questionId: string;
   id?: string;
+  questionId?: string;
   options: string[];
   correctAnswer: number;
   selectedAnswer?: number;
