@@ -11,7 +11,7 @@ import { EyeIcon, RetryIcon } from '@/components/ui/Icons';
 
 export default function CandidatesList() {
   const router = useRouter();
-  const { candidates, showLoading, pagination, paginate } = useCandidates();
+  const { candidates, showLoading, pagination, paginate, fetchCandidates } = useCandidates();
   useLanguages(true, 100);
   const [showModal, setShowModal] = useState(false);
 
@@ -66,7 +66,7 @@ export default function CandidatesList() {
                 onClick={handleCreateSession}
                 className="bg-gradient-to-r from-primary-light to-primary text-white px-4 py-2 rounded hover:opacity-90"
               >
-                Tạo phiên thi mới
+                Tạo ứng viên mới
               </button>
             </div>
 
@@ -109,10 +109,10 @@ export default function CandidatesList() {
                       </td>
                       <td className="py-3 px-4 flex items-center gap-2">
                         <Link href={`/admin/candidates/${candidate._id}`}>
-                          <EyeIcon />
+                          <EyeIcon title="Xem kết quả thi"/>
                         </Link>
                         <Link href={`/admin/sessions/${candidate._id}`}>
-                          <RetryIcon />
+                          <RetryIcon title="Thi" />
                         </Link>
                       </td>
                     </tr>
@@ -177,6 +177,7 @@ export default function CandidatesList() {
           <CreateCandidateModal
             isOpen={showModal}
             onClose={() => setShowModal(false)}
+            onSuccess={() => {fetchCandidates(); setShowModal(false)}}
           />
         ) : (
           ""

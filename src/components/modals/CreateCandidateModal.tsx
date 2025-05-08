@@ -5,7 +5,6 @@ import { selectLanguages } from "@/stores/languageSlice";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { MultiSelect } from "@/components/ui/MultiSelect";
-import { useRouter } from "next/router";
 import { store } from "@/stores/store";
 import { setCandidate } from "@/stores/candidateDetailSlice";
 import candidateService from "@/services/candidateService";
@@ -17,9 +16,10 @@ import { LEVEL_OPTIONS, STATUS } from "@/constants/candidate";
 type Props = {
   isOpen: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
 };
 
-export const CreateCandidateModal = ({ isOpen, onClose }: Props) => {
+export const CreateCandidateModal = ({ isOpen, onClose, onSuccess }: Props) => {
   const languages = useSelector(selectLanguages);
   const formRef = useRef<HTMLFormElement>(null);
   const [formData, setFormData] = useState<Partial<Candidate>>({
@@ -32,8 +32,6 @@ export const CreateCandidateModal = ({ isOpen, onClose }: Props) => {
   const [forceValidate, setForceValidate] = useState(false);
 
   const skillOptions = languages?.map((lang) => lang.name) || [];
-
-  const router = useRouter();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -87,7 +85,7 @@ export const CreateCandidateModal = ({ isOpen, onClose }: Props) => {
       );
 
       toast.success(result.message);
-      router.push(`/admin/sessions/${result?.data?._id}`);
+      onSuccess?.();
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Failed to create candidate";
