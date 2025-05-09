@@ -5,6 +5,7 @@ export interface Session {
   position: string;
   topic: string;
   questionCount: number;
+  type?: string;
 }
 
 export interface SessionFormData {
@@ -12,6 +13,7 @@ export interface SessionFormData {
   position: string;
   topic: string;
   questionCount: number;
+  type: string;
 }
 
 export interface PageProps {

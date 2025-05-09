@@ -4,6 +4,7 @@ import { validateField } from "@/helpers/validation";
 type SelectProps = {
   name: string;
   value: string;
+  disabled?: boolean;
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   onValidate?: (error: string) => void;
   label?: string;
@@ -18,6 +19,7 @@ type SelectProps = {
 export const Select = ({
   name,
   value,
+  disabled,
   onChange,
   onValidate,
   label,
@@ -56,7 +58,7 @@ export const Select = ({
   };
 
   return (
-    <div className="mb-4">
+    <div className={`mb-4 ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}>
       {label && (
         <label className="block text-sm font-medium mb-2">
           {label}
@@ -70,6 +72,7 @@ export const Select = ({
         value={internalValue}
         onChange={handleChange}
         className={`w-full p-2 border rounded ${errorState ? "border-red-500" : ""} ${className}`}
+        disabled={disabled}
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>
