@@ -301,9 +301,10 @@ export default function QuestionsList() {
     }
 
     try {
-      // Prepare question data for API      
-      // Uncomment and implement this when ready to add questions
-      /*
+      // Get the index of the correct answer
+      const correctAnswerIndex = newQuestion.options.findIndex(opt => opt.correct);
+      
+      // Call the API to add the question
       const response = await questionService.addQuestion({
         content: newQuestion.question,
         topic: newQuestion.topic,
@@ -320,15 +321,10 @@ export default function QuestionsList() {
       } else {
         alert("Lỗi khi thêm câu hỏi: " + (response.message || "Vui lòng thử lại"));
       }
-      */
-      
-      // Temporary placeholder
-      console.log("Chức năng thêm câu hỏi chưa được triển khai");
-      alert("Chức năng thêm câu hỏi chưa được triển khai");
     
     } catch (error) {
       console.error("Error adding question:", error);
-      alert("Lỗi khi thêm câu hỏi. Vui lòng thử lại.");
+      alert(`Đã xảy ra lỗi khi thêm câu hỏi: ${error}`);
     }
   };
 
@@ -358,10 +354,17 @@ export default function QuestionsList() {
       </nav>
 
       <div className="container mx-auto p-6">
-        <div className="bg-white rounded-lg shadow-lg p-6">
+        <div className="bg-white rounded-lg shadow-lg p-6" data-testid="questions-list">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold">Quản lý câu hỏi</h1>
             <div className="flex gap-2">
+              <button 
+                onClick={() => setShowAddModal(true)}
+                className="bg-primary text-white px-4 py-2 rounded hover:bg-primary-dark"
+                data-testid="open-add-modal-button"
+              >
+                Thêm câu hỏi
+              </button>
             </div>
           </div>
 
@@ -683,7 +686,7 @@ export default function QuestionsList() {
 
       {/* Add Question Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" data-testid="add-question-modal">
           <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Thêm câu hỏi mới</h2>
@@ -848,6 +851,7 @@ export default function QuestionsList() {
                 <button
                   onClick={handleAddQuestion}
                   className="px-4 py-2 bg-gradient-to-r from-primary-light to-primary text-white rounded hover:opacity-90"
+                  data-testid="submit-question-button"
                 >
                   Thêm câu hỏi
                 </button>

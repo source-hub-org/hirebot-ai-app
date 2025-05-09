@@ -57,6 +57,9 @@ const InterviewPage = () => {
   // Thêm state mới
   const [selectedLanguage, setSelectedLanguage] = useState('all');
   const [selectedLevel, setSelectedLevel] = useState('all');
+  
+  // State để quản lý hiển thị explanation
+  const [showExplanations, setShowExplanations] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -196,7 +199,26 @@ const InterviewPage = () => {
           console.log(
             `Found question with id ${q._id}, updating selectedAnswer to ${optionIndex}`,
           );
-          return { ...q, selectedAnswer: optionIndex };
+          
+          // Tính điểm dựa trên câu trả lời
+          let point = 0;
+          
+          // Nếu câu trả lời đúng (so sánh với correctAnswer), thì mới cho điểm
+          if (optionIndex === q.correctAnswer) {
+            // Nếu câu hỏi đã có điểm tự chấm, sử dụng điểm đó
+            if (q.customPoint !== undefined) {
+              point = q.customPoint;
+            } else {
+              // Nếu không, tính điểm dựa trên độ khó
+              point = calculatePointsByDifficulty(q.difficulty || 'easy');
+            }
+          }
+          
+          return { 
+            ...q, 
+            selectedAnswer: optionIndex,
+            point: point
+          };
         }
         return q;
       });
@@ -223,6 +245,50 @@ const InterviewPage = () => {
       return newAnswers;
     });
   };
+  
+  // Hàm xử lý khi tự chấm điểm cho câu hỏi
+  const handleCustomPoint = (questionId: string, point: number) => {
+    console.log(`Setting custom point for question ${questionId}: ${point}`);
+    
+    setCandidateAnswers((prev) => {
+      const newAnswers = prev.map((q) => {
+        if (q._id === questionId) {
+          console.log(`Found question with id ${q._id}, updating customPoint to ${point}`);
+          
+          // Cập nhật điểm tự chấm
+          const updatedQuestion = { 
+            ...q, 
+            customPoint: point 
+          };
+          
+          // Nếu đã chọn câu trả lời và câu trả lời đúng, cập nhật điểm
+          if (q.selectedAnswer !== undefined && q.selectedAnswer === q.correctAnswer) {
+            updatedQuestion.point = point;
+          }
+          
+          return updatedQuestion;
+        }
+        return q;
+      });
+      
+      console.log("Updated answers with custom point:", newAnswers);
+      return newAnswers;
+    });
+  };
+
+  // Hàm tính điểm dựa trên độ khó của câu hỏi
+  const calculatePointsByDifficulty = (difficulty: string) => {
+    switch (difficulty) {
+      case "hard":
+        return 3;
+      case "medium":
+        return 2;
+      case "easy":
+        return 1;
+      default:
+        return 1; // Mặc định là 1 điểm
+    }
+  };
 
   // Hàm xử lý khi bỏ qua câu hỏi
   const handleSkipQuestion = (questionId: string, isSkipped: boolean) => {
@@ -241,6 +307,8 @@ const InterviewPage = () => {
             is_skip: isSkipped ? 1 : 0,
             // Nếu bỏ qua, xóa câu trả lời đã chọn
             selectedAnswer: isSkipped ? undefined : q.selectedAnswer,
+            // Nếu bỏ qua, điểm sẽ là 0
+            point: isSkipped ? 0 : q.point,
           };
         }
         return q;
@@ -336,6 +404,7 @@ const InterviewPage = () => {
         answer: q.selectedAnswer !== undefined ? q.selectedAnswer : null,
         other: q.otherAnswer || "",
         is_skip: q.is_skip === 1 ? 1 : q.selectedAnswer === undefined ? 1 : 0, // Ưu tiên sử dụng is_skip nếu đã đặt
+        point: q.point || 0, // Thêm điểm cho câu trả lời
       }));
 
       const submissionData = {
@@ -753,6 +822,8 @@ const InterviewPage = () => {
                             </span>
                           </span>
                         )}
+                        
+                        {/* Removed scoring section and result display from here */}
                       </div>
                     </div>
 
@@ -771,6 +842,8 @@ const InterviewPage = () => {
                           </pre>
                         </div>
                       )}
+                      
+                      {/* Removed scoring section from here */}
                     </div>
 
                     <div className="space-y-2">
@@ -859,15 +932,64 @@ const InterviewPage = () => {
                         </div>
                       </div>
 
-                      {/* Hiển thị giải thích */}
+                      {/* Nút bật/tắt giải thích */}
                       {question.explanation && (
-                        <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
-                          <p className="font-bold text-blue-800">Giải thích:</p>
-                          <p className="text-blue-700">
-                            {question.explanation}
-                          </p>
+                        <div className="mt-4">
+                          <button
+                            type="button"
+                            onClick={() => setShowExplanations(!showExplanations)}
+                            className="px-3 py-1 rounded-md text-sm font-medium bg-blue-100 text-blue-700 hover:bg-blue-200"
+                          >
+                            {showExplanations ? "Ẩn giải thích" : "Hiển thị giải thích"}
+                          </button>
+                          
+                          {/* Hiển thị giải thích khi showExplanations = true */}
+                          {showExplanations && (
+                            <div className="mt-2 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                              <p className="font-bold text-blue-800">Giải thích:</p>
+                              <p className="text-blue-700">
+                                {question.explanation}
+                              </p>
+                            </div>
+                          )}
                         </div>
                       )}
+                      
+                      {/* Khu vực chấm điểm - đặt dưới phần câu trả lời và làm nổi bật */}
+                      <div className="mt-6 p-4 bg-yellow-50 border-2 border-yellow-300 rounded-lg shadow-sm">
+                        <h3 className="text-lg font-bold text-yellow-800 mb-2">Chấm điểm</h3>
+                        <div className="flex flex-wrap items-center">
+                          <div className="flex items-center mr-6 mb-2">
+                            <span className="font-medium mr-3 text-yellow-700">Điểm số:</span>
+                            <input 
+                              type="number" 
+                              min="0"
+                              step="0.5"
+                              className="w-24 px-3 py-2 text-lg font-bold border border-yellow-300 rounded focus:outline-none focus:ring-2 focus:ring-yellow-500 bg-white"
+                              value={question.customPoint !== undefined ? question.customPoint : calculatePointsByDifficulty(question.difficulty || 'easy')}
+                              onChange={(e) => {
+                                const value = parseFloat(e.target.value);
+                                if (!isNaN(value) && value >= 0 && question._id) {
+                                  handleCustomPoint(question._id, value);
+                                }
+                              }}
+                            />
+                            <span className="ml-2 text-yellow-700 font-medium">điểm</span>
+                          </div>
+                          
+                          {question.selectedAnswer !== undefined && (
+                            <div className={`px-4 py-2 rounded-full font-bold ${
+                              question.selectedAnswer === question.correctAnswer 
+                                ? "bg-green-100 text-green-700 border border-green-300" 
+                                : "bg-red-100 text-red-700 border border-red-300"
+                            }`}>
+                              {question.selectedAnswer === question.correctAnswer 
+                                ? `Đúng (+${question.point || calculatePointsByDifficulty(question.difficulty || 'easy')} điểm)` 
+                                : "Sai (0 điểm)"}
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 );
