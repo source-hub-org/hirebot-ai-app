@@ -3,14 +3,16 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import Head from "next/head";
 import { useCandidates } from "@/hooks/useCandidatesList";
+import { useLanguages } from "@/hooks/useLanguage";
 import { CreateCandidateModal } from "@/components/modals/CreateCandidateModal";
 import { formatDate } from "@/helpers/date";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { EyeIcon, RetryIcon } from '@/components/ui/Icons';
 
 export default function CandidatesList() {
   const router = useRouter();
-  const { candidates, showLoading, pagination, paginate } = useCandidates();
-
+  const { candidates, showLoading, pagination, paginate, fetchCandidates } = useCandidates();
+  useLanguages(true, 100);
   const [showModal, setShowModal] = useState(false);
 
   const handleLogout = () => {
@@ -64,7 +66,7 @@ export default function CandidatesList() {
                 onClick={handleCreateSession}
                 className="bg-gradient-to-r from-primary-light to-primary text-white px-4 py-2 rounded hover:opacity-90"
               >
-                Tạo phiên thi mới
+                Tạo ứng viên mới
               </button>
             </div>
 
@@ -75,6 +77,7 @@ export default function CandidatesList() {
                   <tr>
                     <th className="py-3 px-4 text-left">STT</th>
                     <th className="py-3 px-4 text-left">Họ tên</th>
+                    <th className="py-3 px-4 text-left">Email</th>
                     <th className="py-3 px-4 text-left">Kỹ năng</th>
                     <th className="py-3 px-4 text-left">Cấp độ</th>
                     <th className="py-3 px-4 text-left">Ngày tham gia</th>
@@ -94,20 +97,22 @@ export default function CandidatesList() {
                           1}
                       </td>
                       <td className="py-3 px-4">{candidate.full_name}</td>
-                      <td className="py-3 px-4">
-                        {candidate.skills?.join(",")}
+                      <td className="py-3 px-4">{candidate.email}</td>
+                      <td className="py-3 px-4 max-w-xs truncate" title={candidate.skills?.join(", ")}>
+                        {candidate.skills?.join(", ")}
                       </td>
                       <td className="py-3 px-4">{candidate.interview_level}</td>
                       <td className="py-3 px-4">
-                        {candidate.updated_at
-                          ? formatDate(candidate.updated_at)
+                        {candidate.createdAt
+                          ? formatDate(candidate.createdAt)
                           : ""}
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="py-3 px-4 flex items-center gap-2">
                         <Link href={`/admin/candidates/${candidate._id}`}>
-                          <button className="text-primary hover:underline">
-                            Xem chi tiết
-                          </button>
+                          <EyeIcon title="Xem kết quả thi"/>
+                        </Link>
+                        <Link href={`/admin/sessions/${candidate._id}`}>
+                          <RetryIcon title="Thi" />
                         </Link>
                       </td>
                     </tr>
@@ -172,6 +177,7 @@ export default function CandidatesList() {
           <CreateCandidateModal
             isOpen={showModal}
             onClose={() => setShowModal(false)}
+            onSuccess={() => {fetchCandidates(); setShowModal(false)}}
           />
         ) : (
           ""

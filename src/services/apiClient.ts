@@ -3,7 +3,7 @@ import axios from "axios";
 // Use relative URL for API requests to leverage Next.js rewrites
 const apiClient = axios.create({
   baseURL: "/api", // This will be rewritten by Next.js to the actual API URL
-  timeout: 10000,
+  timeout: 100000,
   headers: {
     "Content-Type": "application/json",
     // Add any common headers here

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/stores/store";
 import candidateService from "@/services/candidateService";
@@ -6,10 +6,9 @@ import { setCandidate, setTopic } from "@/stores/candidateDetailSlice";
 import { CandidateDetail } from "@/types/candidate";
 import { useRouter } from "next/router";
 
-export const useCandidates = (id?: string) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const dispatch = useDispatch();
+export const useCandidates = (candidateId?: string) => {
   const router = useRouter();
+  const dispatch = useDispatch();
   const storedCandidate = useSelector(
     (state: RootState) =>
       state.candidateDetail.candidate as CandidateDetail | null,
@@ -17,11 +16,13 @@ export const useCandidates = (id?: string) => {
   const storedTopics = useSelector(
     (state: RootState) => state.candidateDetail.topics,
   );
+  const [isLoading, setIsLoading] = useState(true);
+  const hasFetched = useRef(false);
 
   const fetchCandidateIfNeeded = useCallback(
     async (candidateId: string) => {
       try {
-        if (!candidateId) {
+        if (!candidateId || hasFetched.current) {
           setIsLoading(false);
           return;
         }
@@ -34,13 +35,15 @@ export const useCandidates = (id?: string) => {
             router.push("/admin/candidates");
             return;
           }
-          dispatch(
-            setCandidate({
-              ...data,
-              answers: [],
-            } as CandidateDetail),
-          );
         }
+
+        dispatch(
+          setCandidate({
+            ...data,
+            answers: [],
+          } as CandidateDetail),
+        );
+        hasFetched.current = true;
       } catch (error) {
         router.push("/admin/candidates");
         console.error("Failed to load candidate:", error);
@@ -65,11 +68,11 @@ export const useCandidates = (id?: string) => {
   }, [dispatch, storedTopics]);
 
   useEffect(() => {
-    if (id) {
-      fetchCandidateIfNeeded(id);
+    if (candidateId && !hasFetched.current) {
+      fetchCandidateIfNeeded(candidateId);
     }
     getTopics();
-  }, [id, fetchCandidateIfNeeded, getTopics]);
+  }, [candidateId, fetchCandidateIfNeeded, getTopics]);
 
   return {
     candidate: storedCandidate,

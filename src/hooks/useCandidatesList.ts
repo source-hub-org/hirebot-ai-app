@@ -1,22 +1,17 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Candidate, CandidatesResponse } from "@/types/candidate";
 import candidateService from "@/services/candidateService";
+import { PAGINATION } from "@/constants/candidate";
 
 export const useCandidates = () => {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
-  const [pagination, setPagination] = useState({
-    currentPage: 1,
-    itemsPerPage: 5,
-    totalPages: 0,
-    total: 0,
-  });
-
+  const [pagination, setPagination] = useState(PAGINATION);
   const [showLoading, setShowLoading] = useState(false);
+  const hasFetched = useRef(false);
 
-  const fetchCandidates = useCallback(async (page = 1, pageSize = 5) => {
+  const fetchCandidates = useCallback(async (page = pagination.currentPage, pageSize = pagination.itemsPerPage) => {
     try {
       setLoading(true);
       const response: CandidatesResponse = await candidateService.getCandidates(
@@ -37,7 +32,7 @@ export const useCandidates = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [pagination.currentPage, pagination.itemsPerPage]);
 
   const handlePageChange = (page: number) => {
     fetchCandidates(page, pagination.itemsPerPage);
@@ -49,8 +44,11 @@ export const useCandidates = () => {
   };
 
   useEffect(() => {
-    fetchCandidates();
-  }, [fetchCandidates]);
+    if (!hasFetched.current) {
+      fetchCandidates();
+      hasFetched.current = true;
+    }
+  }, [fetchCandidates, hasFetched]);
 
   useEffect(() => {
     if (loading) {

@@ -2,16 +2,18 @@ export interface Session {
   id: number;
   createdAt: string;
   language: string;
-  level: string;
+  position: string;
   topic: string;
   questionCount: number;
+  type?: string;
 }
 
 export interface SessionFormData {
   language: string;
-  level: string;
+  position: string;
   topic: string;
   questionCount: number;
+  type: string;
 }
 
 export interface PageProps {

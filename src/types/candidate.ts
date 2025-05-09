@@ -9,7 +9,7 @@ export type Candidate = {
   programming_languages?: string[];
   preferred_stack?: string;
   status?: string;
-  created_at?: string;
+  createdAt?: string;
   updated_at?: string;
 };
 
@@ -34,7 +34,8 @@ export type Answer = {
   point?: number; // Added for storing points
   customPoint?: number; // Added for custom point assignment
   feedback?: string;
-  question: string;
+  question :string;
+  sessionId?: number; 
 };
 
 export type CandidateDetail = Candidate & {
@@ -51,6 +52,7 @@ export type CandidatesResponse = {
     total_pages: number;
   };
 };
+
 export type Topic = {
   title: string;
   difficulty: number;
@@ -95,4 +97,13 @@ export type CandidateSubmission = {
   essay: EssayQuestion;
   review: ReviewStatus;
   candidate: Candidate;
+};
+
+export type Session = {
+  id: number;
+  language: string;
+  position: string;
+  topic: string;
+  questionCount: number;
+  createdAt: string;
 };

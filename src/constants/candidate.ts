@@ -59,6 +59,13 @@ export const SKILL_OPTIONS = [
   "Electron",
 ];
 
+export const PAGINATION = {
+  currentPage: 1,
+  itemsPerPage: 10,
+  totalPages: 0,
+  total: 0,
+}
+
 export const DEFAULT_CANDIDATE_FORM = {
   full_name: "",
   phone_number: "",
@@ -82,4 +89,9 @@ export const LEVEL_OPTIONS = [
   { value: "middle", label: "Middle" },
   { value: "senior", label: "Senior" },
   { value: "expert", label: "Expert" },
+];
+
+export const TYPES = [
+  { value: "questions", label: "Ngôn ngữ lập trình" },
+  { value: "instruments", label: "Kỹ năng mềm" },
 ];
