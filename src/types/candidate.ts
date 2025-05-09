@@ -31,8 +31,10 @@ export type Answer = {
   position?: string;
   positionLevel?: number;
   score?: number;
+  point?: number; // Added for storing points
+  customPoint?: number; // Added for custom point assignment
   feedback?: string;
-  question :string;
+  question: string;
 };
 
 export type CandidateDetail = Candidate & {
