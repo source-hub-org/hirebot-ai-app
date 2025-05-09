@@ -2,14 +2,14 @@ import { Answer } from "./candidate";
 import { ApiResponse } from "./common";
 
 export interface SearchQuestionsParams {
-  language: string;
-  position: string;
-  topic: string;
+  language?: string;
+  position?: string;
+  topic?: string;
   page_size: number;
   page: number;
-  mode: string;
-  sort_by: string;
-  sort_direction: string;
+  mode?: string;
+  sort_by?: string;
+  sort_direction?: string;
   ignore_question_ids?: string;
 }
 

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Input, Select } from "@/components/ui";
 import { useRouter } from "next/router";
-import { LEVEL_OPTIONS } from "@/constants/candidate";
+import { LEVEL_OPTIONS, TYPES } from "@/constants/candidate";
 import Head from "next/head";
 import { useSessionForm } from "@/hooks/useSessionForm";
 import { useCandidates } from "@/hooks/useCandidates";
@@ -77,11 +77,22 @@ const SessionPage = ({ params }: { params: { id?: string } }) => {
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
           <form ref={formRef} className="space-y-6">
             <Select
+              name="type"
+              value={formData.type}
+              onChange={handleChange}
+              label="Kỹ năng phỏng vấn"
+              error=""
+              rules={["required"]}
+              options={TYPES}
+            />
+
+            <Select
               name="language"
               value={formData.language}
               onChange={handleChange}
               label="Ngôn ngữ"
               rules={["required"]}
+              disabled={formData.type !== TYPES[0].value}
               options={
                 storedCandidate?.skills?.map((skill) => ({
                   value: skill,
@@ -97,6 +108,7 @@ const SessionPage = ({ params }: { params: { id?: string } }) => {
               label="Cấp độ"
               error=""
               rules={["required"]}
+              disabled={formData.type !== TYPES[0].value}
               options={LEVEL_OPTIONS}
             />
 
@@ -105,6 +117,7 @@ const SessionPage = ({ params }: { params: { id?: string } }) => {
               value={formData.topic}
               onChange={handleChange}
               label="Chủ đề"
+              disabled={formData.type !== TYPES[0].value}
               options={topicOptions}
             />
 
@@ -153,14 +166,21 @@ const SessionPage = ({ params }: { params: { id?: string } }) => {
                     Xóa
                   </button>
                   <p>
-                    <span className="font-medium">Ngôn ngữ:</span> {session.language}
+                    <span className="font-medium">Kỹ năng phỏng vấn:</span> {TYPES.find(type => type.value === session.type)?.label}
                   </p>
-                  <p>
-                    <span className="font-medium">Cấp độ:</span> {session.position}
-                  </p>
-                  <p>
-                    <span className="font-medium">Chủ đề:</span> {session.topic}
-                  </p>
+                  {session.type === TYPES[0].value && (
+                    <>
+                      <p>
+                        <span className="font-medium">Ngôn ngữ:</span> {session.language}
+                      </p>
+                      <p>
+                        <span className="font-medium">Cấp độ:</span> {session.position}
+                      </p>
+                      <p>
+                        <span className="font-medium">Chủ đề:</span> {session.topic}
+                      </p>
+                    </>
+                  )}
                   <p>
                     <span className="font-medium">Số câu hỏi:</span> {session.questionCount}
                   </p>

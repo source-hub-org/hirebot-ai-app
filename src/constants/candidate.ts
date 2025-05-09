@@ -90,3 +90,8 @@ export const LEVEL_OPTIONS = [
   { value: "senior", label: "Senior" },
   { value: "expert", label: "Expert" },
 ];
+
+export const TYPES = [
+  { value: "questions", label: "Ngôn ngữ lập trình" },
+  { value: "instruments", label: "Kỹ năng mềm" },
+];
