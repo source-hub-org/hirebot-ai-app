@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import { Answer } from "@/types/candidate";
 import { addAnswer, removeAnswersBySession } from "@/stores/candidateDetailSlice";
 import { ApiResponse } from "@/types/common";
+import logicService from "@/services/logicService";
 
 export const useSessionForm = () => {
   const [formData, setFormData] = useState<SessionFormData>({
@@ -127,6 +128,23 @@ export const useSessionForm = () => {
           .filter(Boolean)
           .join(',') ?? '';
         questionsResponse = await instrumentService.get({
+          page: 1,
+          page_size: formData.questionCount,
+          mode: 'full',
+          sort_by: 'createdAt',
+          sort_direction: 'desc',
+          ignore_question_ids: existingQuestionIds
+        });
+      }
+      if (formData.type === TYPES[2].value) {
+        existingQuestionIds = store.getState().candidateDetail.candidate?.answers
+          ?.filter(answer => 
+            answer._id
+          )
+          .map(answer => answer._id)
+          .filter(Boolean)
+          .join(',') ?? '';
+        questionsResponse = await logicService.get({
           page: 1,
           page_size: formData.questionCount,
           mode: 'full',
