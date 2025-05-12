@@ -23,7 +23,20 @@ interface Question {
   level?: string; // For UI compatibility
 }
 
+import EditQuestionModal from "@/components/modals/EditQuestionModal";
+
 export default function QuestionsList() {
+  // --- EDIT MODAL STATE & HANDLERS ---
+  const [editQuestion, setEditQuestion] = useState<any>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+
+  const handleEditQuestion = (question: any) => {
+    setEditQuestion(question);
+    setShowEditModal(true);
+  };
+
+  // --- END EDIT MODAL STATE & HANDLERS ---
+
   const router = useRouter();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [topics, setTopics] = useState<Topic[]>([]);
@@ -487,6 +500,13 @@ export default function QuestionsList() {
           {/* Table */}
           {!loading && !error && (
             <div className="grid grid-cols-1 gap-6">
+              {/* Edit Question Modal */}
+              <EditQuestionModal
+                editQuestion={editQuestion}
+                setEditQuestion={setEditQuestion}
+                showEditModal={showEditModal}
+                setShowEditModal={setShowEditModal}
+              />
               {questions.map((question) => (
                 <div key={question._id} className="bg-white border rounded-lg shadow-sm hover:shadow-md transition-shadow p-6">
                   <div className="flex justify-between items-start mb-4">
@@ -501,7 +521,17 @@ export default function QuestionsList() {
                         {question.position}
                       </span>
                     </div>
-                    <div className="text-xs text-gray-500">ID: {question._id.substring(0, 8)}...</div>
+                    <div className="text-xs text-gray-500">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleEditQuestion(question)}
+                          className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                        >
+                          Sửa
+                        </button>
+                        ID: {question._id.substring(0, 8)}...
+                      </div>
+                    </div>
                   </div>
                   
                   <h3 className="text-lg font-semibold mb-4">{question.question}</h3>
