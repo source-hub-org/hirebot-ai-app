@@ -131,7 +131,7 @@ export const useSessionForm = () => {
           .join(',') ?? '';
         questionsResponse = await instrumentService.get({
           page: 1,
-          page_size: formData.questionCount,
+          limit: formData.questionCount,
           mode: 'full',
           sort_by: 'createdAt',
           sort_direction: 'desc',
@@ -148,7 +148,7 @@ export const useSessionForm = () => {
           .join(',') ?? '';
         questionsResponse = await logicService.get({
           page: 1,
-          page_size: formData.questionCount,
+          limit: formData.questionCount,
           mode: 'full',
           sort_by: 'createdAt',
           sort_direction: 'desc',
