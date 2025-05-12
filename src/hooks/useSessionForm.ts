@@ -20,6 +20,8 @@ export const useSessionForm = () => {
     type: TYPES[0].value
   });
   const [generatedSessions, setGeneratedSessions] = useState<Session[]>([]);
+  const [sessions, setSessions] = useState<Session>();
+  const [questionShow, setQuestionShow] = useState<Answer[]>([]);
   const [loading, setLoading] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const [topicOptions, setTopicOptions] = useState<
@@ -211,6 +213,11 @@ export const useSessionForm = () => {
     });
   };
 
+  const getQuestionBySession = (session: Session) => {
+    const questions = store.getState().candidateDetail.candidate?.answers.filter(answer => answer.sessionId === session.id);
+    setQuestionShow(questions || []);
+    setSessions(session);
+  };
   return {
     formData,
     formRef,
@@ -221,5 +228,9 @@ export const useSessionForm = () => {
     deleteSession,
     handleChange,
     setFormData,
+    getQuestionBySession,
+    questionShow,
+    setQuestionShow,
+    sessions,
   };
 };

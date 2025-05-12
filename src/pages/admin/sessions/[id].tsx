@@ -8,6 +8,7 @@ import { useSessionForm } from "@/hooks/useSessionForm";
 import { useCandidates } from "@/hooks/useCandidates";
 import "react-toastify/dist/ReactToastify.css";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import QuestionsByTopicModal from "@/components/modals/QuestionsByTopicModal";
 
 const SessionPage = ({ params }: { params: { id?: string } }) => {
   const [isClient, setIsClient] = useState(false);
@@ -26,7 +27,11 @@ const SessionPage = ({ params }: { params: { id?: string } }) => {
     setFormData, 
     generatedSessions, 
     handleGenerate, 
-    deleteSession 
+    deleteSession,
+    getQuestionBySession,
+    questionShow,
+    setQuestionShow,
+    sessions,
   } = useSessionForm();
 
   useEffect(() => {
@@ -161,10 +166,18 @@ const SessionPage = ({ params }: { params: { id?: string } }) => {
                 <div key={session.id} className="border p-4 rounded relative">
                   <button 
                     onClick={() => deleteSession(session.id)}
-                    className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+                    className="px-4 py-2 bg-red-500 text-white rounded absolute top-2 right-2"
                   >
                     Xóa
                   </button>
+  
+                  <button 
+                    onClick={() => getQuestionBySession(session)}
+                    className="px-4 py-2 bg-primary text-white rounded absolute top-2 right-20"
+                  >
+                    Xem câu hỏi
+                  </button>
+                  
                   <p>
                     <span className="font-medium">Kỹ năng phỏng vấn:</span> {TYPES.find(type => type.value === session.type)?.label}
                   </p>
@@ -193,6 +206,12 @@ const SessionPage = ({ params }: { params: { id?: string } }) => {
           </div>
         )}
       </div>
+      <QuestionsByTopicModal
+        open={!!questionShow.length}
+        onClose={() => setQuestionShow([])}
+        questions={questionShow}
+        sessionQuestion={sessions || undefined}
+      />
     </>
   );
 };
