@@ -11,6 +11,7 @@ export interface SearchQuestionsParams {
   sort_by?: string;
   sort_direction?: string;
   ignore_question_ids?: string;
+  ignore_instrument_ids?: string;
   limit?: number;
 }
 

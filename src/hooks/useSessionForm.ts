@@ -135,7 +135,7 @@ export const useSessionForm = () => {
           mode: 'full',
           sort_by: 'createdAt',
           sort_direction: 'desc',
-          ignore_question_ids: existingQuestionIds
+          ignore_instrument_ids: existingQuestionIds
         });
       }
       if (formData.type === TYPES[2].value) {
