@@ -12,6 +12,14 @@ import { Question } from "@/types/question";
 
 import EditQuestionModal from "@/components/modals/EditQuestionModal";
 import { toast } from "react-toastify";
+import { Select } from "@/components/ui";
+import { TYPES } from "@/constants/candidate";
+import instrumentService from "@/services/instrumentService";
+import logicService from "@/services/logicService";
+import { ApiResponse } from "@/types/common";
+import { Answer } from "@/types/candidate";
+import EditQuestLogic from "@/components/modals/EditQuestLogic";
+import EditQuestInstruments from "@/components/modals/EditQuestInstruments";
 
 export default function QuestionsList() {
   // --- EDIT MODAL STATE & HANDLERS ---
@@ -52,6 +60,7 @@ export default function QuestionsList() {
   
   // Filters
   const [filters, setFilters] = useState({
+    type: TYPES[0].value,
     topic: "",
     language: "JavaScript",
     position: "junior",
@@ -181,28 +190,50 @@ export default function QuestionsList() {
     
     setLoading(true);
     try {
-      const response = await questionService.searchQuestions({
-        topic: filters.topic,
-        language: filters.language,
-        position: filters.position,
-        page: currentPage,
-        page_size: itemsPerPage,
-        mode: filters.mode,
-        sort_by: filters.sort_by,
-        sort_direction: filters.sort_direction
-      });
-      
+      let response: ApiResponse<Answer[]> | null = null;
+      if (filters.type === TYPES[0].value) {
+        response = await questionService.searchQuestions({
+          topic: filters.topic,
+          language: filters.language,
+          position: filters.position,
+          page: currentPage,
+          page_size: itemsPerPage,
+          mode: filters.mode,
+          sort_by: filters.sort_by,
+          sort_direction: filters.sort_direction
+        });
+      }
+      if (filters.type === TYPES[1].value) {
+        response = await instrumentService.get({
+          page: currentPage,
+          page_size: itemsPerPage,
+          mode: filters.mode,
+          sort_by: filters.sort_by,
+          sort_direction: filters.sort_direction
+        });
+      }
+      if (filters.type === TYPES[2].value) {
+        response = await logicService.get({
+          page: currentPage,
+          page_size: itemsPerPage,
+          mode: filters.mode,
+          sort_by: filters.sort_by,
+          sort_direction: filters.sort_direction
+        });
+      }
       console.log('API response:', response);
       
       // Kiểm tra cả hai trường hợp: response.success || response.status === "success") hoặc response.status === "success"
-      if (response.data) {
+      if (response?.data) {
         // Transform API response to match our UI needs
         const formattedQuestions = response.data.map((q: Partial<Question>) => ({
           ...q,
           _id: q._id || '', // Ensure _id is always a string
           // Không cần map 'question' field vì chúng ta đã sử dụng trực tiếp trong UI
           type: q.options && q.options.length > 0 ? "MCQ" : "Essay",
-          level: q.position || '' // Map position to level for UI compatibility
+          typeFe: q.type,
+          level: q.position || '', // Map position to level for UI compatibility
+          levelFe: q.level,
         })) as Question[];
         
         console.log('Formatted questions:', formattedQuestions);
@@ -380,51 +411,25 @@ export default function QuestionsList() {
           </div>
 
           {/* Filters */}
-          <div className="grid grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-3 gap-3 mb-6">
             <div>
-              <label className="block text-sm font-medium mb-2">
-                Chủ đề
-              </label>
-              <select
-                name="topic"
-                className="w-full p-2 border rounded"
-                value={filters.topic}
+              <Select
+                name="type"
+                label="Kỹ năng phỏng vấn"
+                value={filters.type}
                 onChange={handleFilterChange}
-              >
-                {topics && topics.length > 0 ? (
-                  topics.map((topic) => (
-                    <option key={topic.title} value={topic.title}>
-                      {topic.title}
-                    </option>
-                  ))
-                ) : (
-                  <option value="">No topics available</option>
-                )}
-              </select>
+                options={TYPES}
+              />
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Cấp độ</label>
-              <select
-                name="position"
-                className="w-full p-2 border rounded"
-                value={filters.position}
-                onChange={handleFilterChange}
-              >
-                <option value="intern">Intern</option>
-                <option value="fresher">Fresher</option>
-                <option value="junior">Junior</option>
-                <option value="middle">Middle</option>
-                <option value="senior">Senior</option>
-                <option value="expert">Expert</option>
-              </select>
-            </div>
-            <div>
+           
+            <div className={filters.type !== TYPES[0].value ? "opacity-50 cursor-not-allowed" : ""}>
               <label className="block text-sm font-medium mb-2">Ngôn ngữ</label>
               <select
                 name="language"
                 className="w-full p-2 border rounded"
                 value={filters.language}
                 onChange={handleFilterChange}
+                disabled={filters.type !== TYPES[0].value}
               >
                 <option value="Python">Python</option>
                 <option value="JavaScript">JavaScript</option>
@@ -447,6 +452,46 @@ export default function QuestionsList() {
               </select>
             </div>
 
+            <div className={filters.type !== TYPES[0].value ? "opacity-50 cursor-not-allowed" : ""}>
+              <label className="block text-sm font-medium mb-2">Cấp độ</label>
+              <select
+                name="position"
+                className="w-full p-2 border rounded"
+                value={filters.position}
+                onChange={handleFilterChange}
+                disabled={filters.type !== TYPES[0].value}
+              >
+                <option value="intern">Intern</option>
+                <option value="fresher">Fresher</option>
+                <option value="junior">Junior</option>
+                <option value="middle">Middle</option>
+                <option value="senior">Senior</option>
+                <option value="expert">Expert</option>
+              </select>
+            </div>
+
+            <div className={filters.type !== TYPES[0].value ? "opacity-50 cursor-not-allowed" : ""}>
+              <label className="block text-sm font-medium mb-2">
+                Chủ đề
+              </label>
+              <select
+                name="topic"
+                className="w-full p-2 border rounded"
+                value={filters.topic}
+                onChange={handleFilterChange}
+                disabled={filters.type !== TYPES[0].value}
+              >
+                {topics && topics.length > 0 ? (
+                  topics.map((topic) => (
+                    <option key={topic.title} value={topic.title}>
+                      {topic.title}
+                    </option>
+                  ))
+                ) : (
+                  <option value="">No topics available</option>
+                )}
+              </select>
+            </div>
             <div>
               <label className="block text-sm font-medium mb-2">Sắp xếp theo</label>
               <select
@@ -502,47 +547,70 @@ export default function QuestionsList() {
           {!loading && !error && (
             <div className="grid grid-cols-1 gap-6">
               {/* Edit Question Modal */}
-              <EditQuestionModal
-                editQuestion={editQuestion}
-                showEditModal={showEditModal}
-                setShowEditModal={setShowEditModal}
+              {filters?.type === TYPES[0].value && (
+                <EditQuestionModal
+                  editQuestion={editQuestion}
+                  showEditModal={showEditModal}
+                  setShowEditModal={setShowEditModal}
                 changeQuestion={handlerChangeQuestion}
               />
+              )}
+              {filters?.type === TYPES[1].value && (
+                <EditQuestInstruments
+                  editQuestion={editQuestion}
+                  showEditModal={showEditModal}
+                  setShowEditModal={setShowEditModal}
+                changeQuestion={handlerChangeQuestion}
+              />
+              )}
+              {filters?.type === TYPES[2].value && (
+                <EditQuestLogic
+                  editQuestion={editQuestion}
+                  showEditModal={showEditModal}
+                  setShowEditModal={setShowEditModal}
+                changeQuestion={handlerChangeQuestion}
+              />
+              )}
               {questions.map((question) => (
                 <div key={question._id} className="bg-white border rounded-lg shadow-sm hover:shadow-md transition-shadow p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full mr-2">
-                        {question.topic}
-                      </span>
-                      <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded-full mr-2">
-                        {question.language}
-                      </span>
-                      <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                        {question.position}
-                      </span>
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      <div className="flex items-center gap-2">
-                      <button
-                          onClick={() => handleEditQuestion(question)}
-                          className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                        >
-                          Sửa
-                        </button>
+                    <div className="flex justify-between items-start mb-4">
+                        <div>
+                        {question.type== TYPES[0].value && (
+                          <>
+                            <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full mr-2">
+                              {question.topic}
+                            </span>
+                            <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded-full mr-2">
+                              {question.language}
+                            </span>
+                            <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                              {question.position}
+                            </span>
+                          </>
+                        )}
+                        </div>
+                      <div className="text-xs text-gray-500">
+                        <div className="flex items-center gap-2">
                         <button
-                          onClick={() => handleDeleteQuestion(question._id)}
-                          className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                        >
-                          Xóa
-                        </button>
-                        
-                        ID: {question._id.substring(0, 8)}...
+                            onClick={() => handleEditQuestion(question)}
+                            className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                          >
+                            Sửa
+                          </button>
+                          <button
+                            onClick={() => handleDeleteQuestion(question._id)}
+                            className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                          >
+                            Xóa
+                          </button>
+                          
+                          ID: {question._id.substring(0, 8)}...
+                        </div>
                       </div>
                     </div>
-                  </div>
                   
                   <h3 className="text-lg font-semibold mb-4">{question.question}</h3>
+                  <h3 className="text-lg font-semibold mb-4">{question.questionText}</h3>
                   
                   {question.options && question.options.length > 0 && (
                     <div className="mb-4">
@@ -572,6 +640,42 @@ export default function QuestionsList() {
                                     : 'text-gray-800'
                                 }`}>
                                   {option}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+  
+                  {question.choices && question.choices.length > 0 && (
+                    <div className="mb-4">
+                      <p className="text-sm font-medium text-gray-700 mb-2">Đáp án:</p>
+                      <div className="space-y-2">
+                        {question.choices.map((choices, index) => (
+                          <div 
+                            key={index} 
+                            className={`p-3 rounded-md ${choices.is_correct 
+                                ? 'bg-green-50 border border-green-200' 
+                                : 'bg-gray-50 border border-gray-200'
+                            }`}
+                          >
+                            <div className="flex items-start">
+                              <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center mr-2 ${
+                               choices.is_correct 
+                                  ? 'bg-green-500 text-white' 
+                                  : 'bg-gray-300 text-gray-700'
+                              }`}>
+                                {String.fromCharCode(65 + index)}
+                              </div>
+                              <div className="flex-1">
+                                <p className={`text-sm ${
+                                  choices.is_correct 
+                                    ? 'text-green-800 font-medium' 
+                                    : 'text-gray-800'
+                                }`}>
+                                  {choices.text}
                                 </p>
                               </div>
                             </div>

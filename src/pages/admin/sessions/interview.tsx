@@ -774,7 +774,7 @@ const InterviewPage = () => {
                     </div>
 
                     <div className="space-y-2">
-                      {question.options.map((option, optionIndex) => (
+                      {question.options?.map((option, optionIndex) => (
                         <div
                           key={optionIndex}
                           className={`p-3 rounded-lg ${question.is_skip ? "cursor-not-allowed opacity-60" : "cursor-pointer"} ${

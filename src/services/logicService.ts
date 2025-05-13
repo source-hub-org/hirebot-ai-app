@@ -17,6 +17,17 @@ const logicService = {
       throw error;
     }
   },
+  async update(
+    params: Answer,
+  ): Promise<ApiResponse<Answer[]>> {
+    try {
+      const response = await apiClient.put(`/api/logic-questions/${params._id}`, params);
+      return response.data;
+    } catch (error) {
+      console.error("Error searching questions:", error);
+      throw error;
+    }
+  },
 };
 
 export default logicService;

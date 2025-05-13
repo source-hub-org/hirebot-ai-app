@@ -1,10 +1,10 @@
 import React, { useRef } from "react";
 import { Input } from "../ui/Input";
 import { Textarea } from "../ui/Textarea";
-import questionService from "@/services/questionService";
 import { toast } from "react-toastify";
-import { Question } from "@/types/question";
+import { Question, Tag } from "@/types/question";
 import { Chose } from "@/types/candidate";
+import logicService from "@/services/logicService";
 
 interface Option {
   id: string;
@@ -23,7 +23,7 @@ interface EditQuestionModalProps {
   changeQuestion: (data: Question) => void;
 }
 
-const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
+const EditQuestLogic: React.FC<EditQuestionModalProps> = ({
   editQuestion,
   showEditModal,
   setShowEditModal,
@@ -78,8 +78,6 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
           }
           return { ...option, [field]: value };
         }
-        // Nếu chọn đáp án đúng, các option khác phải false
-        if (field === "correct" && value === true) return { ...option, correct: false };
         return option;
       })
     } : prev);
@@ -102,27 +100,32 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     });
 
     if (hasErrors) return;
-    updateQuestion()
+    updateLogic()
   };
-  const updateQuestion = async () => {
+
+  const updateLogic  = async () => {
     const updatedQuestion = {
       ...editQuestion,
-      options: localQuestion.answers.map(option => option.text),
-      correctAnswer: localQuestion.answers.findIndex(option => option.correct),
-      explanation: localQuestion.explanation,
+      answer_explanation: localQuestion.answer_explanation,
+      choices: localQuestion.answers.map(option => ({
+        text: option.text,
+        is_correct: option.correct,
+      })),
+      tag_ids: editQuestion?.tag_ids
+      ?.map((tag: Tag) => tag._id)
+      .filter((id): id is string => typeof id === 'string'),
       question: localQuestion.question,
-      difficulty: localQuestion.difficulty,
-      category: localQuestion.category,
-      topic: localQuestion?.topic,
-      language: localQuestion?.language,
-      position: localQuestion?.position,
-      positionLevel: localQuestion?.positionLevel,
       _id: editQuestion?._id ?? "",
+      type: editQuestion?.typeFe,
+      level: editQuestion?.levelFe,
     };
-    await questionService.updateQuestion(updatedQuestion).then((res) => {
-      toast.success(res.message);
+    await logicService.update(updatedQuestion).then((res) => {
+      toast.success(res?.message ?? "Cập nhật thành công!");
       setShowEditModal(false);
-      changeQuestion(updatedQuestion)
+      changeQuestion({
+        ...updatedQuestion,
+        tag_ids: editQuestion?.tag_ids,
+      })
     }).catch((err) => {
       toast.error(err?.response?.data?.message || "Cập nhật không thành công!");
     });
@@ -136,26 +139,28 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
         <form ref={formRef} onSubmit={handleSave}>
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">Nội dung câu hỏi</label>
-              <Textarea
+            <Textarea
                 name="question"
                 value={localQuestion?.question || ""}
                 rules={["required"]}
                 context={{ title: `Nội dung câu hỏi` }}
                 placeholder={`Nội dung câu hỏi`}
                 onChange={handleChange}
-              />
+            />
           </div>
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">Các lựa chọn</label>
             {localQuestion.answers.map((option, idx) => (
               <div key={option.id} className="flex items-center gap-2 mb-2">
-                <input
-                    type="radio"
-                    name="correctAnswer"
-                    checked={option.correct}
-                    onChange={() => handleOptionChange(option.id, "correct", true)}
-                  className="mr-2 w-6 h-6"
-                />
+                {localQuestion.typeFe === "multiple_choice" && (
+                    <input
+                        type="checkbox"
+                        name="correctAnswer"
+                        checked={option.correct}
+                        onChange={() => handleOptionChange(option.id, "correct", true)}
+                        className="mr-2 w-6 h-6"
+                    />
+                )}
                 <Input
                   name="phone_number"
                   value={option.text || ""}
@@ -170,12 +175,12 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
           </div>
           <div className="mb-4">
             <Textarea
-              name="explanation"
-              value={localQuestion.explanation || ""}
-              context={{ title: `Giải thích (nếu có)` }}
-              placeholder={`Giải thích (nếu có)`}
-              rules={["required"]}
-              onChange={handleChange}
+                name="answer_explanation"
+                value={localQuestion.answer_explanation || ""}
+                context={{ title: `Giải thích (nếu có)` }}
+                placeholder={`Giải thích (nếu có)`}
+                rules={["required"]}
+                onChange={handleChange}
             />
           </div>
           <div className="flex justify-end gap-2">
@@ -198,4 +203,4 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   );
 };
 
-export default EditQuestionModal;
+export default EditQuestLogic;

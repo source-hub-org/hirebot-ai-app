@@ -1,10 +1,10 @@
 import React, { useRef } from "react";
 import { Input } from "../ui/Input";
 import { Textarea } from "../ui/Textarea";
-import questionService from "@/services/questionService";
 import { toast } from "react-toastify";
-import { Question } from "@/types/question";
+import { Question, Tag } from "@/types/question";
 import { Chose } from "@/types/candidate";
+import instrumentService from "@/services/instrumentService";
 
 interface Option {
   id: string;
@@ -23,7 +23,7 @@ interface EditQuestionModalProps {
   changeQuestion: (data: Question) => void;
 }
 
-const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
+const EditQuestInstruments: React.FC<EditQuestionModalProps> = ({
   editQuestion,
   showEditModal,
   setShowEditModal,
@@ -102,31 +102,30 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     });
 
     if (hasErrors) return;
-    updateQuestion()
+    updateInstruments()
+   
   };
-  const updateQuestion = async () => {
+
+  const updateInstruments  = async () => {
     const updatedQuestion = {
       ...editQuestion,
       options: localQuestion.answers.map(option => option.text),
-      correctAnswer: localQuestion.answers.findIndex(option => option.correct),
-      explanation: localQuestion.explanation,
-      question: localQuestion.question,
-      difficulty: localQuestion.difficulty,
-      category: localQuestion.category,
-      topic: localQuestion?.topic,
-      language: localQuestion?.language,
-      position: localQuestion?.position,
-      positionLevel: localQuestion?.positionLevel,
+      questionText: localQuestion.questionText,
+      type: editQuestion?.typeFe,
+      tags: editQuestion?.tags
+      ?.map((tag: Tag) => tag._id)
+      .filter((id): id is string => typeof id === 'string'),
       _id: editQuestion?._id ?? "",
     };
-    await questionService.updateQuestion(updatedQuestion).then((res) => {
-      toast.success(res.message);
+    await instrumentService.update(updatedQuestion).then((res) => {
+      toast.success(res?.message ?? "Cập nhật thành công!");
       setShowEditModal(false);
-      changeQuestion(updatedQuestion)
+      changeQuestion({...updatedQuestion, tags: editQuestion?.tags})
     }).catch((err) => {
       toast.error(err?.response?.data?.message || "Cập nhật không thành công!");
     });
   }
+ 
   if (!showEditModal || !editQuestion) return null;
 
   return (
@@ -137,8 +136,8 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">Nội dung câu hỏi</label>
               <Textarea
-                name="question"
-                value={localQuestion?.question || ""}
+                name="questionText"
+                value={localQuestion?.questionText || ""}
                 rules={["required"]}
                 context={{ title: `Nội dung câu hỏi` }}
                 placeholder={`Nội dung câu hỏi`}
@@ -149,13 +148,6 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
             <label className="block text-sm font-medium mb-1">Các lựa chọn</label>
             {localQuestion.answers.map((option, idx) => (
               <div key={option.id} className="flex items-center gap-2 mb-2">
-                <input
-                    type="radio"
-                    name="correctAnswer"
-                    checked={option.correct}
-                    onChange={() => handleOptionChange(option.id, "correct", true)}
-                  className="mr-2 w-6 h-6"
-                />
                 <Input
                   name="phone_number"
                   value={option.text || ""}
@@ -167,16 +159,6 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                 />
               </div>
             ))}
-          </div>
-          <div className="mb-4">
-            <Textarea
-              name="explanation"
-              value={localQuestion.explanation || ""}
-              context={{ title: `Giải thích (nếu có)` }}
-              placeholder={`Giải thích (nếu có)`}
-              rules={["required"]}
-              onChange={handleChange}
-            />
           </div>
           <div className="flex justify-end gap-2">
             <button
@@ -198,4 +180,4 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   );
 };
 
-export default EditQuestionModal;
+export default EditQuestInstruments;

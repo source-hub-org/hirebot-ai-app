@@ -1,3 +1,5 @@
+import { Tag } from "./question";
+
 export type Candidate = {
   _id?: string;
   full_name?: string;
@@ -17,14 +19,14 @@ export type Answer = {
   _id?: string;
   id?: string;
   questionId?: string;
-  options: string[];
-  correctAnswer: number;
+  options?: string[];
+  correctAnswer?: number;
   selectedAnswer?: number;
   otherAnswer?: string;
   is_skip?: number; // 1 nếu bỏ qua, 0 nếu không bỏ qua
-  language: string;
-  level: string;
-  category: string;
+  language?: string;
+  level?: string | number;
+  category?: string;
   explanation?: string;
   difficulty?: string;
   topic?: string;
@@ -32,10 +34,12 @@ export type Answer = {
   positionLevel?: number;
   score?: number;
   feedback?: string;
-  question :string;
+  question?:string;
   sessionId?: number; 
   questionText?: string;
   choices?: Chose[];
+  tag_ids?: Tag[] | string[];
+  tags?: Tag[] | string[];
 };
 export type Chose = {
   text: string;
