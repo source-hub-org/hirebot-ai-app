@@ -34,8 +34,8 @@ export type Answer = {
   feedback?: string;
   question :string;
   sessionId?: number; 
-  questionText?: string
-  choices?: Chose[]
+  questionText?: string;
+  choices?: Chose[];
 };
 export type Chose = {
   text: string;

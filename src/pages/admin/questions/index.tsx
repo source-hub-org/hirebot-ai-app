@@ -8,31 +8,32 @@ import candidateService from "@/services/candidateService";
 
 // Types
 import {Topic } from "@/types/candidate";
-
-// Interface for Question
-interface Question {
-  _id: string;
-  question: string;
-  options: string[];
-  correctAnswer: number;
-  explanation?: string;
-  topic: string;
-  language: string;
-  position: string;
-  type?: string; // For UI compatibility
-  level?: string; // For UI compatibility
-}
+import { Question } from "@/types/question";
 
 import EditQuestionModal from "@/components/modals/EditQuestionModal";
+import { toast } from "react-toastify";
 
 export default function QuestionsList() {
   // --- EDIT MODAL STATE & HANDLERS ---
-  const [editQuestion, setEditQuestion] = useState<any>(null);
+  const [editQuestion, setEditQuestion] = useState<Question | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
 
-  const handleEditQuestion = (question: any) => {
+  const handleEditQuestion = (question: Question) => {
     setEditQuestion(question);
     setShowEditModal(true);
+  };
+
+  const handlerChangeQuestion = (data : Question) => {
+    setShowEditModal(false);
+    setQuestions((prev) => prev.map((q) => (q._id === data._id ? data : q)));
+  }
+  const handleDeleteQuestion = (questionId: string) => {
+    questionService.deleteQuestion(questionId).then((res) => {
+      toast.success(res.message);
+      setQuestions((prev) => prev.filter((q) => q._id !== questionId));
+    }).catch((err) => {
+      toast.error(err?.response?.data?.message || "Xóa không thành công!");
+    });
   };
 
   // --- END EDIT MODAL STATE & HANDLERS ---
@@ -503,9 +504,9 @@ export default function QuestionsList() {
               {/* Edit Question Modal */}
               <EditQuestionModal
                 editQuestion={editQuestion}
-                setEditQuestion={setEditQuestion}
                 showEditModal={showEditModal}
                 setShowEditModal={setShowEditModal}
+                changeQuestion={handlerChangeQuestion}
               />
               {questions.map((question) => (
                 <div key={question._id} className="bg-white border rounded-lg shadow-sm hover:shadow-md transition-shadow p-6">
@@ -523,12 +524,19 @@ export default function QuestionsList() {
                     </div>
                     <div className="text-xs text-gray-500">
                       <div className="flex items-center gap-2">
-                        <button
+                      <button
                           onClick={() => handleEditQuestion(question)}
                           className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
                         >
                           Sửa
                         </button>
+                        <button
+                          onClick={() => handleDeleteQuestion(question._id)}
+                          className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                        >
+                          Xóa
+                        </button>
+                        
                         ID: {question._id.substring(0, 8)}...
                       </div>
                     </div>

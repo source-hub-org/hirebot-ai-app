@@ -14,6 +14,7 @@ type InputProps = {
   max?: number;
   className?: string;
   forceValidate?: boolean;
+  classNameBox?: string;
 };
 
 export const Input = ({
@@ -28,6 +29,7 @@ export const Input = ({
   min,
   max,
   className = "",
+  classNameBox = "mb-4",
   forceValidate = false,
 }: InputProps) => {
   const [error, setError] = useState("");
@@ -49,7 +51,7 @@ export const Input = ({
   };
 
   return (
-    <div className="mb-4">
+    <div className={`${classNameBox} `}>
       {label && (
         <label className="block text-sm font-medium mb-2">
           {label}
