@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import { Answer } from "@/types/candidate";
 import { addAnswer, removeAnswersBySession } from "@/stores/candidateDetailSlice";
 import { ApiResponse } from "@/types/common";
+import logicService from "@/services/logicService";
 
 export const useSessionForm = () => {
   const [formData, setFormData] = useState<SessionFormData>({
@@ -19,6 +20,8 @@ export const useSessionForm = () => {
     type: TYPES[0].value
   });
   const [generatedSessions, setGeneratedSessions] = useState<Session[]>([]);
+  const [sessions, setSessions] = useState<Session>();
+  const [questionShow, setQuestionShow] = useState<Answer[]>([]);
   const [loading, setLoading] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const [topicOptions, setTopicOptions] = useState<
@@ -128,7 +131,24 @@ export const useSessionForm = () => {
           .join(',') ?? '';
         questionsResponse = await instrumentService.get({
           page: 1,
-          page_size: formData.questionCount,
+          limit: formData.questionCount,
+          mode: 'full',
+          sort_by: 'createdAt',
+          sort_direction: 'desc',
+          ignore_instrument_ids: existingQuestionIds
+        });
+      }
+      if (formData.type === TYPES[2].value) {
+        existingQuestionIds = store.getState().candidateDetail.candidate?.answers
+          ?.filter(answer => 
+            answer._id
+          )
+          .map(answer => answer._id)
+          .filter(Boolean)
+          .join(',') ?? '';
+        questionsResponse = await logicService.get({
+          page: 1,
+          limit: formData.questionCount,
           mode: 'full',
           sort_by: 'createdAt',
           sort_direction: 'desc',
@@ -193,6 +213,11 @@ export const useSessionForm = () => {
     });
   };
 
+  const getQuestionBySession = (session: Session) => {
+    const questions = store.getState().candidateDetail.candidate?.answers.filter(answer => answer.sessionId === session.id);
+    setQuestionShow(questions || []);
+    setSessions(session);
+  };
   return {
     formData,
     formRef,
@@ -203,5 +228,9 @@ export const useSessionForm = () => {
     deleteSession,
     handleChange,
     setFormData,
+    getQuestionBySession,
+    questionShow,
+    setQuestionShow,
+    sessions,
   };
 };

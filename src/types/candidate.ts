@@ -34,7 +34,13 @@ export type Answer = {
   feedback?: string;
   question :string;
   sessionId?: number; 
+  questionText?: string
+  choices?: Chose[]
 };
+export type Chose = {
+  text: string;
+  is_correct: boolean;
+}
 
 export type CandidateDetail = Candidate & {
   answers: Answer[];

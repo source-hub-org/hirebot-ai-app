@@ -94,4 +94,5 @@ export const LEVEL_OPTIONS = [
 export const TYPES = [
   { value: "questions", label: "Ngôn ngữ lập trình" },
   { value: "instruments", label: "Kỹ năng mềm" },
+  { value: "logic", label: "Kỹ năng logic" },
 ];
