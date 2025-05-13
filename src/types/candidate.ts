@@ -1,3 +1,5 @@
+import { SessionFormData } from "./session";
+
 export type Candidate = {
   _id?: string;
   full_name?: string;
@@ -14,6 +16,7 @@ export type Candidate = {
 };
 
 export type Answer = {
+  filter_fe?: SessionFormData | null;
   _id?: string;
   id?: string;
   questionId?: string;
