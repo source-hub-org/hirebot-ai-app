@@ -43,7 +43,8 @@ const InterviewPage = () => {
 
   // State để lưu review
   const [review, setReview] = useState({
-    comment: "",
+    candidateComment: "", // Nhận xét ứng viên
+    personalIntro: "", // Giới thiệu cá nhân + nguyện vọng
     status: "true",
   });
 
@@ -538,7 +539,7 @@ const InterviewPage = () => {
           is_skip: essay.answer.trim() === "" ? 1 : 0,
         },
         review: {
-          comment: review.comment,
+          comment: `Nhận xét của người phỏng vấn: ${review.candidateComment}\n\nNguyện vọng và giới thiệu cá nhân của ứng viên: ${review.personalIntro}`,
           status: review.status,
         },
       };
@@ -1341,50 +1342,38 @@ const InterviewPage = () => {
 
             <div className="mb-4">
               <label
-                htmlFor="review-comment"
+                htmlFor="review-candidate-comment"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                Nhận xét và thông tin nguyện vọng của ứng viên:
+                Nhận xét ứng viên:
               </label>
               <textarea
-                id="review-comment"
+                id="review-candidate-comment"
                 className="w-full border border-gray-300 rounded-lg p-3 min-h-[100px]"
-                placeholder="Nhập nhận xét và thông tin nguyện vọng của ứng viên"
-                value={review.comment}
+                placeholder="Nhập nhận xét về ứng viên"
+                value={review.candidateComment}
                 onChange={(e) =>
-                  setReview({ ...review, comment: e.target.value })
+                  setReview({ ...review, candidateComment: e.target.value })
                 }
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Trạng thái:
+            <div className="mb-4">
+              <label
+                htmlFor="review-personal-intro"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Giới thiệu cá nhân và nguyện vọng:
               </label>
-              <div className="flex items-center space-x-4">
-                <label className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    className="form-radio h-5 w-5 text-blue-600"
-                    name="review-status"
-                    value="true"
-                    checked={review.status === "true"}
-                    onChange={() => setReview({ ...review, status: "true" })}
-                  />
-                  <span className="ml-2 text-gray-700">Đạt</span>
-                </label>
-                <label className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    className="form-radio h-5 w-5 text-red-600"
-                    name="review-status"
-                    value="false"
-                    checked={review.status === "false"}
-                    onChange={() => setReview({ ...review, status: "false" })}
-                  />
-                  <span className="ml-2 text-gray-700">Không đạt</span>
-                </label>
-              </div>
+              <textarea
+                id="review-personal-intro"
+                className="w-full border border-gray-300 rounded-lg p-3 min-h-[100px]"
+                placeholder="Nhập thông tin giới thiệu cá nhân và nguyện vọng của ứng viên"
+                value={review.personalIntro}
+                onChange={(e) =>
+                  setReview({ ...review, personalIntro: e.target.value })
+                }
+              />
             </div>
           </div>
 

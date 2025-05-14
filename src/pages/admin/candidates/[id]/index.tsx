@@ -1052,7 +1052,7 @@ export default function CandidateDetail() {
                           <span className="ml-1">{mcqScore.percentage}%</span>
                         </div>
                         <div className="flex items-center">
-                          <span className="text-gray-500 mr-1">×0.7 =</span>
+                          <span className="text-gray-500 mr-1">×70% =</span>
                           <span className="font-medium">
                             {Math.round(totalScoreData.mcqContribution)}đ
                           </span>
@@ -1075,7 +1075,7 @@ export default function CandidateDetail() {
                           </span>
                         </div>
                         <div className="flex items-center">
-                          <span className="text-gray-500 mr-1">×0.2 =</span>
+                          <span className="text-gray-500 mr-1">×20% =</span>
                           <span className="font-medium">
                             {Math.round(totalScoreData.instrumentsContribution)}
                             đ
@@ -1095,7 +1095,7 @@ export default function CandidateDetail() {
                           <span className="ml-1">{logicStats.percentage}%</span>
                         </div>
                         <div className="flex items-center">
-                          <span className="text-gray-500 mr-1">×0.1 =</span>
+                          <span className="text-gray-500 mr-1">×10% =</span>
                           <span className="font-medium">
                             {Math.round(totalScoreData.logicContribution)}đ
                           </span>
@@ -1787,13 +1787,59 @@ export default function CandidateDetail() {
 
                     <div className="mt-6">
                       <h3 className="font-semibold text-lg mb-2">
-                        Nhận xét của người phỏng vấn và nguyện vọng của ứng viên
+                        Nhận xét và thông tin ứng viên
                       </h3>
-                      {submission?.review ? (
-                        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                          <p>
-                            {submission.review.comment || "Chưa có nhận xét"}
-                          </p>
+                      {submission?.review?.comment ? (
+                        <div className="space-y-4">
+                          {/* Parse and display the comment sections */}
+                          {(() => {
+                            const comment = submission.review.comment;
+
+                            // Regex patterns for extracting sections
+                            const INTERVIEWER_COMMENT_PATTERN =
+                              /Nhận xét của người phỏng vấn:(.*?)(?=Nguyện vọng và giới thiệu cá nhân của ứng viên:|$)/s;
+                            const PERSONAL_INTRO_PATTERN =
+                              /Nguyện vọng và giới thiệu cá nhân của ứng viên:(.*?)$/s;
+
+                            // Extract interviewer comment section
+                            const interviewerCommentMatch = comment.match(
+                              INTERVIEWER_COMMENT_PATTERN,
+                            );
+                            const interviewerComment =
+                              interviewerCommentMatch?.[1]?.trim() || "";
+
+                            // Extract personal intro section
+                            const personalIntroMatch = comment.match(
+                              PERSONAL_INTRO_PATTERN,
+                            );
+                            const personalIntro =
+                              personalIntroMatch?.[1]?.trim() || "";
+
+                            return (
+                              <>
+                                {/* Interviewer comment section */}
+                                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                                  <h4 className="font-medium text-blue-800 mb-2">
+                                    Nhận xét của người phỏng vấn:
+                                  </h4>
+                                  <p className="whitespace-pre-line text-gray-800">
+                                    {interviewerComment || "Chưa có nhận xét"}
+                                  </p>
+                                </div>
+
+                                {/* Personal intro section */}
+                                <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                                  <h4 className="font-medium text-green-800 mb-2">
+                                    Nguyện vọng và giới thiệu cá nhân của ứng
+                                    viên:
+                                  </h4>
+                                  <p className="whitespace-pre-line text-gray-800">
+                                    {personalIntro || "Chưa có thông tin"}
+                                  </p>
+                                </div>
+                              </>
+                            );
+                          })()}
                         </div>
                       ) : (
                         <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
