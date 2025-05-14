@@ -5,6 +5,7 @@ import {
   SearchQuestionsParams,
   GenerateQuestionsParams,
 } from "@/types/questionService";
+import { Question } from "@/types/question";
 
 const questionService = {
   async searchQuestions(
@@ -24,6 +25,28 @@ const questionService = {
   ): Promise<ApiResponse<Answer[]>> {
     try {
       const response = await apiClient.post("/api/questions/generate", params);
+      return response.data;
+    } catch (error) {
+      console.error("Error generating questions:", error);
+      throw error;
+    }
+  },
+  async updateQuestion(
+    params: Question
+  ): Promise<ApiResponse<Answer[]>> {
+    try {
+      const response = await apiClient.put(`/api/questions/${params._id}`, params);
+      return response.data;
+    } catch (error) {
+      console.error("Error generating questions:", error);
+      throw error;
+    }
+  },
+  async deleteQuestion(
+    questionId: string
+  ): Promise<ApiResponse<Answer[]>> {
+    try {
+      const response = await apiClient.delete(`/api/questions/${questionId}`);
       return response.data;
     } catch (error) {
       console.error("Error generating questions:", error);

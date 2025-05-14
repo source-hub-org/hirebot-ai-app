@@ -1,24 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { validateField } from "@/helpers/validation";
 
-type InputProps = {
-  type?: string;
+type TextareaProps = {
   name: string;
   value: string | number;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   label?: string;
   placeholder?: string;
   rules?: Array<string | { min: number } | { max: number }>;
   context?: { title?: string };
-  min?: number;
-  max?: number;
   className?: string;
   forceValidate?: boolean;
-  classNameBox?: string;
 };
 
-export const Input = ({
-  type = "text",
+export const Textarea = ({
   name,
   value,
   onChange,
@@ -26,12 +21,9 @@ export const Input = ({
   placeholder,
   rules = [],
   context,
-  min,
-  max,
   className = "",
-  classNameBox = "mb-4",
   forceValidate = false,
-}: InputProps) => {
+}: TextareaProps) => {
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -41,7 +33,7 @@ export const Input = ({
     }
   }, [forceValidate, rules, value, context]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onChange(e);
 
     if (rules.length > 0) {
@@ -51,7 +43,7 @@ export const Input = ({
   };
 
   return (
-    <div className={`${classNameBox} `}>
+    <div className="mb-4">
       {label && (
         <label className="block text-sm font-medium mb-2">
           {label}
@@ -60,14 +52,11 @@ export const Input = ({
           )}
         </label>
       )}
-      <input
-        type={type}
+      <textarea
         name={name}
         value={value}
         onChange={handleChange}
         placeholder={placeholder}
-        min={min}
-        max={max}
         className={`w-full p-2 border rounded ${error ? "border-red-500" : ""} ${className}`}
       />
       {error && <p className="text-red-500 text-xs mt-1">{error}</p>}

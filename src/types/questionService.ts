@@ -6,7 +6,7 @@ export interface SearchQuestionsParams {
   position?: string;
   topic?: string;
   page_size?: number;
-  page: number;
+  page?: number;
   mode?: string;
   sort_by?: string;
   sort_direction?: string;
@@ -22,6 +22,19 @@ export interface GenerateQuestionsParams {
   count: number;
 }
 
+export interface EditQuestion {
+  _id?: string;
+  question: string;
+  options: string[];
+  explanation?: string;
+  difficulty?: string;
+  category?: string;
+  topic?: string;
+  language?: string;
+  position?: string;
+  positionLevel?: string;
+}
+
 export interface QuestionService {
   searchQuestions(
     params: SearchQuestionsParams
@@ -29,5 +42,9 @@ export interface QuestionService {
   
   generateQuestions(
     params: GenerateQuestionsParams
+  ): Promise<ApiResponse<Answer[]>>;
+
+  updateQuestion(
+    params: EditQuestion
   ): Promise<ApiResponse<Answer[]>>;
 }

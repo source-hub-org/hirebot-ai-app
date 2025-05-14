@@ -10,7 +10,6 @@ import { Answer } from "@/types/candidate";
 import { addAnswer, removeAnswersBySession } from "@/stores/candidateDetailSlice";
 import { ApiResponse } from "@/types/common";
 import logicService from "@/services/logicService";
-import { candidates } from "@/mock/data/candidates";
 
 export const useSessionForm = () => {
   const [formData, setFormData] = useState<SessionFormData>({
