@@ -819,18 +819,6 @@ export default function QuestionsList() {
                             className="flex items-center justify-center w-9 h-9 rounded-r-lg border bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                             aria-label="Trang sau"
                           >
-                        {/* Hiển thị trang hiện tại khi chỉ có 1 trang */}
-                        {totalPages <= 1 && (
-                          <li>
-                            <button
-                              className="flex items-center justify-center w-9 h-9 border bg-primary text-white"
-                              aria-current="page"
-                              disabled
-                            >
-                              1
-                            </button>
-                          </li>
-                        )}
                         
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                               <path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
