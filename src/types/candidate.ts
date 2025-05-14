@@ -1,3 +1,4 @@
+import { Tag } from "./question";
 import { SessionFormData } from "./session";
 
 export type Candidate = {
@@ -20,14 +21,14 @@ export type Answer = {
   _id?: string;
   id?: string;
   questionId?: string;
-  options: string[];
-  correctAnswer: number;
+  options?: string[];
+  correctAnswer?: number;
   selectedAnswer?: number;
   otherAnswer?: string;
   is_skip?: number; // 1 nếu bỏ qua, 0 nếu không bỏ qua
-  language: string;
-  level: string;
-  category: string;
+  language?: string;
+  level?: string | number;
+  category?: string;
   explanation?: string;
   difficulty?: string;
   topic?: string;
@@ -37,12 +38,14 @@ export type Answer = {
   point?: number; // Added for storing points
   customPoint?: number; // Added for custom point assignment
   feedback?: string;
-  question: string;
   sessionId?: number;
   questionText?: string;
   choices?: Chose[];
   type?: string;
   answer_explanation?: string;
+  question?: string;
+  tag_ids?: Tag[] | string[];
+  tags?: Tag[] | string[];
 };
 export type Chose = {
   text: string;

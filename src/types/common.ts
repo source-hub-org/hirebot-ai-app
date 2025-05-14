@@ -16,3 +16,13 @@ export interface ApiResponse<T> {
     total_pages: number;
   };
 }
+
+export interface Filters {
+  type: string;
+  topic: string;
+  language: string;
+  position: string;
+  sort_by: string;
+  sort_direction: string;
+  mode: string;
+}

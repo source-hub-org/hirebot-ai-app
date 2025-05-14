@@ -3,6 +3,7 @@ import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import candidateDetailReducer from "./candidateDetailSlice";
 import languageReducer from "./languageSlice";
+import instrumentReducer from "./instrumentSlice";
 
 const persistConfig = {
   key: "root",
@@ -15,6 +16,7 @@ export const store = configureStore({
   reducer: {
     candidateDetail: persistedReducer,
     language: languageReducer,
+    instrument: instrumentReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

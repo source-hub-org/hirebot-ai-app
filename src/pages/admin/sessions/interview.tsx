@@ -1042,7 +1042,6 @@ const InterviewPage = () => {
 
                       {/* Removed scoring section from here */}
                     </div>
-
                     {/* Show choices if question type is multiple_choice and choices exist */}
                     {question.type === "multiple_choice" &&
                     question.choices &&
