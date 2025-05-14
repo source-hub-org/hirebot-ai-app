@@ -1,4 +1,5 @@
 import { Tag } from "./question";
+import { SessionFormData } from "./session";
 
 export type Candidate = {
   _id?: string;
@@ -16,6 +17,7 @@ export type Candidate = {
 };
 
 export type Answer = {
+  filter_fe?: SessionFormData | null;
   _id?: string;
   id?: string;
   questionId?: string;
