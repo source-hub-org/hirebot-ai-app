@@ -34,15 +34,17 @@ export type Answer = {
   point?: number; // Added for storing points
   customPoint?: number; // Added for custom point assignment
   feedback?: string;
-  question :string;
-  sessionId?: number; 
-  questionText?: string
-  choices?: Chose[]
+  question: string;
+  sessionId?: number;
+  questionText?: string;
+  choices?: Chose[];
+  type?: string;
+  answer_explanation?: string;
 };
 export type Chose = {
   text: string;
   is_correct: boolean;
-}
+};
 
 export type CandidateDetail = Candidate & {
   answers: Answer[];
@@ -85,6 +87,48 @@ export type SubmissionAnswer = {
   question: QuestionDetail;
 };
 
+export type InstrumentDetail = {
+  _id: string;
+  questionId: string;
+  questionText: string;
+  type: string;
+  options: string[];
+  tags: string[];
+};
+
+export type Instrument = {
+  instrument_id: string;
+  answer: number | null;
+  other: string;
+  point: number;
+  is_skip: number;
+  instrument: InstrumentDetail;
+};
+
+export type LogicQuestionChoice = {
+  text: string;
+  is_correct: boolean;
+};
+
+export type LogicQuestionDetail = {
+  _id: string;
+  question: string;
+  level: number;
+  tag_ids: string[];
+  type: string;
+  choices: LogicQuestionChoice[];
+  answer_explanation: string;
+};
+
+export type LogicQuestion = {
+  logic_question_id: string;
+  answer: string;
+  other: string;
+  point: number;
+  is_skip: number;
+  logic_question: LogicQuestionDetail;
+};
+
 export type EssayQuestion = {
   question: string;
   answer: string;
@@ -100,6 +144,8 @@ export type CandidateSubmission = {
   _id: string;
   candidate_id: string;
   answers: SubmissionAnswer[];
+  instruments: Instrument[];
+  logic_questions: LogicQuestion[];
   essay: EssayQuestion;
   review: ReviewStatus;
   candidate: Candidate;
