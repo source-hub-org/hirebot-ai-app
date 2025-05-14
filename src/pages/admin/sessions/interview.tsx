@@ -55,11 +55,13 @@ const InterviewPage = () => {
   });
 
   // Thêm state mới
-  const [selectedLanguage, setSelectedLanguage] = useState('all');
-  const [selectedLevel, setSelectedLevel] = useState('all');
-  
-  // State để quản lý hiển thị explanation
-  const [showExplanations, setShowExplanations] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState("all");
+  const [selectedLevel, setSelectedLevel] = useState("all");
+
+  // State để quản lý hiển thị explanation cho từng câu hỏi
+  const [visibleExplanations, setVisibleExplanations] = useState<
+    Record<string, boolean>
+  >({});
 
   useEffect(() => {
     setIsClient(true);
@@ -84,15 +86,40 @@ const InterviewPage = () => {
             // Đảm bảo rằng mỗi câu hỏi có đầy đủ thông tin và ID duy nhất
             const processedAnswers = answers.map((answer, index) => {
               console.log(`Processing answer ${index}:`, answer);
+              console.log(`Answer ${index} has question:`, !!answer.question);
+              console.log(
+                `Answer ${index} has questionText:`,
+                !!answer.questionText,
+              );
 
-              // Nếu câu hỏi không có content, sử dụng question.content nếu có
-              if (!answer.question) {
+              // Tính điểm dựa trên độ khó
+              const calculateInitialPoint = (difficulty: string) => {
+                switch (difficulty?.toLowerCase()) {
+                  case "hard":
+                    return 3;
+                  case "medium":
+                    return 2;
+                  case "easy":
+                  default:
+                    return 1;
+                }
+              };
+
+              // Lấy điểm ban đầu dựa trên độ khó
+              const initialPoint = calculateInitialPoint(
+                answer.difficulty || "easy",
+              );
+
+              // Nếu câu hỏi không có question hoặc question là chuỗi rỗng, sử dụng questionText thay thế
+              if (!answer.question || answer.question === "") {
                 const processedAnswer = {
                   ...answer,
                   _id: answer._id || answer.questionId || `question_${index}`, // Đảm bảo mỗi câu hỏi có ID duy nhất
-                  content: answer.question,
+                  question: answer.questionText || "", // Sử dụng questionText làm nội dung câu hỏi
                   options: answer.options || [],
                   correctAnswer: answer.correctAnswer || 0,
+                  point: answer.point || initialPoint, // Sử dụng điểm có sẵn hoặc tính dựa trên độ khó
+                  customPoint: answer.point || initialPoint, // Khởi tạo điểm tự chấm
                 };
                 console.log(
                   `Processed answer ${index} with question content:`,
@@ -107,6 +134,8 @@ const InterviewPage = () => {
                   ...answer,
                   _id: answer._id || answer.questionId || `question_${index}`, // Đảm bảo mỗi câu hỏi có ID duy nhất
                   options: ["Option A", "Option B", "Option C", "Option D"],
+                  point: answer.point || initialPoint, // Sử dụng điểm có sẵn hoặc tính dựa trên độ khó
+                  customPoint: answer.point || initialPoint, // Khởi tạo điểm tự chấm
                 };
                 console.log(
                   `Processed answer ${index} with default options:`,
@@ -122,6 +151,8 @@ const InterviewPage = () => {
                   answer.id ||
                   answer.questionId ||
                   `question_${index}`, // Đảm bảo mỗi câu hỏi có ID duy nhất
+                point: answer.point || initialPoint, // Sử dụng điểm có sẵn hoặc tính dựa trên độ khó
+                customPoint: answer.point || initialPoint, // Khởi tạo điểm tự chấm
               };
               console.log(
                 `Processed answer ${index} without changes:`,
@@ -134,48 +165,8 @@ const InterviewPage = () => {
             setCandidateAnswers(processedAnswers);
           } else {
             console.log("No answers found in Redux store");
-
-            // Nếu không có câu trả lời, tạo dữ liệu mẫu để test
-            // Luôn tạo dữ liệu mẫu để đảm bảo có câu hỏi hiển thị
-            {
-              const mockAnswers: Answer[] = [
-                {
-                  _id: "1",
-                  question:
-                    "Trong PHP, cấu trúc dữ liệu nào phù hợp nhất để lưu trữ danh sách các sản phẩm, nơi bạn cần truy cập sản phẩm theo ID một cách nhanh chóng?",
-                  options: [
-                    "Mảng tuần tự",
-                    "Mảng kết hợp (associative array)",
-                    "SplFixedArray",
-                    "SplObjectStorage",
-                  ],
-                  correctAnswer: 1,
-                  language: "PHP",
-                  level: "Junior",
-                  category: "Data Structures",
-                  explanation:
-                    "Mảng kết hợp (associative array) cho phép bạn sử dụng ID sản phẩm làm khóa (key), giúp truy cập sản phẩm một cách nhanh chóng với độ phức tạp O(1) trung bình.",
-                  difficulty: "easy",
-                  topic: "Data Structures",
-                },
-                {
-                  _id: "2",
-                  question:
-                    "Cho đoạn code PHP sau: `$queue = new SplQueue(); $queue->enqueue('A'); $queue->enqueue('B'); echo $queue->dequeue();`. Kết quả in ra màn hình là gì?",
-                  options: ["B", "A", "NULL", "Lỗi"],
-                  correctAnswer: 1,
-                  language: "PHP",
-                  level: "Junior",
-                  category: "Data Structures",
-                  explanation:
-                    "SplQueue là một hàng đợi FIFO (First-In-First-Out). Phần tử 'A' được thêm vào trước, nên khi dequeue, 'A' sẽ được lấy ra đầu tiên.",
-                  difficulty: "easy",
-                  topic: "Data Structures",
-                },
-              ];
-              console.log("Setting mock answers:", mockAnswers);
-              setCandidateAnswers(mockAnswers);
-            }
+            // Không sử dụng dữ liệu mẫu, lấy dữ liệu từ storage
+            setCandidateAnswers([]);
           }
 
           setLoading(false);
@@ -199,25 +190,35 @@ const InterviewPage = () => {
           console.log(
             `Found question with id ${q._id}, updating selectedAnswer to ${optionIndex}`,
           );
-          
-          // Tính điểm dựa trên câu trả lời
-          let point = 0;
-          
-          // Nếu câu trả lời đúng (so sánh với correctAnswer), thì mới cho điểm
-          if (optionIndex === q.correctAnswer) {
-            // Nếu câu hỏi đã có điểm tự chấm, sử dụng điểm đó
-            if (q.customPoint !== undefined) {
-              point = q.customPoint;
-            } else {
-              // Nếu không, tính điểm dựa trên độ khó
-              point = calculatePointsByDifficulty(q.difficulty || 'easy');
-            }
+
+          // Nếu câu hỏi bị bỏ qua, điểm luôn là 0
+          if (q.is_skip === 1) {
+            return {
+              ...q,
+              selectedAnswer: optionIndex,
+              point: 0,
+            };
           }
-          
-          return { 
-            ...q, 
+
+          // Tính điểm dựa trên độ khó của câu hỏi
+          const difficultyPoint = calculatePointsByDifficulty(
+            q.difficulty || "easy",
+          );
+
+          // Kiểm tra xem đáp án có đúng không
+          const isCorrect = q.correctAnswer === optionIndex;
+
+          // Nếu đã có điểm tự chấm (customPoint), sử dụng điểm đó
+          // Nếu không, tính điểm dựa trên độ khó và tính đúng sai
+          const calculatedPoint = isCorrect ? difficultyPoint : 0;
+          const pointToUse =
+            q.customPoint !== undefined ? q.customPoint : calculatedPoint;
+
+          return {
+            ...q,
             selectedAnswer: optionIndex,
-            point: point
+            // Cập nhật điểm dựa trên tính đúng sai và độ khó
+            point: pointToUse,
           };
         }
         return q;
@@ -245,32 +246,47 @@ const InterviewPage = () => {
       return newAnswers;
     });
   };
-  
+
   // Hàm xử lý khi tự chấm điểm cho câu hỏi
   const handleCustomPoint = (questionId: string, point: number) => {
     console.log(`Setting custom point for question ${questionId}: ${point}`);
-    
+
     setCandidateAnswers((prev) => {
       const newAnswers = prev.map((q) => {
         if (q._id === questionId) {
-          console.log(`Found question with id ${q._id}, updating customPoint to ${point}`);
-          
-          // Cập nhật điểm tự chấm
-          const updatedQuestion = { 
-            ...q, 
-            customPoint: point 
-          };
-          
-          // Nếu đã chọn câu trả lời và câu trả lời đúng, cập nhật điểm
-          if (q.selectedAnswer !== undefined && q.selectedAnswer === q.correctAnswer) {
-            updatedQuestion.point = point;
+          console.log(
+            `Found question with id ${q._id}, updating customPoint to ${point}`,
+          );
+
+          // Nếu câu hỏi bị bỏ qua, điểm luôn là 0 bất kể điểm tự chấm
+          if (q.is_skip === 1) {
+            return {
+              ...q,
+              customPoint: point, // Vẫn lưu điểm tự chấm để hiển thị
+              point: 0, // Nhưng điểm thực tế vẫn là 0
+            };
           }
-          
-          return updatedQuestion;
+
+          // Nếu không có câu trả lời đã chọn, điểm cũng là 0
+          if (q.selectedAnswer === undefined) {
+            return {
+              ...q,
+              customPoint: point, // Vẫn lưu điểm tự chấm để hiển thị
+              point: 0, // Nhưng điểm thực tế vẫn là 0
+            };
+          }
+
+          // Cập nhật điểm tự chấm và điểm thực tế
+          // Không so sánh với đáp án đúng
+          return {
+            ...q,
+            customPoint: point,
+            point: point, // Luôn cập nhật điểm thực tế theo điểm tự chấm
+          };
         }
         return q;
       });
-      
+
       console.log("Updated answers with custom point:", newAnswers);
       return newAnswers;
     });
@@ -359,12 +375,12 @@ const InterviewPage = () => {
     }
 
     // Lọc theo ngôn ngữ
-    if (selectedLanguage !== 'all' && question.language !== selectedLanguage) {
+    if (selectedLanguage !== "all" && question.language !== selectedLanguage) {
       return false;
     }
 
     // Lọc theo cấp độ
-    if (selectedLevel !== 'all' && question.position !== selectedLevel) {
+    if (selectedLevel !== "all" && question.position !== selectedLevel) {
       return false;
     }
 
@@ -398,18 +414,124 @@ const InterviewPage = () => {
       // Log thông tin ứng viên trước khi lưu
       console.log("Candidate before saving:", candidate);
 
+      // Log điểm của từng câu hỏi trước khi gửi
+      console.log(
+        "Points before submission:",
+        candidateAnswers.map((q) => ({
+          id: q._id,
+          point: q.point,
+          customPoint: q.customPoint,
+          difficulty: q.difficulty,
+        })),
+      );
+
       // Chuẩn bị dữ liệu để gửi lên API
-      const formattedAnswers = candidateAnswers.map((q) => ({
-        question_id: q._id || q.questionId, // Ưu tiên sử dụng _id cho MongoDB, fallback sang questionId hoặc id
-        answer: q.selectedAnswer !== undefined ? q.selectedAnswer : null,
-        other: q.otherAnswer || "",
-        is_skip: q.is_skip === 1 ? 1 : q.selectedAnswer === undefined ? 1 : 0, // Ưu tiên sử dụng is_skip nếu đã đặt
-        point: q.point || 0, // Thêm điểm cho câu trả lời
-      }));
+      const formattedAnswers = candidateAnswers
+        .filter((q) => q.filter_fe?.type === "questions")
+        .map((q) => {
+          // Đảm bảo điểm được tính đúng
+          let pointValue = 0; // Mặc định là 0
+
+          // Nếu câu hỏi bị bỏ qua hoặc không có câu trả lời, điểm là 0
+          if (q.is_skip === 1 || q.selectedAnswer === undefined) {
+            pointValue = 0;
+          }
+          // Nếu có điểm tự chấm, sử dụng điểm đó
+          else if (q.customPoint !== undefined) {
+            pointValue = q.customPoint;
+          }
+          // Nếu có điểm được tính sẵn, sử dụng điểm đó
+          else if (q.point !== undefined) {
+            pointValue = q.point;
+          }
+          // Nếu không có điểm nào, tính dựa trên đáp án đúng/sai
+          else {
+            pointValue =
+              q.selectedAnswer === q.correctAnswer
+                ? calculatePointsByDifficulty(q.difficulty || "easy")
+                : 0;
+          }
+
+          return {
+            question_id: q._id || q.questionId, // Ưu tiên sử dụng _id cho MongoDB, fallback sang questionId hoặc id
+            answer: q.selectedAnswer !== undefined ? q.selectedAnswer : null,
+            other: q.otherAnswer || "",
+            is_skip:
+              q.is_skip === 1 ? 1 : q.selectedAnswer === undefined ? 1 : 0, // Ưu tiên sử dụng is_skip nếu đã đặt
+            point: pointValue, // Đảm bảo điểm được gửi đi
+          };
+        });
+
+      // Tạo mảng instruments cho câu hỏi có type = "scale"
+      const instruments = candidateAnswers
+        .filter((q) => q.filter_fe?.type === "instruments")
+        .map((q) => {
+          // Đảm bảo điểm được tính đúng
+          let pointValue = 0; // Mặc định là 0
+
+          // Nếu câu hỏi bị bỏ qua hoặc không có câu trả lời, điểm là 0
+          if (q.is_skip === 1 || q.selectedAnswer === undefined) {
+            pointValue = 0;
+          }
+          // Nếu có điểm tự chấm, sử dụng điểm đó
+          else if (q.customPoint !== undefined) {
+            pointValue = q.customPoint;
+          }
+          // Nếu có điểm được tính sẵn, sử dụng điểm đó
+          else if (q.point !== undefined) {
+            pointValue = q.point;
+          }
+          // Nếu không có điểm nào, tính dựa trên việc có câu trả lời hay không
+          else {
+            pointValue = q.selectedAnswer !== undefined ? 1 : 0;
+          }
+
+          return {
+            instrument_id: q._id || q.questionId,
+            answer: q.selectedAnswer !== undefined ? q.selectedAnswer : null,
+            other: q.otherAnswer || "",
+            point: pointValue, // Đảm bảo điểm được gửi đi
+            is_skip:
+              q.is_skip === 1 ? 1 : q.selectedAnswer === undefined ? 1 : 0,
+          };
+        });
+
+      // Tạo mảng logic_questions cho câu hỏi có type = "multiple_choice"
+      const logic_questions = candidateAnswers
+        .filter((q) => q.filter_fe?.type === "logic")
+        .map((q) => {
+          // Đảm bảo điểm được tính đúng
+          let pointValue = 0; // Mặc định là 0
+
+          // Nếu câu hỏi bị bỏ qua hoặc không có câu trả lời, điểm là 0
+          if (q.is_skip === 1 || q.selectedAnswer === undefined) {
+            pointValue = 0;
+          }
+          // Nếu có điểm tự chấm, sử dụng điểm đó
+          else if (q.customPoint !== undefined) {
+            pointValue = q.customPoint;
+          }
+          // Nếu có điểm được tính sẵn, sử dụng điểm đó
+          else if (q.point !== undefined) {
+            pointValue = q.point;
+          }
+
+          return {
+            logic_question_id: q._id || q.questionId,
+            answer:
+              q.selectedAnswer !== undefined ? q.selectedAnswer.toString() : "",
+            other: q.otherAnswer || "",
+            point: pointValue, // Đảm bảo điểm được gửi đi
+            is_skip:
+              q.is_skip === 1 ? 1 : q.selectedAnswer === undefined ? 1 : 0,
+          };
+        });
 
       const submissionData = {
         candidate_id: candidate?._id || "",
         answers: formattedAnswers,
+        instruments: instruments,
+        logic_questions: logic_questions,
         essay: {
           question: essay.question,
           answer: essay.answer,
@@ -526,24 +648,19 @@ const InterviewPage = () => {
   // Tạo mảng positions từ answers
   const uniquePositions = Array.from(
     new Set(
-      answers
-        .map((answer) => answer?.position)
-        .filter((position) => position)
-    )
+      answers.map((answer) => answer?.position).filter((position) => position),
+    ),
   );
 
-  const uniqueLanguge= Array.from(
+  const uniqueLanguge = Array.from(
     new Set(
-      answers
-        .map((answer) => answer?.language)
-        .filter((language) => language)
-    )
+      answers.map((answer) => answer?.language).filter((language) => language),
+    ),
   );
-
 
   // Thêm options cho select
   const LANGUAGE_OPTIONS = [
-    { value: 'all', label: 'Tất cả ngôn ngữ' },
+    { value: "all", label: "Tất cả ngôn ngữ" },
     ...(uniqueLanguge.map((language) => ({
       value: language,
       label: language,
@@ -551,7 +668,7 @@ const InterviewPage = () => {
   ];
 
   const LEVEL_OPTIONS = [
-    { value: 'all', label: 'Tất cả cấp độ' },
+    { value: "all", label: "Tất cả cấp độ" },
     ...(uniquePositions.map((position) => ({
       value: position,
       label: position,
@@ -675,12 +792,49 @@ const InterviewPage = () => {
                   <p className="font-medium">{candidateAnswers.length}</p>
                 </div>
               </div>
+
+              {/* Tổng điểm */}
+              <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h3 className="font-bold text-blue-800 mb-2">
+                  Tổng điểm hiện tại
+                </h3>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-600">
+                      Câu hỏi trắc nghiệm:
+                    </p>
+                    <p className="font-medium text-blue-700">
+                      {candidateAnswers
+                        .filter((q) => q.filter_fe?.type === "questions")
+                        .reduce((sum, q) => sum + (q.point || 0), 0)}{" "}
+                      điểm
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Kỹ năng mềm:</p>
+                    <p className="font-medium text-purple-700">
+                      {candidateAnswers
+                        .filter((q) => q.filter_fe?.type === "instruments")
+                        .reduce((sum, q) => sum + (q.point || 0), 0)}{" "}
+                      điểm
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Câu hỏi logic:</p>
+                    <p className="font-medium text-indigo-700">
+                      {candidateAnswers
+                        .filter((q) => q.filter_fe?.type === "logic")
+                        .reduce((sum, q) => sum + (q.point || 0), 0)}{" "}
+                      điểm
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Bộ lọc */}
             <div className="flex flex-wrap gap-3 mb-6">
-
-            <select
+              <select
                 className="border border-gray-300 rounded-md px-3 py-2 text-sm"
                 value={selectedLanguage}
                 onChange={(e) => setSelectedLanguage(e.target.value)}
@@ -762,6 +916,18 @@ const InterviewPage = () => {
                 console.log(
                   `Rendering question ${index} with id ${question._id}`,
                 );
+                console.log(
+                  `Question ${index} has question:`,
+                  !!question.question,
+                );
+                console.log(
+                  `Question ${index} has questionText:`,
+                  !!question.questionText,
+                );
+                console.log(
+                  `Question ${index} content:`,
+                  question.question || question.questionText || "No content",
+                );
                 return (
                   <div
                     key={question._id}
@@ -773,7 +939,13 @@ const InterviewPage = () => {
                         <h3 className="font-bold text-lg mb-2 mr-3">
                           Câu {index + 1}
                         </h3>
-                        <div className="mb-2">
+                        <div className="mb-2 flex items-center">
+                          {/* Hiển thị điểm hiện tại */}
+                          <div className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium mr-2">
+                            Điểm:{" "}
+                            {question.point !== undefined ? question.point : 0}
+                          </div>
+
                           <button
                             type="button"
                             onClick={() =>
@@ -798,7 +970,9 @@ const InterviewPage = () => {
                         <span className="mr-3">
                           Ngôn ngữ: {question.language}
                         </span>
-                        <span className="mr-3">Cấp độ: {question.position}</span>
+                        <span className="mr-3">
+                          Cấp độ: {question.position}
+                        </span>
                         <span className="mr-3">
                           Danh mục: {question.category}
                         </span>
@@ -822,171 +996,286 @@ const InterviewPage = () => {
                             </span>
                           </span>
                         )}
-                        
+
                         {/* Removed scoring section and result display from here */}
                       </div>
                     </div>
 
                     <div className="mb-4">
+                      {/* Debug info moved outside of JSX rendering */}
+                      {/* 
+                        Debug info:
+                        Question content for ${question._id}:
+                        question: question.question,
+                        questionText: question.questionText
+                      */}
                       <p className="text-gray-800 whitespace-pre-wrap">
-                        {question.question ||
-                          "Không có nội dung câu hỏi"}
+                        {question.question && question.question !== ""
+                          ? question.question
+                          : question.questionText &&
+                              question.questionText !== ""
+                            ? question.questionText
+                            : "Không có nội dung câu hỏi"}
                       </p>
-                      {question.question && question.question.includes("```") && (
+                      {/* Check for code blocks in question or questionText */}
+                      {((question.question &&
+                        question.question !== "" &&
+                        question.question.includes("```")) ||
+                        (question.questionText &&
+                          question.questionText !== "" &&
+                          question.questionText.includes("```"))) && (
                         <div className="mt-2 p-3 bg-gray-800 text-white rounded-md overflow-x-auto">
                           <pre>
-                            {question.question
+                            {(question.question && question.question !== ""
+                              ? question.question
+                              : question.questionText &&
+                                  question.questionText !== ""
+                                ? question.questionText
+                                : ""
+                            )
                               .split("```")
                               .filter((_, i) => i % 2 === 1)
                               .join("\n")}
                           </pre>
                         </div>
                       )}
-                      
+
                       {/* Removed scoring section from here */}
                     </div>
 
-                    <div className="space-y-2">
-                      {question.options.map((option, optionIndex) => (
-                        <div
-                          key={optionIndex}
-                          className={`p-3 rounded-lg ${question.is_skip ? "cursor-not-allowed opacity-60" : "cursor-pointer"} ${
-                            question.selectedAnswer === optionIndex
-                              ? "bg-blue-100 border border-blue-300"
-                              : "bg-gray-50 border border-gray-200 hover:bg-gray-100"
-                          }`}
-                          onClick={() => {
-                            if (!question.is_skip) {
-                              console.log(
-                                `Clicked option ${optionIndex} for question with id ${question._id}`,
-                              );
-                              // Use _id if available, otherwise fall back to questionId or a generated ID
-                              const questionId =
-                                question._id ||
-                                question.questionId ||
-                                `question_${optionIndex}`;
-                              handleSelectAnswer(questionId, optionIndex);
-                            }
-                          }}
-                        >
-                          <div className="flex items-start">
-                            <div
-                              className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center mr-2 ${
-                                question.selectedAnswer === optionIndex
-                                  ? "bg-blue-500 text-white"
-                                  : "bg-gray-200 text-gray-700"
-                              }`}
-                            >
-                              {String.fromCharCode(65 + optionIndex)}
+                    {/* Show choices if question type is multiple_choice and choices exist */}
+                    {question.type === "multiple_choice" &&
+                    question.choices &&
+                    question.choices.length > 0 ? (
+                      <div className="space-y-2">
+                        {question.choices.map((choice, choiceIndex) => (
+                          <div
+                            key={choiceIndex}
+                            className={`p-3 rounded-lg ${question.is_skip ? "cursor-not-allowed opacity-60" : "cursor-pointer"} ${
+                              question.selectedAnswer === choiceIndex
+                                ? "bg-blue-100 border border-blue-300"
+                                : "bg-gray-50 border border-gray-200 hover:bg-gray-100"
+                            }`}
+                            onClick={() => {
+                              if (!question.is_skip) {
+                                console.log(
+                                  `Clicked choice ${choiceIndex} for question with id ${question._id}`,
+                                );
+                                // Use _id if available, otherwise fall back to questionId or a generated ID
+                                const questionId =
+                                  question._id ||
+                                  question.questionId ||
+                                  `question_${choiceIndex}`;
+                                handleSelectAnswer(questionId, choiceIndex);
+                              }
+                            }}
+                          >
+                            <div className="flex items-start">
+                              <div
+                                className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center mr-2 ${
+                                  question.selectedAnswer === choiceIndex
+                                    ? "bg-blue-500 text-white"
+                                    : "bg-gray-200 text-gray-700"
+                                }`}
+                              >
+                                {String.fromCharCode(65 + choiceIndex)}
+                              </div>
+                              <div className="flex-1">{choice.text}</div>
                             </div>
-                            <div className="flex-1">{option}</div>
                           </div>
-                        </div>
-                      ))}
-
-                      {/* Câu trả lời khác */}
-                      <div className="mt-4">
-                        <div className="flex items-start">
-                          <div className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center mr-2 bg-yellow-200 text-yellow-800">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-4 w-4"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1 4l-3 3m0 0l-3-3m3 3V4"
-                              />
-                            </svg>
-                          </div>
-                          <div className="flex-1">
-                            <p className="font-medium mb-1">
-                              Câu trả lời khác:
-                            </p>
-                            <textarea
-                              className={`w-full border border-gray-300 rounded-lg p-2 min-h-[80px] ${question.is_skip ? "bg-gray-100 cursor-not-allowed" : ""}`}
-                              placeholder="Nhập câu trả lời khác của ứng viên..."
-                              value={question.otherAnswer || ""}
-                              onChange={(e) => {
+                        ))}
+                      </div>
+                    ) : (
+                      /* Show options for other question types if they exist */
+                      question.options &&
+                      question.options.length > 0 && (
+                        <div className="space-y-2">
+                          {question.options.map((option, optionIndex) => (
+                            <div
+                              key={optionIndex}
+                              className={`p-3 rounded-lg ${question.is_skip ? "cursor-not-allowed opacity-60" : "cursor-pointer"} ${
+                                question.selectedAnswer === optionIndex
+                                  ? "bg-blue-100 border border-blue-300"
+                                  : "bg-gray-50 border border-gray-200 hover:bg-gray-100"
+                              }`}
+                              onClick={() => {
                                 if (!question.is_skip) {
                                   console.log(
-                                    `Changing other answer for question with id ${question._id}`,
+                                    `Clicked option ${optionIndex} for question with id ${question._id}`,
                                   );
-                                  // Add null check and fallback to ensure we always pass a string
-                                  handleOtherAnswer(
+                                  // Use _id if available, otherwise fall back to questionId or a generated ID
+                                  const questionId =
                                     question._id ||
-                                      question.id ||
-                                      question.questionId ||
-                                      "",
-                                    e.target.value,
-                                  );
+                                    question.questionId ||
+                                    `question_${optionIndex}`;
+                                  handleSelectAnswer(questionId, optionIndex);
                                 }
                               }}
-                              disabled={question.is_skip === 1}
+                            >
+                              <div className="flex items-start">
+                                <div
+                                  className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center mr-2 ${
+                                    question.selectedAnswer === optionIndex
+                                      ? "bg-blue-500 text-white"
+                                      : "bg-gray-200 text-gray-700"
+                                  }`}
+                                >
+                                  {String.fromCharCode(65 + optionIndex)}
+                                </div>
+                                <div className="flex-1">{option}</div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )
+                    )}
+
+                    {/* Câu trả lời khác */}
+                    <div className="mt-4">
+                      <div className="flex items-start">
+                        <div className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center mr-2 bg-yellow-200 text-yellow-800">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1 4l-3 3m0 0l-3-3m3 3V4"
                             />
-                          </div>
+                          </svg>
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium mb-1">Câu trả lời khác:</p>
+                          <textarea
+                            className={`w-full border border-gray-300 rounded-lg p-2 min-h-[80px] ${question.is_skip ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                            placeholder="Nhập câu trả lời khác của ứng viên..."
+                            value={question.otherAnswer || ""}
+                            onChange={(e) => {
+                              if (!question.is_skip) {
+                                console.log(
+                                  `Changing other answer for question with id ${question._id}`,
+                                );
+                                // Add null check and fallback to ensure we always pass a string
+                                handleOtherAnswer(
+                                  question._id ||
+                                    question.id ||
+                                    question.questionId ||
+                                    "",
+                                  e.target.value,
+                                );
+                              }
+                            }}
+                            disabled={question.is_skip === 1}
+                          />
                         </div>
                       </div>
+                    </div>
 
-                      {/* Nút bật/tắt giải thích */}
-                      {question.explanation && (
-                        <div className="mt-4">
-                          <button
-                            type="button"
-                            onClick={() => setShowExplanations(!showExplanations)}
-                            className="px-3 py-1 rounded-md text-sm font-medium bg-blue-100 text-blue-700 hover:bg-blue-200"
-                          >
-                            {showExplanations ? "Ẩn giải thích" : "Hiển thị giải thích"}
-                          </button>
-                          
-                          {/* Hiển thị giải thích khi showExplanations = true */}
-                          {showExplanations && (
-                            <div className="mt-2 bg-blue-50 border border-blue-200 rounded-lg p-3">
-                              <p className="font-bold text-blue-800">Giải thích:</p>
-                              <p className="text-blue-700">
-                                {question.explanation}
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                      
-                      {/* Khu vực chấm điểm - đặt dưới phần câu trả lời và làm nổi bật */}
-                      <div className="mt-6 p-4 bg-yellow-50 border-2 border-yellow-300 rounded-lg shadow-sm">
-                        <h3 className="text-lg font-bold text-yellow-800 mb-2">Chấm điểm</h3>
-                        <div className="flex flex-wrap items-center">
-                          <div className="flex items-center mr-6 mb-2">
-                            <span className="font-medium mr-3 text-yellow-700">Điểm số:</span>
-                            <input 
-                              type="number" 
-                              min="0"
-                              step="0.5"
-                              className="w-24 px-3 py-2 text-lg font-bold border border-yellow-300 rounded focus:outline-none focus:ring-2 focus:ring-yellow-500 bg-white"
-                              value={question.customPoint !== undefined ? question.customPoint : calculatePointsByDifficulty(question.difficulty || 'easy')}
-                              onChange={(e) => {
-                                const value = parseFloat(e.target.value);
-                                if (!isNaN(value) && value >= 0 && question._id) {
-                                  handleCustomPoint(question._id, value);
-                                }
-                              }}
-                            />
-                            <span className="ml-2 text-yellow-700 font-medium">điểm</span>
+                    {/* Nút bật/tắt giải thích */}
+                    {(question.explanation || question.answer_explanation) && (
+                      <div className="mt-4">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            // Toggle explanation visibility for this specific question
+                            const questionId = question._id || "";
+                            setVisibleExplanations((prev) => ({
+                              ...prev,
+                              [questionId]: !prev[questionId],
+                            }));
+                          }}
+                          className="px-3 py-1 rounded-md text-sm font-medium bg-blue-100 text-blue-700 hover:bg-blue-200"
+                        >
+                          {visibleExplanations[question._id || ""]
+                            ? "Ẩn giải thích"
+                            : "Hiển thị giải thích"}
+                        </button>
+
+                        {/* Hiển thị giải thích chỉ cho câu hỏi được chọn */}
+                        {visibleExplanations[question._id || ""] && (
+                          <div className="mt-2 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                            <p className="font-bold text-blue-800">
+                              Giải thích:
+                            </p>
+                            <p className="text-blue-700">
+                              {question.explanation ||
+                                question.answer_explanation}
+                            </p>
                           </div>
-                          
-                          {question.selectedAnswer !== undefined && (
-                            <div className={`px-4 py-2 rounded-full font-bold ${
-                              question.selectedAnswer === question.correctAnswer 
-                                ? "bg-green-100 text-green-700 border border-green-300" 
-                                : "bg-red-100 text-red-700 border border-red-300"
-                            }`}>
-                              {question.selectedAnswer === question.correctAnswer 
-                                ? `Đúng (+${question.point || calculatePointsByDifficulty(question.difficulty || 'easy')} điểm)` 
-                                : "Sai (0 điểm)"}
-                            </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Khu vực chấm điểm - đặt dưới phần câu trả lời và làm nổi bật */}
+                    <div className="mt-6 p-4 bg-yellow-50 border-2 border-yellow-300 rounded-lg shadow-sm">
+                      <h3 className="text-lg font-bold text-yellow-800 mb-2">
+                        Chấm điểm
+                      </h3>
+                      <div className="flex flex-wrap items-center justify-between">
+                        <div className="flex items-center mr-6 mb-2">
+                          <span className="font-medium mr-3 text-yellow-700">
+                            Điểm số:
+                          </span>
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.5"
+                            className="w-24 px-3 py-2 text-lg font-bold border border-yellow-300 rounded focus:outline-none focus:ring-2 focus:ring-yellow-500 bg-white"
+                            value={
+                              question.customPoint !== undefined
+                                ? question.customPoint
+                                : calculatePointsByDifficulty(
+                                    question.difficulty || "easy",
+                                  )
+                            }
+                            onChange={(e) => {
+                              const value = parseFloat(e.target.value);
+                              if (!isNaN(value) && value >= 0 && question._id) {
+                                handleCustomPoint(question._id, value);
+                              }
+                            }}
+                          />
+                          <span className="ml-2 text-yellow-700 font-medium">
+                            điểm
+                          </span>
+                        </div>
+
+                        <div className="flex items-center">
+                          <span className="text-sm text-gray-600 mr-2">
+                            Điểm hiện tại:
+                          </span>
+                          <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full font-bold">
+                            {question.point !== undefined ? question.point : 0}
+                          </span>
+
+                          {question.difficulty && (
+                            <>
+                              <span className="text-sm text-gray-600 mx-2">
+                                Độ khó:
+                              </span>
+                              <span
+                                className={`px-3 py-1 rounded-full font-medium text-sm ${
+                                  question.difficulty.toLowerCase() === "easy"
+                                    ? "bg-green-100 text-green-800"
+                                    : question.difficulty.toLowerCase() ===
+                                        "medium"
+                                      ? "bg-yellow-100 text-yellow-800"
+                                      : "bg-red-100 text-red-800"
+                                }`}
+                              >
+                                {question.difficulty.toLowerCase() === "easy"
+                                  ? "Dễ (1đ)"
+                                  : question.difficulty.toLowerCase() ===
+                                      "medium"
+                                    ? "TB (2đ)"
+                                    : "Khó (3đ)"}
+                              </span>
+                            </>
                           )}
                         </div>
                       </div>
@@ -1056,12 +1345,12 @@ const InterviewPage = () => {
                 htmlFor="review-comment"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                Nhận xét:
+                Nhận xét và thông tin nguyện vọng của ứng viên:
               </label>
               <textarea
                 id="review-comment"
                 className="w-full border border-gray-300 rounded-lg p-3 min-h-[100px]"
-                placeholder="Nhập nhận xét về ứng viên..."
+                placeholder="Nhập nhận xét và thông tin nguyện vọng của ứng viên"
                 value={review.comment}
                 onChange={(e) =>
                   setReview({ ...review, comment: e.target.value })

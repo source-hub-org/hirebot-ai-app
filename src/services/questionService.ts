@@ -28,8 +28,8 @@ const questionService = {
     }
   },
   async addQuestion(
-    params: AddQuestionParams
-  ): Promise<ApiResponse<any>> {
+    params: AddQuestionParams,
+  ): Promise<ApiResponse<{ id: string }>> {
     try {
       const response = await apiClient.post("/api/questions", params);
       return response.data;
@@ -40,7 +40,7 @@ const questionService = {
   },
 
   async generateQuestions(
-    params: GenerateQuestionsParams
+    params: GenerateQuestionsParams,
   ): Promise<ApiResponse<Answer[]>> {
     try {
       const response = await apiClient.post("/api/questions/generate", params);
@@ -49,7 +49,7 @@ const questionService = {
       console.error("Error generating questions:", error);
       throw error;
     }
-  }
+  },
 };
 
 export default questionService;

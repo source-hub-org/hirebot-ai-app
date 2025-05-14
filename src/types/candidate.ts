@@ -87,6 +87,7 @@ export type SubmissionAnswer = {
   answer: number | null;
   other: string;
   is_skip: number;
+  point?: number;
   question: QuestionDetail;
 };
 
@@ -152,6 +153,8 @@ export type CandidateSubmission = {
   essay: EssayQuestion;
   review: ReviewStatus;
   candidate: Candidate;
+  createdAt?: string;
+  created_at?: string;
 };
 
 export type Session = {
