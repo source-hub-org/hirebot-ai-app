@@ -37,14 +37,12 @@ export interface EditQuestion {
 
 export interface QuestionService {
   searchQuestions(
-    params: SearchQuestionsParams
-  ): Promise<ApiResponse<Answer[]>>;
-  
-  generateQuestions(
-    params: GenerateQuestionsParams
+    params: SearchQuestionsParams,
   ): Promise<ApiResponse<Answer[]>>;
 
-  updateQuestion(
-    params: EditQuestion
+  generateQuestions(
+    params: GenerateQuestionsParams,
   ): Promise<ApiResponse<Answer[]>>;
+
+  updateQuestion(params: EditQuestion): Promise<ApiResponse<Answer[]>>;
 }

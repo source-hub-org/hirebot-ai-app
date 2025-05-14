@@ -12,7 +12,7 @@ export interface Question {
   language?: string;
   position?: string;
   type?: string; // For UI compatibility
-  level?: string| number; // For UI compatibility
+  level?: string | number; // For UI compatibility
   difficulty?: string;
   category?: string;
   positionLevel?: number;
@@ -23,7 +23,7 @@ export interface Question {
   tags?: Tag[] | string[];
 }
 export interface Tag {
-  _id?: string,
-  name?: string,
-  slug?: string,
+  _id?: string;
+  name?: string;
+  slug?: string;
 }

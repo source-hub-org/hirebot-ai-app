@@ -1,9 +1,7 @@
 import { InstrumentTag } from "@/types/instrument";
 import apiClient from "./apiClient";
 import { ApiResponse } from "@/types/common";
-import {
-  SearchQuestionsParams,
-} from "@/types/questionService";
+import { SearchQuestionsParams } from "@/types/questionService";
 
 const instrumentTagService = {
   async get(

@@ -116,7 +116,7 @@ const candidateService = {
     candidateData: Partial<CreateCandidateDto>,
   ): Promise<Candidate> {
     try {
-      const response = await apiClient.patch<ApiResponse<Candidate>>(
+      const response = await apiClient.put<ApiResponse<Candidate>>(
         `/api/candidates/${id}`,
         candidateData,
       );
@@ -167,13 +167,17 @@ const candidateService = {
       console.log("Calling API: /api/topics");
       const response = await apiClient.get<ApiResponse<Topic[]>>(`/api/topics`);
       console.log("API response:", response);
-      
+
       // Ensure we return a properly formatted response even if the API doesn't
       if (!response.data) {
         console.warn("API returned empty data");
-        return { success: false, data: [], message: "No data returned from API" };
+        return {
+          success: false,
+          data: [],
+          message: "No data returned from API",
+        };
       }
-      
+
       return response.data;
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse<Topic[]>>;
@@ -191,18 +195,37 @@ const candidateService = {
    * @returns Promise resolving to array of CandidateSubmission objects
    */
   async getCandidateSubmissions(
-    candidateId: string
+    candidateId: string,
   ): Promise<ApiResponse<CandidateSubmission[]> | ApiError> {
     try {
       const response = await apiClient.get<ApiResponse<CandidateSubmission[]>>(
-        `/api/submissions/candidate/${candidateId}`,{ params: { enrich: true } }
+        `/api/submissions/candidate/${candidateId}`,
+        { params: { enrich: true } },
       );
+
+      // Log the raw response to check if instruments and logic_questions are present
+      console.log("Raw API response for submissions:", response.data);
+
+      // Check if instruments and logic_questions exist in the response
+      if (response.data?.data && response.data.data.length > 0) {
+        console.log(
+          "First submission instruments from API:",
+          response.data.data[0].instruments,
+        );
+        console.log(
+          "First submission logic_questions from API:",
+          response.data.data[0].logic_questions,
+        );
+      }
+
       return response.data;
     } catch (error) {
-      const axiosError = error as AxiosError<ApiResponse<CandidateSubmission[]>>;
+      const axiosError = error as AxiosError<
+        ApiResponse<CandidateSubmission[]>
+      >;
       console.error(
         "Error fetching candidate submissions:",
-        axiosError?.response?.data?.error
+        axiosError?.response?.data?.error,
       );
       return {
         success: false,
@@ -210,6 +233,44 @@ const candidateService = {
           message:
             axiosError.response?.data?.error?.message ||
             "Failed to fetch candidate submissions",
+          status: axiosError.response?.status,
+          data: [], // Return an empty array to match the ApiError interface
+        },
+      };
+    }
+  },
+
+  /**
+   * Updates the review status for a submission
+   * @param submissionId Submission ID to update
+   * @param reviewData Review data to update
+   * @returns Promise resolving to updated CandidateSubmission object
+   */
+  async updateSubmissionReview(
+    submissionId: string,
+    reviewData: { comment: string; status: string },
+  ): Promise<ApiResponse<CandidateSubmission> | ApiError> {
+    try {
+      const response = await apiClient.patch<ApiResponse<CandidateSubmission>>(
+        `/api/submissions/${submissionId}/review`,
+        reviewData,
+      );
+
+      console.log("Update review response:", response.data);
+
+      return response.data;
+    } catch (error) {
+      const axiosError = error as AxiosError<ApiResponse<CandidateSubmission>>;
+      console.error(
+        "Error updating submission review:",
+        axiosError?.response?.data?.error,
+      );
+      return {
+        success: false,
+        error: {
+          message:
+            axiosError.response?.data?.error?.message ||
+            "Failed to update submission review",
           status: axiosError.response?.status,
           data: [], // Return an empty array to match the ApiError interface
         },

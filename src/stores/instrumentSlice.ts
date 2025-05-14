@@ -19,8 +19,7 @@ export const instrumentSlice = createSlice({
   },
 });
 
-export const { setInstrumentTags } =
-  instrumentSlice.actions;
+export const { setInstrumentTags } = instrumentSlice.actions;
 
 export const selectInstrumentTags = (state: { instrument: InstrumentState }) =>
   state.instrument?.instrumentTags;

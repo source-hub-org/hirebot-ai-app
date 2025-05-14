@@ -7,6 +7,15 @@ import {
 } from "@/types/questionService";
 import { Question } from "@/types/question";
 
+export interface AddQuestionParams {
+  content: string;
+  topic: string;
+  language: string;
+  position: string;
+  options: string[];
+  correctAnswer: number;
+}
+
 const questionService = {
   async searchQuestions(
     params: SearchQuestionsParams,
@@ -19,9 +28,20 @@ const questionService = {
       throw error;
     }
   },
+  async addQuestion(
+    params: AddQuestionParams,
+  ): Promise<ApiResponse<{ id: string }>> {
+    try {
+      const response = await apiClient.post("/api/questions", params);
+      return response.data;
+    } catch (error) {
+      console.error("Error adding question:", error);
+      throw error;
+    }
+  },
 
   async generateQuestions(
-    params: GenerateQuestionsParams
+    params: GenerateQuestionsParams,
   ): Promise<ApiResponse<Answer[]>> {
     try {
       const response = await apiClient.post("/api/questions/generate", params);
@@ -31,20 +51,19 @@ const questionService = {
       throw error;
     }
   },
-  async updateQuestion(
-    params: Question
-  ): Promise<ApiResponse<Answer[]>> {
+  async updateQuestion(params: Question): Promise<ApiResponse<Answer[]>> {
     try {
-      const response = await apiClient.put(`/api/questions/${params._id}`, params);
+      const response = await apiClient.put(
+        `/api/questions/${params._id}`,
+        params,
+      );
       return response.data;
     } catch (error) {
       console.error("Error generating questions:", error);
       throw error;
     }
   },
-  async deleteQuestion(
-    questionId: string
-  ): Promise<ApiResponse<Answer[]>> {
+  async deleteQuestion(questionId: string): Promise<ApiResponse<Answer[]>> {
     try {
       const response = await apiClient.delete(`/api/questions/${questionId}`);
       return response.data;
@@ -52,7 +71,7 @@ const questionService = {
       console.error("Error generating questions:", error);
       throw error;
     }
-  }
+  },
 };
 
 export default questionService;
