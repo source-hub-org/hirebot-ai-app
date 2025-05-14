@@ -28,20 +28,27 @@ const EditQuestInstruments: React.FC<EditQuestionModalProps> = ({
   setShowEditModal,
   changeQuestion,
 }) => {
-  const [localQuestion, setLocalQuestion] = React.useState<EditQuestion | null>(null);
+  const [localQuestion, setLocalQuestion] = React.useState<EditQuestion | null>(
+    null,
+  );
   const formRef = useRef<HTMLFormElement>(null);
   React.useEffect(() => {
     if (showEditModal && editQuestion) {
-      const options = (editQuestion.options || []).map((option: string, idx: number) => ({
-        id: String.fromCharCode(97 + idx),
-        text: option,
-        correct: idx === editQuestion.correctAnswer,
-      }))
+      const options = (editQuestion.options || []).map(
+        (option: string, idx: number) => ({
+          id: String.fromCharCode(97 + idx),
+          text: option,
+          correct: idx === editQuestion.correctAnswer,
+        }),
+      );
       setLocalQuestion({
         ...editQuestion,
         answers: options,
         level: editQuestion.position || "junior",
-        type: editQuestion.options && editQuestion.options.length > 0 ? "MCQ" : "Essay",
+        type:
+          editQuestion.options && editQuestion.options.length > 0
+            ? "MCQ"
+            : "Essay",
       });
     }
   }, [showEditModal, editQuestion]);
@@ -49,32 +56,39 @@ const EditQuestInstruments: React.FC<EditQuestionModalProps> = ({
   if (!showEditModal || !localQuestion) return null;
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
   ) => {
     const { name, value } = e.target;
-    setLocalQuestion(prev => prev ? { ...prev, [name]: value } : prev);
+    setLocalQuestion((prev) => (prev ? { ...prev, [name]: value } : prev));
   };
 
   const handleOptionChange = (
     optionId: string,
     field: "text" | "correct",
-    value: string | boolean
+    value: string | boolean,
   ) => {
-    setLocalQuestion(prev => prev ? {
-      ...prev,
-      answers: prev.answers.map(option => {
-        if (option.id === optionId) {
-          if (field === "correct" && value === true) {
-            // Đảm bảo chỉ có 1 đáp án đúng
-            return { ...option, correct: true };
+    setLocalQuestion((prev) =>
+      prev
+        ? {
+            ...prev,
+            answers: prev.answers.map((option) => {
+              if (option.id === optionId) {
+                if (field === "correct" && value === true) {
+                  // Đảm bảo chỉ có 1 đáp án đúng
+                  return { ...option, correct: true };
+                }
+                return { ...option, [field]: value };
+              }
+              // Nếu chọn đáp án đúng, các option khác phải false
+              if (field === "correct" && value === true)
+                return { ...option, correct: false };
+              return option;
+            }),
           }
-          return { ...option, [field]: value };
-        }
-        // Nếu chọn đáp án đúng, các option khác phải false
-        if (field === "correct" && value === true) return { ...option, correct: false };
-        return option;
-      })
-    } : prev);
+        : prev,
+    );
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -94,30 +108,34 @@ const EditQuestInstruments: React.FC<EditQuestionModalProps> = ({
     });
 
     if (hasErrors) return;
-    updateInstruments()
-   
+    updateInstruments();
   };
 
-  const updateInstruments  = async () => {
+  const updateInstruments = async () => {
     const updatedQuestion = {
       ...editQuestion,
-      options: localQuestion.answers.map(option => option.text),
+      options: localQuestion.answers.map((option) => option.text),
       questionText: localQuestion.questionText,
       type: editQuestion?.typeFe,
       tags: editQuestion?.tags
-      ?.map((tag: Tag) => tag._id)
-      .filter((id): id is string => typeof id === 'string'),
+        ?.map((tag: Tag) => tag._id)
+        .filter((id): id is string => typeof id === "string"),
       _id: editQuestion?._id ?? "",
     };
-    await instrumentService.update(updatedQuestion).then((res) => {
-      toast.success(res?.message ?? "Cập nhật thành công!");
-      setShowEditModal(false);
-      changeQuestion({...updatedQuestion, tags: editQuestion?.tags})
-    }).catch((err) => {
-      toast.error(err?.response?.data?.message || "Cập nhật không thành công!");
-    });
-  }
- 
+    await instrumentService
+      .update(updatedQuestion)
+      .then((res) => {
+        toast.success(res?.message ?? "Cập nhật thành công!");
+        setShowEditModal(false);
+        changeQuestion({ ...updatedQuestion, tags: editQuestion?.tags });
+      })
+      .catch((err) => {
+        toast.error(
+          err?.response?.data?.message || "Cập nhật không thành công!",
+        );
+      });
+  };
+
   if (!showEditModal || !editQuestion) return null;
 
   return (
@@ -126,26 +144,34 @@ const EditQuestInstruments: React.FC<EditQuestionModalProps> = ({
         <h2 className="text-xl font-bold mb-4">Sửa câu hỏi</h2>
         <form ref={formRef} onSubmit={handleSave}>
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Nội dung câu hỏi</label>
-              <Textarea
-                name="questionText"
-                value={localQuestion?.questionText || ""}
-                rules={["required"]}
-                context={{ title: `Nội dung câu hỏi` }}
-                placeholder={`Nội dung câu hỏi`}
-                onChange={handleChange}
-              />
+            <label className="block text-sm font-medium mb-1">
+              Nội dung câu hỏi
+            </label>
+            <Textarea
+              name="questionText"
+              value={localQuestion?.questionText || ""}
+              rules={["required"]}
+              context={{ title: `Nội dung câu hỏi` }}
+              placeholder={`Nội dung câu hỏi`}
+              onChange={handleChange}
+            />
           </div>
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Các lựa chọn</label>
+            <label className="block text-sm font-medium mb-1">
+              Các lựa chọn
+            </label>
             {localQuestion.answers.map((option, idx) => (
               <div key={option.id} className="flex items-center gap-2 mb-2">
                 <Input
                   name="phone_number"
                   value={option.text || ""}
-                  onChange={e => handleOptionChange(option.id, "text", e.target.value)}
+                  onChange={(e) =>
+                    handleOptionChange(option.id, "text", e.target.value)
+                  }
                   rules={["required"]}
-                  context={{ title: `Lựa chọn ${String.fromCharCode(65 + idx)}` }}
+                  context={{
+                    title: `Lựa chọn ${String.fromCharCode(65 + idx)}`,
+                  }}
                   placeholder={`Lựa chọn ${String.fromCharCode(65 + idx)}`}
                   classNameBox="w-full"
                 />
