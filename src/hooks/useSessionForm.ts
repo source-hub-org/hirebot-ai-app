@@ -164,16 +164,10 @@ export const useSessionForm = () => {
           ignore_question_ids: existingQuestionIds,
         });
       }
-<<<<<<< HEAD
-      
-      if (!questionsResponse?.data?.length && formData.type === TYPES[0].value) {
-=======
-      formData.questionCount = questionsResponse?.data?.length || 0;
       if (
         !questionsResponse?.data?.length &&
         formData.type === TYPES[0].value
       ) {
->>>>>>> develop
         // Fallback to generate questions if search fails
         const generatedQuestions = await questionService.generateQuestions({
           language: formData.language,
@@ -185,16 +179,11 @@ export const useSessionForm = () => {
           toast.error("Không thể tạo câu hỏi phù hợp");
           return;
         }
-<<<<<<< HEAD
         setFormData(prev => ({
           ...prev,
           questionCount: generatedQuestions?.data?.length || 0
         }));
         
-=======
-        formData.questionCount = generatedQuestions?.data?.length || 0;
-
->>>>>>> develop
         // Save generated questions to candidate answers
         generatedQuestions.data.forEach((question: Answer) => {
           store.dispatch(
@@ -205,7 +194,6 @@ export const useSessionForm = () => {
             }),
           );
         });
-<<<<<<< HEAD
         const newSession: Session = {
           ...formData,
           id: Date.now(),
@@ -219,9 +207,6 @@ export const useSessionForm = () => {
           ...prev,
           questionCount: questionsResponse?.data?.length || 0
         }));
-=======
-      } else if (questionsResponse?.data?.length) {
->>>>>>> develop
         // Save found questions to candidate answers
         const newSession: Session = {
           ...formData,
