@@ -157,7 +157,7 @@ const EditQuestLogic: React.FC<EditQuestionModalProps> = ({
                         type="checkbox"
                         name="correctAnswer"
                         checked={option.correct}
-                        onChange={() => handleOptionChange(option.id, "correct", true)}
+                        onChange={() => handleOptionChange(option.id, "correct", !option.correct)}
                         className="mr-2 w-6 h-6"
                     />
                 )}
@@ -175,12 +175,12 @@ const EditQuestLogic: React.FC<EditQuestionModalProps> = ({
           </div>
           <div className="mb-4">
             <Textarea
-                name="answer_explanation"
-                value={localQuestion.answer_explanation || ""}
-                context={{ title: `Giải thích (nếu có)` }}
-                placeholder={`Giải thích (nếu có)`}
-                rules={["required"]}
-                onChange={handleChange}
+              name="answer_explanation"
+              value={localQuestion.answer_explanation || ""}
+              context={{ title: `Giải thích (nếu có)` }}
+              placeholder={`Giải thích (nếu có)`}
+              rules={["required"]}
+              onChange={handleChange}
             />
           </div>
           <div className="flex justify-end gap-2">

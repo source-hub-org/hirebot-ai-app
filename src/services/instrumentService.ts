@@ -28,6 +28,17 @@ const instrumentService = {
       throw error;
     }
   },
+  async delete(
+    questionId: string
+  ): Promise<ApiResponse<Answer[]>> {
+    try {
+      const response = await apiClient.delete(`/api/instruments/${questionId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error generating questions:", error);
+      throw error;
+    }
+  }
 };
 
 export default instrumentService;

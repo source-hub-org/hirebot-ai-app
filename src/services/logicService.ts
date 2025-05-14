@@ -28,6 +28,17 @@ const logicService = {
       throw error;
     }
   },
+  async delete(
+    questionId: string
+  ): Promise<ApiResponse<Answer[]>> {
+    try {
+      const response = await apiClient.delete(`/api/logic-questions/${questionId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error generating questions:", error);
+      throw error;
+    }
+  }
 };
 
 export default logicService;

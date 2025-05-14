@@ -3,7 +3,6 @@ import { Input } from "../ui/Input";
 import { Textarea } from "../ui/Textarea";
 import { toast } from "react-toastify";
 import { Question, Tag } from "@/types/question";
-import { Chose } from "@/types/candidate";
 import instrumentService from "@/services/instrumentService";
 
 interface Option {
@@ -33,18 +32,11 @@ const EditQuestInstruments: React.FC<EditQuestionModalProps> = ({
   const formRef = useRef<HTMLFormElement>(null);
   React.useEffect(() => {
     if (showEditModal && editQuestion) {
-      let options = (editQuestion.options || []).map((option: string, idx: number) => ({
+      const options = (editQuestion.options || []).map((option: string, idx: number) => ({
         id: String.fromCharCode(97 + idx),
         text: option,
         correct: idx === editQuestion.correctAnswer,
       }))
-      if (editQuestion.choices) {
-        options = editQuestion.choices.map((option: Chose, idx: number) => ({
-          id: String.fromCharCode(97 + idx),
-          text: option.text,
-          correct: option.is_correct,
-        }))
-      }
       setLocalQuestion({
         ...editQuestion,
         answers: options,
