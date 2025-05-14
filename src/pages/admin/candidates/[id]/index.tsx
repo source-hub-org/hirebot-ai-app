@@ -343,7 +343,7 @@ export default function CandidateDetail() {
   );
 
   // Function to update candidate status
-  const updateCandidateStatus = async (status: "pass" | "fail") => {
+  const updateCandidateStatus = async (status: "passed" | "rejected") => {
     if (!candidate?._id) {
       setStatusUpdateError("Không tìm thấy ID của ứng viên");
       return;
@@ -358,7 +358,7 @@ export default function CandidateDetail() {
 
       // Show success message
       setStatusUpdateSuccess(
-        status === "pass"
+        status === "passed"
           ? "Đã cập nhật trạng thái: Đậu phỏng vấn vòng 1"
           : "Đã cập nhật trạng thái: Trượt phỏng vấn",
       );
@@ -541,100 +541,270 @@ export default function CandidateDetail() {
                 </div>
               )}
 
-              <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold">Thông tin ứng viên</h2>
+              <div className="bg-white rounded-lg shadow-lg p-6 mb-6 border-t-4 border-primary">
+                <div className="flex justify-between items-center mb-6">
+                  <div className="flex items-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6 text-primary mr-2"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                      />
+                    </svg>
+                    <h2 className="text-xl font-semibold text-gray-800">
+                      Thông tin ứng viên
+                    </h2>
+                  </div>
                   {submission && (
-                    <div className="text-sm text-gray-600">
+                    <div className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
                       Phỏng vấn lần {selectedSubmissionIndex + 1}
                     </div>
                   )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div>
-                    <p className="text-gray-600">Email:</p>
-                    <p className="font-medium">{candidate?.email || "N/A"}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600">Kỹ năng:</p>
-                    <p className="font-medium">
-                      {candidate?.skills?.join(", ") || "N/A"}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 transition-all hover:shadow-md">
+                    <div className="flex items-center mb-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4 text-gray-500 mr-2"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                        />
+                      </svg>
+                      <p className="text-gray-600 font-medium">Email:</p>
+                    </div>
+                    <p className="font-medium text-gray-800 pl-6">
+                      {candidate?.email || "N/A"}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-gray-600">Cấp độ:</p>
-                    <p className="font-medium">
+                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 transition-all hover:shadow-md">
+                    <div className="flex items-center mb-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4 text-gray-500 mr-2"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                        />
+                      </svg>
+                      <p className="text-gray-600 font-medium">Kỹ năng:</p>
+                    </div>
+                    <div className="pl-6">
+                      {candidate?.skills?.map((skill, index) => (
+                        <span
+                          key={index}
+                          className="inline-block bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs font-medium mr-2 mb-2"
+                        >
+                          {skill}
+                        </span>
+                      )) || "N/A"}
+                    </div>
+                  </div>
+                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 transition-all hover:shadow-md">
+                    <div className="flex items-center mb-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4 text-gray-500 mr-2"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 10V3L4 14h7v7l9-11h-7z"
+                        />
+                      </svg>
+                      <p className="text-gray-600 font-medium">Cấp độ:</p>
+                    </div>
+                    <p className="font-medium text-gray-800 pl-6">
                       {candidate?.interview_level || "N/A"}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-gray-600">Số điện thoại:</p>
-                    <p className="font-medium">
+                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 transition-all hover:shadow-md">
+                    <div className="flex items-center mb-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4 text-gray-500 mr-2"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                        />
+                      </svg>
+                      <p className="text-gray-600 font-medium">
+                        Số điện thoại:
+                      </p>
+                    </div>
+                    <p className="font-medium text-gray-800 pl-6">
                       {candidate?.phone_number || "N/A"}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-gray-600">Trạng thái:</p>
-                    <div className="flex flex-col space-y-2">
-                      <p
-                        className={`font-medium ${
-                          candidate?.status === "pass"
-                            ? "text-green-600"
-                            : candidate?.status === "fail"
-                              ? "text-red-600"
-                              : "text-yellow-600"
-                        }`}
+                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 transition-all hover:shadow-md md:col-span-2">
+                    <div className="flex items-center mb-3">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4 text-gray-500 mr-2"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
                       >
-                        {candidate?.status === "pass"
-                          ? "Đậu phỏng vấn vòng 1"
-                          : candidate?.status === "fail"
-                            ? "Trượt phỏng vấn"
-                            : "Đang chờ"}
-                      </p>
-
-                      <div className="flex space-x-2 mt-2">
-                        <button
-                          onClick={() => updateCandidateStatus("pass")}
-                          disabled={
-                            statusUpdateLoading || candidate?.status === "pass"
-                          }
-                          className={`px-3 py-1 text-xs rounded-full font-medium ${
-                            candidate?.status === "pass"
-                              ? "bg-gray-100 text-gray-500 cursor-not-allowed"
-                              : "bg-green-100 text-green-700 hover:bg-green-200"
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      <p className="text-gray-600 font-medium">Trạng thái:</p>
+                    </div>
+                    <div className="flex flex-col space-y-3 pl-6">
+                      <div className="flex items-center">
+                        <span
+                          className={`px-3 py-1 rounded-full text-sm font-medium ${
+                            candidate?.status === "passed"
+                              ? "bg-green-100 text-green-800"
+                              : candidate?.status === "rejected"
+                                ? "bg-red-100 text-red-800"
+                                : "bg-yellow-100 text-yellow-800"
                           }`}
                         >
-                          {statusUpdateLoading && candidate?.status !== "pass"
+                          {candidate?.status === "passed"
+                            ? "Đậu phỏng vấn vòng 1"
+                            : candidate?.status === "rejected"
+                              ? "Trượt phỏng vấn"
+                              : "Đang chờ"}
+                        </span>
+                      </div>
+
+                      <div className="flex space-x-3 mt-2">
+                        <button
+                          onClick={() => updateCandidateStatus("passed")}
+                          disabled={
+                            statusUpdateLoading ||
+                            candidate?.status === "passed"
+                          }
+                          className={`px-4 py-2 rounded-lg flex items-center ${
+                            candidate?.status === "passed"
+                              ? "bg-gray-100 text-gray-500 cursor-not-allowed"
+                              : "bg-green-100 text-green-700 hover:bg-green-200 transition-colors"
+                          }`}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4 mr-1"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M5 13l4 4L19 7"
+                            />
+                          </svg>
+                          {statusUpdateLoading && candidate?.status !== "passed"
                             ? "Đang cập nhật..."
                             : "Đậu phỏng vấn"}
                         </button>
 
                         <button
-                          onClick={() => updateCandidateStatus("fail")}
+                          onClick={() => updateCandidateStatus("rejected")}
                           disabled={
-                            statusUpdateLoading || candidate?.status === "fail"
+                            statusUpdateLoading ||
+                            candidate?.status === "rejected"
                           }
-                          className={`px-3 py-1 text-xs rounded-full font-medium ${
-                            candidate?.status === "fail"
+                          className={`px-4 py-2 rounded-lg flex items-center ${
+                            candidate?.status === "rejected"
                               ? "bg-gray-100 text-gray-500 cursor-not-allowed"
-                              : "bg-red-100 text-red-700 hover:bg-red-200"
+                              : "bg-red-100 text-red-700 hover:bg-red-200 transition-colors"
                           }`}
                         >
-                          {statusUpdateLoading && candidate?.status !== "fail"
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4 mr-1"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M6 18L18 6M6 6l12 12"
+                            />
+                          </svg>
+                          {statusUpdateLoading &&
+                          candidate?.status !== "rejected"
                             ? "Đang cập nhật..."
                             : "Trượt phỏng vấn"}
                         </button>
                       </div>
 
                       {statusUpdateError && (
-                        <p className="text-red-500 text-xs mt-1">
+                        <p className="text-sm text-red-500 flex items-center mt-2">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4 mr-1"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
                           {statusUpdateError}
                         </p>
                       )}
 
                       {statusUpdateSuccess && (
-                        <p className="text-green-500 text-xs mt-1">
+                        <p className="text-sm text-green-500 flex items-center mt-2">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4 mr-1"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
                           {statusUpdateSuccess}
                         </p>
                       )}
@@ -643,47 +813,111 @@ export default function CandidateDetail() {
                 </div>
 
                 {/* Tab navigation */}
-                <div className="border-b border-gray-200 mb-6">
-                  <nav className="flex -mb-px">
+                <div className="bg-white rounded-lg shadow-md mb-6 p-1">
+                  <nav className="flex flex-wrap justify-start items-center w-full">
                     <button
                       onClick={() => setActiveTab("mcq")}
-                      className={`py-2 px-4 text-center border-b-2 font-medium text-sm ${
+                      className={`py-3 px-6 text-center font-medium text-sm transition-all duration-200 rounded-lg mr-2 ${
                         activeTab === "mcq"
-                          ? "border-primary text-primary"
-                          : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                          ? "bg-blue-100 text-blue-700 font-semibold shadow-sm"
+                          : "text-gray-600 hover:bg-gray-100 hover:text-gray-800"
                       }`}
                     >
-                      Câu hỏi Technical
+                      <div className="flex items-center">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4 mr-1"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                          />
+                        </svg>
+                        Câu hỏi Technical
+                      </div>
                     </button>
                     <button
                       onClick={() => setActiveTab("instruments")}
-                      className={`py-2 px-4 text-center border-b-2 font-medium text-sm ${
+                      className={`py-3 px-6 text-center font-medium text-sm transition-all duration-200 rounded-lg mr-2 ${
                         activeTab === "instruments"
-                          ? "border-primary text-primary"
-                          : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                          ? "bg-purple-100 text-purple-700 font-semibold shadow-sm"
+                          : "text-gray-600 hover:bg-gray-100 hover:text-gray-800"
                       }`}
                     >
-                      Câu hỏi kỹ năng mềm
+                      <div className="flex items-center">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4 mr-1"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                          />
+                        </svg>
+                        Câu hỏi kỹ năng mềm
+                      </div>
                     </button>
                     <button
                       onClick={() => setActiveTab("logic_questions")}
-                      className={`py-2 px-4 text-center border-b-2 font-medium text-sm ${
+                      className={`py-3 px-6 text-center font-medium text-sm transition-all duration-200 rounded-lg mr-2 ${
                         activeTab === "logic_questions"
-                          ? "border-primary text-primary"
-                          : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                          ? "bg-indigo-100 text-indigo-700 font-semibold shadow-sm"
+                          : "text-gray-600 hover:bg-gray-100 hover:text-gray-800"
                       }`}
                     >
-                      Câu hỏi logic
+                      <div className="flex items-center">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4 mr-1"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                          />
+                        </svg>
+                        Câu hỏi logic
+                      </div>
                     </button>
                     <button
                       onClick={() => setActiveTab("essay")}
-                      className={`py-2 px-4 text-center border-b-2 font-medium text-sm ${
+                      className={`py-3 px-6 text-center font-medium text-sm transition-all duration-200 rounded-lg ${
                         activeTab === "essay"
-                          ? "border-primary text-primary"
-                          : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                          ? "bg-green-100 text-green-700 font-semibold shadow-sm"
+                          : "text-gray-600 hover:bg-gray-100 hover:text-gray-800"
                       }`}
                     >
-                      Câu hỏi tự luận
+                      <div className="flex items-center">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4 mr-1"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                          />
+                        </svg>
+                        Câu hỏi tự luận
+                      </div>
                     </button>
                   </nav>
                 </div>
@@ -803,44 +1037,227 @@ export default function CandidateDetail() {
                         style={{ width: `${totalScoreData.totalScore}%` }}
                       ></div>
                     </div>
-                    <div className="mt-2 text-xs text-gray-600">
-                      <div className="flex justify-between">
-                        <span>Technical: {totalScoreData.mcqScore}%</span>
-                        <span>
-                          {mcqScore.totalPoints !== undefined &&
-                          mcqScore.totalPoints !== null
-                            ? `${mcqScore.totalPoints}đ`
-                            : "0đ"}
+
+                    {/* Phần đóng góp điểm từng loại câu hỏi */}
+                    <div className="mt-3 text-xs text-gray-600">
+                      <div className="flex justify-between items-center mb-1">
+                        <div className="flex items-center">
+                          <span className="w-20">Technical:</span>
+                          <div className="ml-1 w-16 bg-gray-200 h-1.5 rounded-full overflow-hidden">
+                            <div
+                              className="bg-blue-500 h-full"
+                              style={{ width: `${mcqScore.percentage}%` }}
+                            ></div>
+                          </div>
+                          <span className="ml-1">{mcqScore.percentage}%</span>
+                        </div>
+                        <div className="flex items-center">
+                          <span className="text-gray-500 mr-1">×0.7 =</span>
+                          <span className="font-medium">
+                            {Math.round(totalScoreData.mcqContribution)}đ
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-between items-center mb-1">
+                        <div className="flex items-center">
+                          <span className="w-20">Kỹ năng mềm:</span>
+                          <div className="ml-1 w-16 bg-gray-200 h-1.5 rounded-full overflow-hidden">
+                            <div
+                              className="bg-purple-500 h-full"
+                              style={{
+                                width: `${instrumentsStats.percentage}%`,
+                              }}
+                            ></div>
+                          </div>
+                          <span className="ml-1">
+                            {instrumentsStats.percentage}%
+                          </span>
+                        </div>
+                        <div className="flex items-center">
+                          <span className="text-gray-500 mr-1">×0.2 =</span>
+                          <span className="font-medium">
+                            {Math.round(totalScoreData.instrumentsContribution)}
+                            đ
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center">
+                          <span className="w-20">Tư duy logic:</span>
+                          <div className="ml-1 w-16 bg-gray-200 h-1.5 rounded-full overflow-hidden">
+                            <div
+                              className="bg-indigo-500 h-full"
+                              style={{ width: `${logicStats.percentage}%` }}
+                            ></div>
+                          </div>
+                          <span className="ml-1">{logicStats.percentage}%</span>
+                        </div>
+                        <div className="flex items-center">
+                          <span className="text-gray-500 mr-1">×0.1 =</span>
+                          <span className="font-medium">
+                            {Math.round(totalScoreData.logicContribution)}đ
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 pt-2 border-t border-green-200">
+                      <p className="text-sm text-gray-600">
+                        {submission?.review?.status === "passed"
+                          ? "Đánh giá: Đạt"
+                          : submission?.review?.status === "rejected"
+                            ? "Đánh giá: Không đạt"
+                            : "Chưa có đánh giá"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tổng điểm thô và Công thức tính điểm - Hiển thị song song */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  {/* Tổng điểm thô */}
+                  <div className="bg-white rounded-lg shadow-lg p-6 border-l-4 border-yellow-500">
+                    <div className="flex justify-between items-center mb-4">
+                      <h2 className="text-xl font-semibold text-gray-800">
+                        Tổng điểm thô
+                      </h2>
+                      <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">
+                        Tổng: {totalScoreData.totalPoints}đ
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-3 mb-4">
+                      <div className="flex flex-col items-center bg-blue-50 rounded-lg p-3 border border-blue-100 transition-all hover:shadow-md">
+                        <span className="text-gray-700 font-medium mb-1">
+                          Technical
+                        </span>
+                        <span className="font-bold text-blue-600 text-lg">
+                          {mcqScore.totalPoints !== undefined
+                            ? mcqScore.totalPoints
+                            : 0}
+                          đ
                         </span>
                       </div>
-                      <div className="flex justify-between">
-                        <span>
-                          Kỹ năng mềm: {totalScoreData.instrumentsScore}%
+                      <div className="flex flex-col items-center bg-purple-50 rounded-lg p-3 border border-purple-100 transition-all hover:shadow-md">
+                        <span className="text-gray-700 font-medium mb-1">
+                          Kỹ năng mềm
                         </span>
-                        <span>
-                          {instrumentsStats.totalPoints !== undefined &&
-                          instrumentsStats.totalPoints !== null
-                            ? `${instrumentsStats.totalPoints}đ`
-                            : "0đ"}
+                        <span className="font-bold text-purple-600 text-lg">
+                          {instrumentsStats.totalPoints !== undefined
+                            ? instrumentsStats.totalPoints
+                            : 0}
+                          đ
                         </span>
                       </div>
-                      <div className="flex justify-between">
-                        <span>Tư duy logic: {totalScoreData.logicScore}%</span>
-                        <span>
-                          {logicStats.totalPoints !== undefined &&
-                          logicStats.totalPoints !== null
-                            ? `${logicStats.totalPoints}đ`
-                            : "0đ"}
+                      <div className="flex flex-col items-center bg-indigo-50 rounded-lg p-3 border border-indigo-100 transition-all hover:shadow-md">
+                        <span className="text-gray-700 font-medium mb-1">
+                          Tư duy logic
+                        </span>
+                        <span className="font-bold text-indigo-600 text-lg">
+                          {logicStats.totalPoints !== undefined
+                            ? logicStats.totalPoints
+                            : 0}
+                          đ
                         </span>
                       </div>
                     </div>
-                    <div className="mt-2 pt-2 border-t border-green-200">
-                      <p className="text-sm text-gray-600">
-                        {submission?.review?.status === "pass"
-                          ? "Đánh giá: Đạt"
-                          : submission?.review?.status === "fail"
-                            ? "Đánh giá: Không đạt"
-                            : "Chưa có đánh giá"}
+
+                    <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                      <p className="font-medium text-yellow-800 mb-2 text-sm">
+                        Về điểm thô:
+                      </p>
+                      <ul className="list-disc pl-5 text-gray-700 space-y-2 text-sm">
+                        <li>
+                          Điểm thô phản ánh số điểm thực tế đạt được dựa trên độ
+                          khó của câu hỏi
+                        </li>
+                        <li>
+                          Câu hỏi Technical: Dễ (1đ), Trung bình (2đ), Khó (3đ)
+                        </li>
+                        <li>
+                          Điểm thô giúp phân biệt ứng viên có cùng tỷ lệ % nhưng
+                          trả lời các câu hỏi có độ khó khác nhau
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  {/* Công thức tính điểm */}
+                  <div className="bg-white rounded-lg shadow-lg p-6 border-l-4 border-green-500">
+                    <div className="flex justify-between items-center mb-4">
+                      <h2 className="text-xl font-semibold text-gray-800">
+                        Công thức tính điểm
+                      </h2>
+                      <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                        Kết quả: {totalScoreData.totalScore}đ
+                      </span>
+                    </div>
+
+                    <div className="bg-gradient-to-r from-blue-50 to-green-50 p-4 rounded-lg border border-blue-100 mb-4">
+                      <p className="text-gray-800 font-medium mb-3 text-sm">
+                        Công thức tính điểm tổng hợp:
+                      </p>
+                      <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                        <p className="mb-3 text-sm font-medium text-gray-700">
+                          Điểm tổng hợp = (Điểm Technical × 0.7) + (Điểm Kỹ năng
+                          mềm × 0.2) + (Điểm Tư duy logic × 0.1)
+                        </p>
+
+                        <div className="grid grid-cols-3 gap-2 mb-3">
+                          <div className="bg-blue-50 p-2 rounded text-center">
+                            <p className="text-xs text-gray-600">Technical</p>
+                            <p className="font-medium text-blue-700">
+                              {mcqScore.percentage}%
+                            </p>
+                            <p className="text-xs text-gray-500">× 0.7</p>
+                          </div>
+                          <div className="bg-purple-50 p-2 rounded text-center">
+                            <p className="text-xs text-gray-600">Kỹ năng mềm</p>
+                            <p className="font-medium text-purple-700">
+                              {instrumentsStats.percentage}%
+                            </p>
+                            <p className="text-xs text-gray-500">× 0.2</p>
+                          </div>
+                          <div className="bg-indigo-50 p-2 rounded text-center">
+                            <p className="text-xs text-gray-600">
+                              Tư duy logic
+                            </p>
+                            <p className="font-medium text-indigo-700">
+                              {logicStats.percentage}%
+                            </p>
+                            <p className="text-xs text-gray-500">× 0.1</p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-center space-x-2 text-sm font-medium text-gray-800 mb-2">
+                          <span className="bg-blue-100 px-2 py-1 rounded">
+                            {Math.round(totalScoreData.mcqContribution)}
+                          </span>
+                          <span>+</span>
+                          <span className="bg-purple-100 px-2 py-1 rounded">
+                            {Math.round(totalScoreData.instrumentsContribution)}
+                          </span>
+                          <span>+</span>
+                          <span className="bg-indigo-100 px-2 py-1 rounded">
+                            {Math.round(totalScoreData.logicContribution)}
+                          </span>
+                          <span>=</span>
+                          <span className="bg-green-100 px-3 py-1 rounded-lg font-bold">
+                            {totalScoreData.totalScore}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-green-50 p-3 rounded-lg border border-green-200 text-sm">
+                      <p className="font-medium text-green-800">
+                        Lưu ý về cách tính điểm:
+                      </p>
+                      <p className="text-gray-700 mt-1">
+                        Điểm tổng hợp được tính dựa trên tỷ lệ phần trăm của
+                        từng loại câu hỏi, với trọng số khác nhau cho mỗi loại.
                       </p>
                     </div>
                   </div>
