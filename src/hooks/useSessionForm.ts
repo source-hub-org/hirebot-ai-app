@@ -10,6 +10,7 @@ import { Answer } from "@/types/candidate";
 import { addAnswer, removeAnswersBySession } from "@/stores/candidateDetailSlice";
 import { ApiResponse } from "@/types/common";
 import logicService from "@/services/logicService";
+import { candidates } from "@/mock/data/candidates";
 
 export const useSessionForm = () => {
   const [formData, setFormData] = useState<SessionFormData>({
@@ -172,7 +173,7 @@ export const useSessionForm = () => {
         
         // Save generated questions to candidate answers
         generatedQuestions.data.forEach((question: Answer) => {
-          store.dispatch(addAnswer({ ...question, sessionId: Date.now() }));
+          store.dispatch(addAnswer({ ...question, sessionId: Date.now(), filter_fe: formData }));
         });
       }
       else if (questionsResponse?.data?.length) {
@@ -184,7 +185,7 @@ export const useSessionForm = () => {
         };
 
         questionsResponse.data.forEach((question: Answer) => {
-          store.dispatch(addAnswer({ ...question, sessionId: newSession.id }));
+          store.dispatch(addAnswer({ ...question, sessionId: newSession.id , filter_fe: formData }));
         });
 
         setGeneratedSessions((prev) => [...prev, newSession]);

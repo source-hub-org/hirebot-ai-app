@@ -107,7 +107,7 @@ const SessionPage = ({ params }: { params: { id?: string } }) => {
             />
 
             <Select
-              name="level"
+              name="position"
               value={formData.position}
               onChange={handleChange}
               label="Cấp độ"
