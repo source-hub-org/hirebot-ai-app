@@ -18,15 +18,15 @@ const SessionPage = ({ params }: { params: { id?: string } }) => {
 
   const { candidate: storedCandidate, isLoading } = useCandidates(id);
 
-  const { 
-    loading, 
-    formRef, 
-    formData, 
-    topicOptions, 
-    handleChange, 
-    setFormData, 
-    generatedSessions, 
-    handleGenerate, 
+  const {
+    loading,
+    formRef,
+    formData,
+    topicOptions,
+    handleChange,
+    setFormData,
+    generatedSessions,
+    handleGenerate,
     deleteSession,
     getQuestionBySession,
     questionShow,
@@ -41,11 +41,17 @@ const SessionPage = ({ params }: { params: { id?: string } }) => {
       language: storedCandidate?.skills?.[0] || "",
     }));
   }, [storedCandidate?.skills, setFormData]);
+  useEffect(() => {
+    setIsClient(true);
+    setFormData((prev) => ({
+      ...prev,
+      position: storedCandidate?.interview_level || "",
+    }));
+  }, [storedCandidate?.interview_level]);
 
   if (!storedCandidate || !isClient || isLoading) {
     return <LoadingSpinner />;
   }
-
 
   return (
     <>
@@ -164,41 +170,47 @@ const SessionPage = ({ params }: { params: { id?: string } }) => {
             <div className="space-y-4">
               {generatedSessions.map((session) => (
                 <div key={session.id} className="border p-4 rounded relative">
-                  <button 
+                  <button
                     onClick={() => deleteSession(session.id)}
                     className="px-4 py-2 bg-red-500 text-white rounded absolute top-2 right-2"
                   >
                     Xóa
                   </button>
-  
-                  <button 
+
+                  <button
                     onClick={() => getQuestionBySession(session)}
                     className="px-4 py-2 bg-primary text-white rounded absolute top-2 right-20"
                   >
                     Xem câu hỏi
                   </button>
-                  
+
                   <p>
-                    <span className="font-medium">Kỹ năng phỏng vấn:</span> {TYPES.find(type => type.value === session.type)?.label}
+                    <span className="font-medium">Kỹ năng phỏng vấn:</span>{" "}
+                    {TYPES.find((type) => type.value === session.type)?.label}
                   </p>
                   {session.type === TYPES[0].value && (
                     <>
                       <p>
-                        <span className="font-medium">Ngôn ngữ:</span> {session.language}
+                        <span className="font-medium">Ngôn ngữ:</span>{" "}
+                        {session.language}
                       </p>
                       <p>
-                        <span className="font-medium">Cấp độ:</span> {session.position}
+                        <span className="font-medium">Cấp độ:</span>{" "}
+                        {session.position}
                       </p>
                       <p>
-                        <span className="font-medium">Chủ đề:</span> {session.topic}
+                        <span className="font-medium">Chủ đề:</span>{" "}
+                        {session.topic}
                       </p>
                     </>
                   )}
                   <p>
-                    <span className="font-medium">Số câu hỏi:</span> {session.questionCount}
+                    <span className="font-medium">Số câu hỏi:</span>{" "}
+                    {session.questionCount}
                   </p>
                   <p>
-                    <span className="font-medium">Thời gian tạo:</span> {new Date(session.createdAt).toLocaleString()}
+                    <span className="font-medium">Thời gian tạo:</span>{" "}
+                    {new Date(session.createdAt).toLocaleString()}
                   </p>
                 </div>
               ))}
