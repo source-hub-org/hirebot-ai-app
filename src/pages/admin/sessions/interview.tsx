@@ -437,6 +437,11 @@ const InterviewPage = () => {
           if (q.is_skip === 1 || q.selectedAnswer === undefined) {
             pointValue = 0;
           }
+          // Kiểm tra xem đáp án có đúng không
+          else if (q.selectedAnswer !== q.correctAnswer) {
+            // Nếu đáp án không đúng, điểm luôn là 0
+            pointValue = 0;
+          }
           // Nếu có điểm tự chấm, sử dụng điểm đó
           else if (q.customPoint !== undefined) {
             pointValue = q.customPoint;
@@ -508,6 +513,11 @@ const InterviewPage = () => {
           if (q.is_skip === 1 || q.selectedAnswer === undefined) {
             pointValue = 0;
           }
+          // Kiểm tra xem đáp án có đúng không
+          else if (q.selectedAnswer !== q.correctAnswer) {
+            // Nếu đáp án không đúng, điểm luôn là 0
+            pointValue = 0;
+          }
           // Nếu có điểm tự chấm, sử dụng điểm đó
           else if (q.customPoint !== undefined) {
             pointValue = q.customPoint;
@@ -515,6 +525,10 @@ const InterviewPage = () => {
           // Nếu có điểm được tính sẵn, sử dụng điểm đó
           else if (q.point !== undefined) {
             pointValue = q.point;
+          }
+          // Nếu không có điểm nào và đáp án đúng, tính dựa trên độ khó
+          else if (q.selectedAnswer === q.correctAnswer) {
+            pointValue = calculatePointsByDifficulty(q.difficulty || "easy");
           }
 
           return {
