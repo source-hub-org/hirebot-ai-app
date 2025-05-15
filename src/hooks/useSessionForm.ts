@@ -140,7 +140,7 @@ export const useSessionForm = () => {
             .join(",") ?? "";
         questionsResponse = await instrumentService.get({
           page: 1,
-          limit: formData.questionCount,
+          page_size: formData.questionCount,
           mode: "full",
           sort_by: "createdAt",
           sort_direction: "desc",
@@ -157,14 +157,13 @@ export const useSessionForm = () => {
             .join(",") ?? "";
         questionsResponse = await logicService.get({
           page: 1,
-          limit: formData.questionCount,
+          page_size: formData.questionCount,
           mode: "full",
           sort_by: "createdAt",
           sort_direction: "desc",
           ignore_question_ids: existingQuestionIds,
         });
       }
-      formData.questionCount = questionsResponse?.data?.length || 0;
       if (
         !questionsResponse?.data?.length &&
         formData.type === TYPES[0].value
@@ -180,7 +179,10 @@ export const useSessionForm = () => {
           toast.error("Không thể tạo câu hỏi phù hợp");
           return;
         }
-        formData.questionCount = generatedQuestions?.data?.length || 0;
+        setFormData((prev) => ({
+          ...prev,
+          questionCount: generatedQuestions?.data?.length || 0,
+        }));
 
         // Save generated questions to candidate answers
         generatedQuestions.data.forEach((question: Answer) => {
@@ -192,12 +194,24 @@ export const useSessionForm = () => {
             }),
           );
         });
+        const newSession: Session = {
+          ...formData,
+          id: Date.now(),
+          createdAt: new Date().toISOString(),
+          questionCount: generatedQuestions.data.length,
+        };
+        setGeneratedSessions((prev) => [...prev, newSession]);
       } else if (questionsResponse?.data?.length) {
+        setFormData((prev) => ({
+          ...prev,
+          questionCount: questionsResponse?.data?.length || 0,
+        }));
         // Save found questions to candidate answers
         const newSession: Session = {
           ...formData,
           id: Date.now(),
           createdAt: new Date().toISOString(),
+          questionCount: questionsResponse.data.length,
         };
 
         questionsResponse.data.forEach((question: Answer) => {

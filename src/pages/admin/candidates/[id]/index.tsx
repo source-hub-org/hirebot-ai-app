@@ -421,8 +421,13 @@ export default function CandidateDetail() {
                 Không tìm thấy dữ liệu bài thi của ứng viên này
               </p>
               <div className="flex justify-center mt-4">
+                <Link href={`/admin/sessions/${id}`}>
+                  <button className="bg-primary text-white px-4 py-2 rounded hover:bg-primary-dark mr-4">
+                    Tạo phiên thi
+                  </button>
+                </Link>
                 <Link href="/admin/candidates">
-                  <button className="bg-primary text-white px-4 py-2 rounded hover:bg-primary-dark">
+                  <button className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">
                     Quay lại danh sách
                   </button>
                 </Link>
