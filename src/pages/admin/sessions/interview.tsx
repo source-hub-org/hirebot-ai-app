@@ -43,7 +43,8 @@ const InterviewPage = () => {
 
   // State để lưu review
   const [review, setReview] = useState({
-    comment: "",
+    candidateComment: "", // Nhận xét ứng viên
+    personalIntro: "", // Giới thiệu cá nhân + nguyện vọng
     status: "true",
   });
 
@@ -217,6 +218,8 @@ const InterviewPage = () => {
           return {
             ...q,
             selectedAnswer: optionIndex,
+            // Khi chọn đáp án, xóa nội dung ở câu trả lời khác
+            otherAnswer: "",
             // Cập nhật điểm dựa trên tính đúng sai và độ khó
             point: pointToUse,
           };
@@ -237,7 +240,18 @@ const InterviewPage = () => {
       const newAnswers = prev.map((q) => {
         if (q._id === questionId) {
           console.log(`Found question with id ${q._id}, updating otherAnswer`);
-          return { ...q, otherAnswer: text };
+
+          // Nếu có nội dung trong câu trả lời khác, xóa đáp án đã chọn
+          if (text.trim() !== "") {
+            return {
+              ...q,
+              otherAnswer: text,
+              selectedAnswer: undefined, // Xóa đáp án đã chọn
+            };
+          } else {
+            // Nếu xóa hết nội dung, chỉ cập nhật otherAnswer
+            return { ...q, otherAnswer: text };
+          }
         }
         return q;
       });
@@ -436,6 +450,11 @@ const InterviewPage = () => {
           if (q.is_skip === 1 || q.selectedAnswer === undefined) {
             pointValue = 0;
           }
+          // Kiểm tra xem đáp án có đúng không
+          else if (q.selectedAnswer !== q.correctAnswer) {
+            // Nếu đáp án không đúng, điểm luôn là 0
+            pointValue = 0;
+          }
           // Nếu có điểm tự chấm, sử dụng điểm đó
           else if (q.customPoint !== undefined) {
             pointValue = q.customPoint;
@@ -507,6 +526,11 @@ const InterviewPage = () => {
           if (q.is_skip === 1 || q.selectedAnswer === undefined) {
             pointValue = 0;
           }
+          // Kiểm tra xem đáp án có đúng không
+          else if (q.selectedAnswer !== q.correctAnswer) {
+            // Nếu đáp án không đúng, điểm luôn là 0
+            pointValue = 0;
+          }
           // Nếu có điểm tự chấm, sử dụng điểm đó
           else if (q.customPoint !== undefined) {
             pointValue = q.customPoint;
@@ -514,6 +538,10 @@ const InterviewPage = () => {
           // Nếu có điểm được tính sẵn, sử dụng điểm đó
           else if (q.point !== undefined) {
             pointValue = q.point;
+          }
+          // Nếu không có điểm nào và đáp án đúng, tính dựa trên độ khó
+          else if (q.selectedAnswer === q.correctAnswer) {
+            pointValue = calculatePointsByDifficulty(q.difficulty || "easy");
           }
 
           return {
@@ -538,7 +566,7 @@ const InterviewPage = () => {
           is_skip: essay.answer.trim() === "" ? 1 : 0,
         },
         review: {
-          comment: review.comment,
+          comment: `Nhận xét của người phỏng vấn: ${review.candidateComment}\n\nNguyện vọng và giới thiệu cá nhân của ứng viên: ${review.personalIntro}`,
           status: review.status,
         },
       };
@@ -934,70 +962,83 @@ const InterviewPage = () => {
                     className="border border-gray-200 rounded-lg p-4"
                     data-question-id={question._id}
                   >
-                    <div className="flex justify-between">
-                      <div className="flex items-center">
-                        <h3 className="font-bold text-lg mb-2 mr-3">
-                          Câu {index + 1}
-                        </h3>
-                        <div className="mb-2 flex items-center">
+                    {/* Header của câu hỏi - Cấu trúc mới với 2 dòng */}
+                    <div className="mb-3">
+                      {/* Dòng 1: Số câu, điểm và nút bỏ qua */}
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center">
+                          <h3 className="font-bold text-lg mr-3">
+                            Câu {index + 1}
+                          </h3>
                           {/* Hiển thị điểm hiện tại */}
                           <div className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium mr-2">
                             Điểm:{" "}
                             {question.point !== undefined ? question.point : 0}
                           </div>
 
-                          <button
-                            type="button"
-                            onClick={() =>
-                              handleSkipQuestion(
-                                question._id ||
-                                  question.questionId ||
-                                  `question_${index}`,
-                                !question.is_skip,
-                              )
-                            }
-                            className={`px-3 py-1 rounded-md text-sm font-medium ${
-                              question.is_skip
-                                ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                                : "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
-                            }`}
-                          >
-                            {question.is_skip ? "Đã bỏ qua" : "Bỏ qua câu hỏi"}
-                          </button>
-                        </div>
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        <span className="mr-3">
-                          Ngôn ngữ: {question.language}
-                        </span>
-                        <span className="mr-3">
-                          Cấp độ: {question.position}
-                        </span>
-                        <span className="mr-3">
-                          Danh mục: {question.category}
-                        </span>
-                        {question.difficulty && (
-                          <span className="mr-3">
-                            Độ khó:
-                            <span
-                              className={`ml-1 px-2 py-0.5 rounded-full text-xs ${
-                                question.difficulty === "easy"
-                                  ? "bg-green-100 text-green-800"
+                          {/* Hiển thị độ khó */}
+                          {question.difficulty && (
+                            <div className="mr-2">
+                              <span
+                                className={`px-2 py-0.5 rounded-full text-xs ${
+                                  question.difficulty === "easy"
+                                    ? "bg-green-100 text-green-800"
+                                    : question.difficulty === "medium"
+                                      ? "bg-yellow-100 text-yellow-800"
+                                      : "bg-red-100 text-red-800"
+                                }`}
+                              >
+                                {question.difficulty === "easy"
+                                  ? "Dễ"
                                   : question.difficulty === "medium"
-                                    ? "bg-yellow-100 text-yellow-800"
-                                    : "bg-red-100 text-red-800"
-                              }`}
-                            >
-                              {question.difficulty === "easy"
-                                ? "Dễ"
-                                : question.difficulty === "medium"
-                                  ? "Trung bình"
-                                  : "Khó"}
-                            </span>
-                          </span>
-                        )}
+                                    ? "Trung bình"
+                                    : "Khó"}
+                              </span>
+                            </div>
+                          )}
+                        </div>
 
-                        {/* Removed scoring section and result display from here */}
+                        {/* Nút bỏ qua */}
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleSkipQuestion(
+                              question._id ||
+                                question.questionId ||
+                                `question_${index}`,
+                              !question.is_skip,
+                            )
+                          }
+                          className={`px-3 py-1 rounded-md text-sm font-medium ${
+                            question.is_skip
+                              ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                              : "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
+                          }`}
+                        >
+                          {question.is_skip ? "Đã bỏ qua" : "Bỏ qua câu hỏi"}
+                        </button>
+                      </div>
+
+                      {/* Dòng 2: Thông tin chi tiết về câu hỏi */}
+                      <div className="flex flex-wrap text-sm text-gray-500">
+                        {question.language && (
+                          <div className="mr-4 mb-1">
+                            <span className="font-medium">Ngôn ngữ:</span>{" "}
+                            {question.language}
+                          </div>
+                        )}
+                        {question.position && (
+                          <div className="mr-4 mb-1">
+                            <span className="font-medium">Cấp độ:</span>{" "}
+                            {question.position}
+                          </div>
+                        )}
+                        {question.category && (
+                          <div className="mr-4 mb-1">
+                            <span className="font-medium">Danh mục:</span>{" "}
+                            {question.category}
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -1092,22 +1133,67 @@ const InterviewPage = () => {
                           {question.options.map((option, optionIndex) => (
                             <div
                               key={optionIndex}
-                              className={`p-3 rounded-lg ${question.is_skip ? "cursor-not-allowed opacity-60" : "cursor-pointer"} ${
+                              className={`p-3 rounded-lg ${
+                                question.is_skip ||
+                                (question.otherAnswer &&
+                                  question.otherAnswer.trim() !== "")
+                                  ? "cursor-not-allowed opacity-60"
+                                  : "cursor-pointer"
+                              } ${
                                 question.selectedAnswer === optionIndex
                                   ? "bg-blue-100 border border-blue-300"
                                   : "bg-gray-50 border border-gray-200 hover:bg-gray-100"
                               }`}
                               onClick={() => {
-                                if (!question.is_skip) {
+                                // Lấy ID của câu hỏi
+                                const questionId =
+                                  question._id ||
+                                  question.questionId ||
+                                  `question_${optionIndex}`;
+
+                                // Nếu đáp án này đã được chọn, bỏ chọn nó
+                                if (question.selectedAnswer === optionIndex) {
+                                  // Bỏ chọn đáp án
+                                  setCandidateAnswers((prev) => {
+                                    const newAnswers = prev.map((q) => {
+                                      if (q._id === questionId) {
+                                        console.log(
+                                          `Unselecting answer for question ${q._id}`,
+                                        );
+                                        return {
+                                          ...q,
+                                          selectedAnswer: undefined, // Xóa đáp án đã chọn
+                                          // Giữ nguyên điểm
+                                          point: q.point,
+                                        };
+                                      }
+                                      return q;
+                                    });
+                                    return newAnswers;
+                                  });
+
+                                  toast.info("Đã bỏ chọn đáp án");
+                                  return;
+                                }
+
+                                // Kiểm tra nếu câu hỏi không bị bỏ qua và không có nội dung trong câu trả lời khác
+                                if (
+                                  !question.is_skip &&
+                                  (!question.otherAnswer ||
+                                    question.otherAnswer.trim() === "")
+                                ) {
                                   console.log(
                                     `Clicked option ${optionIndex} for question with id ${question._id}`,
                                   );
-                                  // Use _id if available, otherwise fall back to questionId or a generated ID
-                                  const questionId =
-                                    question._id ||
-                                    question.questionId ||
-                                    `question_${optionIndex}`;
                                   handleSelectAnswer(questionId, optionIndex);
+                                } else if (
+                                  question.otherAnswer &&
+                                  question.otherAnswer.trim() !== ""
+                                ) {
+                                  // Hiển thị thông báo nếu có nội dung trong câu trả lời khác
+                                  toast.warning(
+                                    "Không thể chọn đáp án khi đã có nội dung trong câu trả lời khác. Vui lòng xóa nội dung câu trả lời khác trước.",
+                                  );
                                 }
                               }}
                             >
@@ -1150,12 +1236,26 @@ const InterviewPage = () => {
                         </div>
                         <div className="flex-1">
                           <p className="font-medium mb-1">Câu trả lời khác:</p>
+                          {question.selectedAnswer !== undefined && (
+                            <p className="text-sm text-orange-600 mb-1">
+                              Không thể nhập câu trả lời khác khi đã chọn đáp
+                              án. Vui lòng xóa đáp án đã chọn trước.
+                            </p>
+                          )}
                           <textarea
-                            className={`w-full border border-gray-300 rounded-lg p-2 min-h-[80px] ${question.is_skip ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                            className={`w-full border border-gray-300 rounded-lg p-2 min-h-[80px] ${
+                              question.is_skip ||
+                              question.selectedAnswer !== undefined
+                                ? "bg-gray-100 cursor-not-allowed"
+                                : ""
+                            }`}
                             placeholder="Nhập câu trả lời khác của ứng viên..."
                             value={question.otherAnswer || ""}
                             onChange={(e) => {
-                              if (!question.is_skip) {
+                              if (
+                                !question.is_skip &&
+                                question.selectedAnswer === undefined
+                              ) {
                                 console.log(
                                   `Changing other answer for question with id ${question._id}`,
                                 );
@@ -1167,9 +1267,20 @@ const InterviewPage = () => {
                                     "",
                                   e.target.value,
                                 );
+                              } else if (
+                                question.selectedAnswer !== undefined &&
+                                e.target.value.trim() !== ""
+                              ) {
+                                // Hiển thị thông báo nếu có đáp án đã chọn
+                                toast.warning(
+                                  "Không thể nhập câu trả lời khác khi đã chọn đáp án. Vui lòng xóa đáp án đã chọn trước.",
+                                );
                               }
                             }}
-                            disabled={question.is_skip === 1}
+                            disabled={
+                              question.is_skip === 1 ||
+                              question.selectedAnswer !== undefined
+                            }
                           />
                         </div>
                       </div>
@@ -1341,50 +1452,38 @@ const InterviewPage = () => {
 
             <div className="mb-4">
               <label
-                htmlFor="review-comment"
+                htmlFor="review-candidate-comment"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                Nhận xét và thông tin nguyện vọng của ứng viên:
+                Nhận xét ứng viên:
               </label>
               <textarea
-                id="review-comment"
+                id="review-candidate-comment"
                 className="w-full border border-gray-300 rounded-lg p-3 min-h-[100px]"
-                placeholder="Nhập nhận xét và thông tin nguyện vọng của ứng viên"
-                value={review.comment}
+                placeholder="Nhập nhận xét về ứng viên"
+                value={review.candidateComment}
                 onChange={(e) =>
-                  setReview({ ...review, comment: e.target.value })
+                  setReview({ ...review, candidateComment: e.target.value })
                 }
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Trạng thái:
+            <div className="mb-4">
+              <label
+                htmlFor="review-personal-intro"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Giới thiệu cá nhân và nguyện vọng:
               </label>
-              <div className="flex items-center space-x-4">
-                <label className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    className="form-radio h-5 w-5 text-blue-600"
-                    name="review-status"
-                    value="true"
-                    checked={review.status === "true"}
-                    onChange={() => setReview({ ...review, status: "true" })}
-                  />
-                  <span className="ml-2 text-gray-700">Đạt</span>
-                </label>
-                <label className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    className="form-radio h-5 w-5 text-red-600"
-                    name="review-status"
-                    value="false"
-                    checked={review.status === "false"}
-                    onChange={() => setReview({ ...review, status: "false" })}
-                  />
-                  <span className="ml-2 text-gray-700">Không đạt</span>
-                </label>
-              </div>
+              <textarea
+                id="review-personal-intro"
+                className="w-full border border-gray-300 rounded-lg p-3 min-h-[100px]"
+                placeholder="Nhập thông tin giới thiệu cá nhân và nguyện vọng của ứng viên"
+                value={review.personalIntro}
+                onChange={(e) =>
+                  setReview({ ...review, personalIntro: e.target.value })
+                }
+              />
             </div>
           </div>
 
